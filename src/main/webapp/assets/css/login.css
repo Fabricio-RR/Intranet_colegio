@@ -30,3 +30,32 @@
     background-color: var(--primary-hover);
     border-color: var(--primary-hover);
 }
+.custom-header {
+            background-color: #0A0A3D;
+        }
+        .custom-text {
+            color: #0A0A3D;
+        }
+        .error-message {
+            color: red;
+            font-size: 0.9em;
+            display: none;
+        }
+        .input-error {
+            border-color: #ff0000;
+        }
+        .input-group-append i {
+            color: #ff0000;
+        }
+        .hidden {
+            display: none;
+        }
+        @media (max-width: 576px) {
+            .custom-header h1 {
+                font-size: 1.2rem;
+            }
+            .custom-header img {
+                width: 60px;
+                height: 70px;
+            }
+        }
