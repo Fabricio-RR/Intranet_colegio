@@ -41,7 +41,7 @@ public class DatabaseConfig {
         properties.setProperty("db.password", "12345");
         properties.setProperty("db.pool.minSize", "5");
         properties.setProperty("db.pool.maxSize", "50");
-        properties.setProperty("db.pool.timeout", "2000");
+        properties.setProperty("db.pool.timeout", "3000");
     }
 
     private static void initDataSource() {
@@ -53,7 +53,7 @@ public class DatabaseConfig {
 
         config.setMinimumIdle(Integer.parseInt(properties.getProperty("db.pool.minSize", "5")));
         config.setMaximumPoolSize(Integer.parseInt(properties.getProperty("db.pool.maxSize", "50")));
-        config.setConnectionTimeout(Long.parseLong(properties.getProperty("db.pool.timeout", "2000")));
+        config.setConnectionTimeout(Long.parseLong(properties.getProperty("db.pool.timeout", "3000")));
 
         // Configuraciones adicionales
         config.addDataSourceProperty("cachePrepStmts", "true");
@@ -123,10 +123,10 @@ public class DatabaseConfig {
     }
 
     public static int getMaxPoolSize() {
-        return Integer.parseInt(properties.getProperty("db.pool.maxSize", "20"));
+        return Integer.parseInt(properties.getProperty("db.pool.maxSize", "50"));
     }
 
     public static int getTimeout() {
-        return Integer.parseInt(properties.getProperty("db.pool.timeout", "30000"));
+        return Integer.parseInt(properties.getProperty("db.pool.timeout", "3000"));
     }
 }
