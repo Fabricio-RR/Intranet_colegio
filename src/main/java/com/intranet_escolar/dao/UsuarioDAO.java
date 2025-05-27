@@ -1,0 +1,107 @@
+
+package com.intranet_escolar.dao;
+
+import java.sql.*;
+import java.util.*;
+import at.favre.lib.crypto.bcrypt.BCrypt;
+import com.intranet_escolar.config.DatabaseConfig;
+import com.intranet_escolar.model.entity.Permiso;
+import com.intranet_escolar.model.entity.Rol;
+import com.intranet_escolar.model.entity.Usuario;
+
+public class UsuarioDAO {
+
+    public UsuarioDAO() {
+    }
+    
+    public Usuario login(String dni, String claveIngresada) {
+        Usuario usuario = null;
+
+        try (Connection con = DatabaseConfig.getConnection();
+             CallableStatement cs = con.prepareCall("{ CALL sp_login_usuario(?) }")) {
+
+            cs.setString(1, dni);
+
+            try (ResultSet rs = cs.executeQuery()) {
+                String claveHasheadaBD = null;
+                Map<Integer, Rol> rolesMap = new HashMap<>();
+
+                while (rs.next()) {
+                    if (usuario == null) {
+                        usuario = new Usuario();
+                        usuario.setIdUsuario(rs.getInt("id_usuario"));
+                        usuario.setDni(rs.getString("dni"));
+                        usuario.setNombres(rs.getString("nombres"));
+                        usuario.setApellidos(rs.getString("apellidos"));
+                        usuario.setCorreo(rs.getString("correo"));
+                        usuario.setTelefono(rs.getString("telefono"));
+                        usuario.setEstado(rs.getBoolean("estado"));
+                        usuario.setFotoPerfil(rs.getString("foto_perfil"));
+                        claveHasheadaBD = rs.getString("clave");
+                    }
+
+                    int idRol = rs.getInt("id_rol");
+                    String nombreRol = rs.getString("rol_nombre");
+                    String descripcionRol = rs.getString("rol_descripcion");
+
+                    // Agregar rol solo si no está repetido
+                    if (!rolesMap.containsKey(idRol)) {
+                        rolesMap.put(idRol, new Rol(idRol, nombreRol, descripcionRol));
+                    }
+                }
+
+                // Verificación de contraseña usando BCrypt
+                if (usuario != null && claveHasheadaBD != null) {
+                    BCrypt.Result resultado = BCrypt.verifyer().verify(claveIngresada.toCharArray(), claveHasheadaBD);
+                    if (resultado.verified) {
+                        usuario.setRoles(new ArrayList<>(rolesMap.values()));
+                    } else {
+                        usuario = null; // Clave incorrecta
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error en login: " + e.getMessage());
+            usuario = null;
+        }
+
+        return usuario;
+    }
+    
+    public List<Permiso> obtenerPermisos(List<Rol> roles) {
+        List<Permiso> permisos = new ArrayList<>();
+        if (roles == null || roles.isEmpty()) return permisos;
+
+        String sql = "SELECT DISTINCT p.id_permiso, p.nombre, p.descripcion " +
+                     "FROM permiso p " +
+                     "INNER JOIN rol_permiso rp ON p.id_permiso = rp.id_permiso " +
+                     "WHERE rp.id_rol IN (%s)";
+        String placeholders = String.join(",", Collections.nCopies(roles.size(), "?"));
+        sql = String.format(sql, placeholders);
+
+        try (Connection con = DatabaseConfig.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            for (int i = 0; i < roles.size(); i++) {
+                ps.setInt(i + 1, roles.get(i).getIdRol());
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Permiso permiso = new Permiso();
+                    permiso.setIdPermiso(rs.getInt("id_permiso"));
+                    permiso.setNombre(rs.getString("nombre"));
+                    permiso.setDescripcion(rs.getString("descripcion"));
+                    permisos.add(permiso);
+                }
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error obteniendo permisos: " + e.getMessage());
+        }
+
+        return permisos;
+    }
+}
+
