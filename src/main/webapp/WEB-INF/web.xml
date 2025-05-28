@@ -32,11 +32,11 @@
     
     <!-- Página de inicio -->
     <welcome-file-list>
-    <welcome-file>views/login.jsp</welcome-file>
+    <welcome-file>login</welcome-file>
     </welcome-file-list>
 
     
-    <!-- Configuración de errores -->
+    <!-- Configuración de errores-->
     <error-page>
         <error-code>404</error-code>
         <location>/error/404.jsp</location>

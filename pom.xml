@@ -20,7 +20,6 @@
 
         <jakartaee.version>10.0.0</jakartaee.version>
         <jstl.version>3.0.0</jstl.version>
-        <jsp.version>3.1.0</jsp.version>
         <mysql.version>8.0.33</mysql.version>
         <hikaricp.version>5.1.0</hikaricp.version>
         <bcrypt.version>0.10.2</bcrypt.version>
@@ -35,7 +34,7 @@
     </properties>
 
     <dependencies>
-        <!-- Jakarta EE API (provided by container) -->
+        <!-- Jakarta EE API (proporcionado por Tomcat 10.1) -->
         <dependency>
             <groupId>jakarta.platform</groupId>
             <artifactId>jakarta.jakartaee-api</artifactId>
@@ -43,12 +42,7 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- JSP y JSTL -->
-        <dependency>
-            <groupId>org.glassfish.web</groupId>
-            <artifactId>jakarta.servlet.jsp</artifactId>
-            <version>${jsp.version}</version>
-        </dependency>
+        <!-- JSTL -->
         <dependency>
             <groupId>jakarta.servlet.jsp.jstl</groupId>
             <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
@@ -68,11 +62,16 @@
             <version>${mysql.version}</version>
         </dependency>
 
-        <!-- BCrypt -->
+        <!-- BCrypt 
         <dependency>
             <groupId>at.favre.lib</groupId>
             <artifactId>bcrypt</artifactId>
             <version>${bcrypt.version}</version>
+        </dependency>-->
+        <dependency>
+            <groupId>org.mindrot</groupId>
+            <artifactId>jbcrypt</artifactId>
+            <version>0.4</version>
         </dependency>
 
         <!-- HikariCP -->
