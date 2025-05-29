@@ -20,53 +20,13 @@
 <body class="admin-dashboard">
     <!-- Sidebar -->
     <jsp:include page="/includes/sidebar.jsp" />
-
+    
     <!-- Header fijo -->
-<header class="dashboard-header">
-    <div class="d-flex justify-content-between align-items-center h-100">
-        <!-- Lado izquierdo: Botón toggle y título -->
-        <div class="d-flex align-items-center">
-            <!-- Botón toggle para móvil -->
-            <button type="button" class="sidebar-toggle d-lg-none me-3" id="sidebarToggle" aria-label="Abrir menú">
-                <i class="fas fa-bars"></i>
-            </button>
-            
-            <!-- Título - oculto en móvil pequeño -->
-            <h1 class="h2 mb-0 d-none d-md-block">Panel de Administración</h1>
-            <h1 class="h5 mb-0 d-md-none">Dashboard</h1>
-        </div>
-
-        <!-- Lado derecho: Botones y menú usuario -->
-        <div class="d-flex align-items-center">
-            <!-- Botón actualizar -->
-            <button class="btn btn-admin-primary btn-sm me-2" id="refreshData">
-                <i class="fas fa-sync-alt d-md-none"></i>
-                <span class="d-none d-md-inline">
-                    <i class="fas fa-sync-alt me-1"></i>
-                    Actualizar
-                </span>
-            </button>
-            
-            <!-- Menú usuario -->
-            <div class="dropdown">
-                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-user-circle me-1"></i>
-                    <span class="d-none d-sm-inline">${sessionScope.usuario.nombres} ${sessionScope.usuario.apellidos}</span>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
-                    <li><a class="dropdown-item" href="${pageContext.request.contextPath}/views/perfil/index.jsp"><i class="fas fa-user me-2"></i>Mi Perfil</a></li>
-                    <li><a class="dropdown-item" href="${pageContext.request.contextPath}/views/configuracion/index.jsp"><i class="fas fa-cog me-2"></i>Configuración</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="${pageContext.request.contextPath}/controller/auth?action=logout"><i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</a></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</header>
-
-<!-- Overlay para móviles -->
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
-
+    <%
+        request.setAttribute("tituloPagina", "Panel de Administración");
+    %>
+    <jsp:include page="/includes/header.jsp" />
+   
     <!-- Main Content con scroll -->
     <main class="main-content">
         <!-- Información adicional -->

@@ -1,37 +1,41 @@
-/*
 package com.intranet_escolar.filter;
 
-import jakarta.servlet.Filter;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
+import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+
 import java.io.IOException;
 
-@WebFilter("/*")
+@WebFilter("/*") // Aplica a todas las rutas
 public class AuthFilter implements Filter {
 
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-        throws IOException, ServletException {
+    @Override
+    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+            throws IOException, ServletException {
 
-        HttpServletRequest req = (HttpServletRequest) request;
-        HttpServletResponse resp = (HttpServletResponse) response;
-        String uri = req.getRequestURI();
-        HttpSession session = req.getSession(false);
+        HttpServletRequest request = (HttpServletRequest) req;
+        HttpServletResponse response = (HttpServletResponse) res;
 
-        boolean loggedIn = (session != null && session.getAttribute("usuarioLogueado") != null);
-        boolean isLoginPage = uri.endsWith("login.jsp") || uri.endsWith("/login");
+        String path = request.getRequestURI();
+        HttpSession session = request.getSession(false);
 
-        if (!loggedIn && !isLoginPage && !uri.contains("resources")) {
-            resp.sendRedirect(req.getContextPath() + "/views/auth/login.jsp");
+        boolean isLoginRequest = path.endsWith("login") || path.endsWith("login.jsp");
+        boolean isPublicAsset = path.contains("/assets/") || path.endsWith(".css") || path.endsWith(".js") || path.endsWith(".png") || path.endsWith(".jpg");
+
+        boolean loggedIn = session != null && session.getAttribute("usuario") != null;
+
+        if (loggedIn || isLoginRequest || isPublicAsset) {
+            chain.doFilter(req, res); // Permitir acceso
         } else {
-            chain.doFilter(request, response);
+            response.sendRedirect(request.getContextPath() + "/views/login.jsp"); // Redirigir a login
         }
     }
-}
 
-eliminar*/
+    @Override
+    public void init(FilterConfig filterConfig) {}
+
+    @Override
+    public void destroy() {}
+}
