@@ -22,11 +22,12 @@ public class AuthFilter implements Filter {
         HttpSession session = request.getSession(false);
 
         boolean isLoginRequest = path.endsWith("login") || path.endsWith("login.jsp");
+        boolean isRecuperarRequest = path.contains("recuperar") || path.endsWith("recuperar.jsp");
         boolean isPublicAsset = path.contains("/assets/") || path.endsWith(".css") || path.endsWith(".js") || path.endsWith(".png") || path.endsWith(".jpg");
 
         boolean loggedIn = session != null && session.getAttribute("usuario") != null;
 
-        if (loggedIn || isLoginRequest || isPublicAsset) {
+        if (loggedIn || isLoginRequest || isRecuperarRequest || isPublicAsset) {
             chain.doFilter(req, res); // Permitir acceso
         } else {
             response.sendRedirect(request.getContextPath() + "/views/login.jsp"); // Redirigir a login

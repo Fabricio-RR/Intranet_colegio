@@ -88,7 +88,9 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fas fa-id-card"></i></span>
                             </div>
-                            <input type="text" class="form-control" id="dni" name="dni" placeholder="Ingrese su DNI" required>
+                            <input type="text" class="form-control" id="dni" name="dni"
+                        placeholder="Ingrese su DNI" required pattern="[0-9]{8}" maxlength="8"
+                        title="El DNI debe contener 8 dígitos numéricos.">
                         </div>
                     </div>
                     
@@ -98,15 +100,15 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fas fa-envelope"></i></span>
                             </div>
-                            <input type="email" class="form-control" id="email" name="email" placeholder="Ingrese su correo electrónico" required>
+                            <input type="email" class="form-control" id="email" name="email" required placeholder="Ingrese su correo electrónico" required>
                         </div>
                     </div>
                     
                     <div class="d-grid gap-2">
-                        <button type="button" class="btn btn-danger w-100 mt-3" id="btnPaso1">
+                        <button type="submit" class="btn btn-danger w-100 mt-3" id="btnPaso1">
                             <i class="fas fa-paper-plane mr-2"></i>Enviar código de verificación
                         </button>
-                        <a href="${pageContext.request.contextPath}/login.jsp" class="btn btn-outline-secondary w-100 mt-2">
+                        <a href="${pageContext.request.contextPath}/views/login.jsp" class="btn btn-outline-secondary w-100 mt-2">
                             <i class="fas fa-arrow-left mr-2"></i>Volver al inicio de sesión
                         </a>
                     </div>
@@ -133,7 +135,7 @@
                     </div>
                     
                     <div class="d-grid gap-2">
-                        <button type="button" class="btn btn-danger w-100 mt-3" id="btnPaso2">
+                        <button type="submit" class="btn btn-danger w-100 mt-3" id="btnPaso2">
                             <i class="fas fa-check-circle mr-2"></i>Verificar código
                         </button>
                         <button type="button" class="btn btn-outline-secondary w-100 mt-2" id="btnReenviarCodigo">
