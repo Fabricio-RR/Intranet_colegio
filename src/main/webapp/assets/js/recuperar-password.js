@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function () {
     btnPaso1.addEventListener('click', function () {
     const dni = dniInput.value.trim();
     const email = emailInput.value.trim();
-
+    
     if (dni === '' || email === '') {
         alert('Todos los campos son obligatorios.');
         return;
@@ -62,8 +62,6 @@ document.addEventListener('DOMContentLoaded', function () {
         emailInput.focus();
         return;
     }
-
-    // Simulación de éxito: avanzar al paso 2
     goToStep(2);
     iniciarTemporizador(5 * 60);
     });

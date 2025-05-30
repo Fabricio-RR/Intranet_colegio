@@ -105,7 +105,6 @@ public class DatabaseConfig {
         }
     }
 
-    // Getters 
     public static String getDriver() {
         return properties.getProperty("db.driver");
     }

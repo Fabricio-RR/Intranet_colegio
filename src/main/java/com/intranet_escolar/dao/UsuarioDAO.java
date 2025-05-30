@@ -110,5 +110,28 @@ public class UsuarioDAO {
 
         return permisos;
     }
+    
+    public boolean actualizarClavePorDni(String dni, String nuevaClave) {
+        Connection conn = null;
+        CallableStatement stmt = null;
+        boolean actualizado = false;
+
+        try {
+            conn = DatabaseConfig.getConnection();
+
+            String hash = BCrypt.hashpw(nuevaClave, BCrypt.gensalt());
+
+            stmt = conn.prepareCall("{CALL sp_actualizar_clave_usuario(?, ?)}");
+            stmt.setString(1, dni);
+            stmt.setString(2, hash);
+
+            actualizado = stmt.executeUpdate() > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Error al actualizar contraseña: " + e.getMessage());
+        } 
+        return actualizado;
+    }
 }
 
