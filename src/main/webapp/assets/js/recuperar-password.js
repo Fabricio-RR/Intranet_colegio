@@ -35,7 +35,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const btnPaso3 = document.getElementById('btnPaso3');
     const btnVolverPaso1 = document.getElementById('btnVolverPaso1');
     const btnVolverPaso2 = document.getElementById('btnVolverPaso2');
-    const btnReenviarCodigo = document.getElementById('btnReenviarCodigo');
 
     const dniInput = document.getElementById('dni');
     const emailInput = document.getElementById('email');
@@ -68,7 +67,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const email = emailInput.value.trim();
 
         if (dni === '' || email === '') {
-            alert('Todos los campos son obligatorios.');
             return;
         }
 
@@ -76,20 +74,15 @@ document.addEventListener('DOMContentLoaded', function () {
         const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
         if (!dniValido) {
-            alert('El DNI debe tener 8 dígitos numéricos.');
             dniInput.focus();
             return;
         }
 
         if (!emailValido) {
-            alert('Ingrese un correo electrónico válido.');
             emailInput.focus();
             return;
         }
 
-        // Si usas form, este botón debería ser submit. Si es manual:
-        // goToStep(2);
-        // iniciarTemporizador(5 * 60);
     });
 
     btnPaso2.addEventListener('click', function () {
@@ -101,12 +94,6 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             alert('El código debe tener 6 dígitos numéricos.');
         }
-    });
-
-    btnReenviarCodigo.addEventListener('click', function () {
-        alert('Se ha reenviado el código al correo electrónico.');
-        codeInputs.forEach(input => input.value = "");
-        iniciarTemporizador(5 * 60);
     });
 
     newPasswordInput.addEventListener('input', function () {
@@ -130,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function () {
     btnPaso3.addEventListener('click', function (e) {
         if (newPasswordInput.value !== confirmPasswordInput.value) {
             e.preventDefault();
-            alert('Las contraseñas no coinciden.');
+            
         }
     });
 

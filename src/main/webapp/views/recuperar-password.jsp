@@ -127,24 +127,20 @@
                     <input type="hidden" name="codigo" id="codigoInput">
 
                     <div class="verification-code">
-                        <input type="text" maxlength="1" class="form-control code-input" required>
-                        <input type="text" maxlength="1" class="form-control code-input" required>
-                        <input type="text" maxlength="1" class="form-control code-input" required>
-                        <input type="text" maxlength="1" class="form-control code-input" required>
-                        <input type="text" maxlength="1" class="form-control code-input" required>
-                        <input type="text" maxlength="1" class="form-control code-input" required>
+                        <input type="text" maxlength="1" class="form-control code-input" required pattern="[0-9]">
+                        <input type="text" maxlength="1" class="form-control code-input" required pattern="[0-9]">
+                        <input type="text" maxlength="1" class="form-control code-input" required pattern="[0-9]">
+                        <input type="text" maxlength="1" class="form-control code-input" required pattern="[0-9]">
+                        <input type="text" maxlength="1" class="form-control code-input" required pattern="[0-9]">
+                        <input type="text" maxlength="1" class="form-control code-input" required pattern="[0-9]">
                     </div>
                     
                     <div class="text-center mb-4">
                         <span id="countdown" class="text-muted">El código expira en: 05:00</span>
                     </div>
-                    
                     <div class="d-grid gap-2">
                         <button type="button" class="btn btn-danger w-100 mt-3" id="btnPaso2">
                             <i class="fas fa-check-circle mr-2"></i>Verificar código
-                        </button>
-                        <button type="button" class="btn btn-outline-secondary w-100 mt-2" id="btnReenviarCodigo">
-                            <i class="fas fa-sync-alt mr-2"></i>Reenviar código
                         </button>
                         <button type="button" class="btn btn-link w-100" id="btnVolverPaso1">
                             <i class="fas fa-arrow-left mr-2"></i>Volver
