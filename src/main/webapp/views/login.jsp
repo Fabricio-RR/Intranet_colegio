@@ -41,7 +41,7 @@
                         </div>
                         <input type="text" class="form-control" id="dni" name="dni"
                         placeholder="Ingrese su DNI" required pattern="[0-9]{8}" maxlength="8"
-                        title="El DNI debe contener 8 dígitos numéricos.">
+                        title="El DNI debe contener 8 dígitos numéricos." autocomplete="off">
 
                         <div class="input-group-append">
                             <span class="input-group-text hidden" id="dni-error-icon">
@@ -60,7 +60,7 @@
                         </div>
                         <input type="password" class="form-control" id="password" name="password"
                         placeholder="Ingrese su contraseña" required oninput="this.value = this.value.replace(/\s/g, '')"
-                        title="La contraseña no puede estar vacía.">
+                        title="La contraseña no puede estar vacía." autocomplete="off">
                         <div class="input-group-append">
                             <button class="btn btn-outline-secondary" type="button" id="togglePassword" aria-label="Mostrar/Ocultar contraseña">
                                 <i class="fas fa-eye"></i>

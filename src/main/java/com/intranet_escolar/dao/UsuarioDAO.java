@@ -111,6 +111,26 @@ public class UsuarioDAO {
         return permisos;
     }
     
+    public boolean existeUsuarioPorDniYCorreo(String dni, String correo) {
+    boolean existe = false;
+
+    try (Connection conn = DatabaseConfig.getConnection();
+         CallableStatement cs = conn.prepareCall("{CALL sp_validar_usuario_dni_correo(?, ?, ?)}")) {
+
+        cs.setString(1, dni);
+        cs.setString(2, correo);
+        cs.registerOutParameter(3, Types.BOOLEAN);
+        cs.execute();
+
+        existe = cs.getBoolean(3);
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return existe;
+}
+    
     public boolean actualizarClavePorDni(String dni, String nuevaClave) {
         Connection conn = null;
         CallableStatement stmt = null;
@@ -134,4 +154,5 @@ public class UsuarioDAO {
         return actualizado;
     }
 }
+
 

@@ -92,7 +92,7 @@
                             </div>
                             <input type="text" class="form-control" id="dni" name="dni"
                                    placeholder="Ingrese su DNI" required pattern="[0-9]{8}" maxlength="8"
-                                   title="El DNI debe contener 8 dígitos numéricos.">
+                                   title="El DNI debe contener 8 dígitos numéricos." autocomplete="off">
                         </div>
                     </div>
                     
@@ -102,7 +102,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fas fa-envelope"></i></span>
                             </div>
-                            <input type="email" class="form-control" id="email" name="email" required placeholder="Ingrese su correo electrónico">
+                            <input type="email" class="form-control" id="email" name="email" required placeholder="Ingrese su correo electrónico" autocomplete="off">
                         </div>
                     </div>
                     
@@ -127,14 +127,14 @@
                     <input type="hidden" name="codigo" id="codigoInput">
 
                     <div class="verification-code">
-                        <input type="text" maxlength="1" class="form-control code-input" required pattern="[0-9]">
-                        <input type="text" maxlength="1" class="form-control code-input" required pattern="[0-9]">
-                        <input type="text" maxlength="1" class="form-control code-input" required pattern="[0-9]">
-                        <input type="text" maxlength="1" class="form-control code-input" required pattern="[0-9]">
-                        <input type="text" maxlength="1" class="form-control code-input" required pattern="[0-9]">
-                        <input type="text" maxlength="1" class="form-control code-input" required pattern="[0-9]">
+                        <input type="text" maxlength="1" inputmode="numeric" pattern="\d" class="form-control code-input" autocomplete="off">
+                        <input type="text" maxlength="1" inputmode="numeric" pattern="\d" class="form-control code-input" autocomplete="off">
+                        <input type="text" maxlength="1" inputmode="numeric" pattern="\d" class="form-control code-input" autocomplete="off">
+                        <input type="text" maxlength="1" inputmode="numeric" pattern="\d" class="form-control code-input" autocomplete="off">
+                        <input type="text" maxlength="1" inputmode="numeric" pattern="\d" class="form-control code-input" autocomplete="off">
+                        <input type="text" maxlength="1" inputmode="numeric" pattern="\d" class="form-control code-input" autocomplete="off">
                     </div>
-                    
+
                     <div class="text-center mb-4">
                         <span id="countdown" class="text-muted">El código expira en: 05:00</span>
                     </div>

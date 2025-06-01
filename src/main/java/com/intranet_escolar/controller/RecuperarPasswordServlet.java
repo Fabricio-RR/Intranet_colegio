@@ -32,6 +32,16 @@ public class RecuperarPasswordServlet extends HttpServlet {
             // Paso 1: Enviar código
             String dni = request.getParameter("dni");
             String email = request.getParameter("email");
+            //Valida si existe el usuario 
+            UsuarioDAO dao = new UsuarioDAO();
+            boolean existe = dao.existeUsuarioPorDniYCorreo(dni, email);
+
+            if (!existe) {
+                request.setAttribute("error", "El DNI y el correo electrónico no están asociados a ningún usuario.");
+                request.setAttribute("pasoActual", "1");
+                request.getRequestDispatcher("/views/recuperar-password.jsp").forward(request, response);
+                return;
+            }
             String codigo = generarCodigo();
 
             // Lógica de bloqueo por intentos
