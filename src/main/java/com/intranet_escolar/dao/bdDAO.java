@@ -2,8 +2,6 @@ package com.intranet_escolar.dao;
 
 import com.intranet_escolar.config.DatabaseConfig;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
