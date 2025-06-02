@@ -6,13 +6,12 @@
 <head>
     <jsp:include page="/includes/meta.jsp" />
     <title>Dashboard - Intranet Escolar</title>
-    
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- Chart.js 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>-->
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Custom CSS -->
     <link href="${pageContext.request.contextPath}/assets/css/styles.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/assets/css/dashboard.css" rel="stylesheet">
@@ -130,24 +129,71 @@
             </div>
         </div>
 
-        <!-- Gráficos -->
+        <!-- Gráficos Mejorados -->
         <div class="row mb-4">
+            <!-- Gráfico Principal -->
             <div class="col-lg-8 mb-4">
                 <div class="chart-container fade-in-up" style="animation-delay: 0.5s;">
-                    <h5 class="chart-title">
-                        <i class="fas fa-chart-bar me-2"></i>
-                        Matrícula por Nivel Educativo
-                    </h5>
-                    <canvas id="matriculaPorNivelChart" style="height: 300px;"></canvas>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="chart-title mb-0">
+                            <i class="fas fa-chart-bar me-2"></i>
+                            Matrícula por Nivel Educativo
+                        </h5>
+                        <div class="chart-controls">
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-outline-primary active" onclick="changeChartType('bar')" id="barBtn">
+                                    <i class="fas fa-chart-bar"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="changeChartType('doughnut')" id="doughnutBtn">
+                                    <i class="fas fa-chart-pie"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="changeChartType('line')" id="lineBtn">
+                                    <i class="fas fa-chart-line"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <canvas id="matriculaPorNivelChart" 
+                        data-inicial="${matriculaInicial}"
+                        data-primaria="${matriculaPrimaria}"
+                        data-secundaria="${matriculaSecundaria}"
+                        style="height: 350px;"></canvas>
                 </div>
             </div>
+
+            <!-- Gráfico de Tendencias -->
             <div class="col-lg-4 mb-4">
                 <div class="chart-container fade-in-up" style="animation-delay: 0.6s;">
                     <h5 class="chart-title">
-                        <i class="fas fa-chart-pie me-2"></i>
-                        Distribución por Género
+                        <i class="fas fa-chart-area me-2"></i>
+                        Tendencia de Matrículas
                     </h5>
-                    <canvas id="distribucionGeneroChart" style="height: 300px;"></canvas>
+                    <canvas id="tendenciaMatriculasChart" style="height: 350px;"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráficos Adicionales -->
+        <div class="row mb-4">
+            <!-- Distribución por Grados -->
+            <div class="col-lg-6 mb-4">
+                <div class="chart-container fade-in-up" style="animation-delay: 0.7s;">
+                    <h5 class="chart-title">
+                        <i class="fas fa-layer-group me-2"></i>
+                        Distribución por Grados
+                    </h5>
+                    <canvas id="distribucionGradosChart" style="height: 300px;"></canvas>
+                </div>
+            </div>
+
+            <!-- Métricas de Rendimiento -->
+            <div class="col-lg-6 mb-4">
+                <div class="chart-container fade-in-up" style="animation-delay: 0.8s;">
+                    <h5 class="chart-title">
+                        <i class="fas fa-tachometer-alt me-2"></i>
+                        Métricas del Sistema
+                    </h5>
+                    <canvas id="metricsChart" style="height: 300px;"></canvas>
                 </div>
             </div>
         </div>
@@ -193,44 +239,37 @@
                 </div>
             </div>
         </div>
-
-        <!-- Actividad Reciente y Alertas -->
+                               
+        <!-- Alertas del Sistema -->
         <div class="row mb-4">
-            <div class="col-lg-6 mb-4">
-                <div class="chart-container fade-in-up" style="animation-delay: 0.8s;">
-                    <h5 class="chart-title">
-                        <i class="fas fa-history me-2"></i>
-                        Actividad Reciente del Sistema
-                    </h5>
-                    <div class="activity-list"></div>
-                </div>
-            </div>
-            <div class="col-lg-6 mb-4">
+            <div class="col-12">
                 <div class="system-alerts fade-in-up" style="animation-delay: 0.9s;">
-                    <h5 class="chart-title">
+                    <h5 class="chart-title mb-3">
                         <i class="fas fa-exclamation-triangle me-2"></i>
                         Alertas del Sistema
                     </h5>
-                    
-                    <!-- Alertas dinámicas -->
                     <c:choose>
                         <c:when test="${not empty alertas}">
-                            <c:forEach items="${alertas}" var="alerta">
-                                <div class="alert-item alert-${alerta.tipo}">
-                                    <div class="alert-icon">
-                                        <i class="${alerta.icono}"></i>
+                            <div class="row">
+                                <c:forEach items="${alertas}" var="alerta">
+                                    <div class="col-md-6 mb-3">
+                                        <div class="alert alert-${alerta.tipo} d-flex align-items-start">
+                                            <div class="me-3">
+                                                <i class="${alerta.icono} fa-2x"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-1">${alerta.titulo}</h6>
+                                                <p class="mb-1">${alerta.mensaje}</p>
+                                                <c:if test="${not empty alerta.accion}">
+                                                    <a href="${alerta.enlace}" class="btn btn-sm btn-outline-primary">
+                                                        ${alerta.accion}
+                                                    </a>
+                                                </c:if>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="alert-content">
-                                        <h6>${alerta.titulo}</h6>
-                                        <p>${alerta.mensaje}</p>
-                                        <c:if test="${not empty alerta.accion}">
-                                            <a href="${alerta.enlace}" class="btn btn-sm btn-admin-primary mt-2">
-                                                ${alerta.accion}
-                                            </a>
-                                        </c:if>
-                                    </div>
-                                </div>
-                            </c:forEach>
+                                </c:forEach>
+                            </div>
                         </c:when>
                         <c:otherwise>
                             <div class="text-center py-4">
@@ -243,7 +282,7 @@
                 </div>
             </div>
         </div>
-
+                       
         <!-- Resumen de Usuarios por Rol -->
         <div class="row mb-4">
             <div class="col-12">
@@ -316,101 +355,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom JS -->
     <script src="${pageContext.request.contextPath}/assets/js/common.js"></script>
-    <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Solo inicializar gráficos básicos si Chart.js está disponible
-    if (typeof Chart !== "undefined") {
-        initCharts();
-    }
-});
-
-function initCharts() {
-    // Gráfico de matrícula por nivel
-    const matriculaCtx = document.getElementById('matriculaPorNivelChart');
-    if (matriculaCtx) {
-        new Chart(matriculaCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Inicial', 'Primaria', 'Secundaria'],
-                datasets: [{
-                    label: 'Estudiantes',
-                    data: [${matriculaInicial}, ${matriculaPrimaria}, ${matriculaSecundaria}],
-                    backgroundColor: [
-                        'rgba(17, 13, 89, 0.8)',
-                        'rgba(40, 167, 69, 0.8)',
-                        'rgba(247, 6, 23, 0.8)'
-                    ],
-                    borderColor: [
-                        'rgba(17, 13, 89, 1)',
-                        'rgba(40, 167, 69, 1)',
-                        'rgba(247, 6, 23, 1)'
-                    ],
-                    borderWidth: 2,
-                    borderRadius: 8
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(0,0,0,0.1)'
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    // Gráfico de distribución por género
-    const generoCtx = document.getElementById('distribucionGeneroChart');
-    if (generoCtx) {
-        new Chart(generoCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Masculino', 'Femenino'],
-                datasets: [{
-                    data: [${estudiantesMasculino}, ${estudiantesFemenino}],
-                    backgroundColor: [
-                        'rgba(17, 13, 89, 0.8)',
-                        'rgba(247, 6, 23, 0.8)'
-                    ],
-                    borderColor: [
-                        'rgba(17, 13, 89, 1)',
-                        'rgba(247, 6, 23, 1)'
-                    ],
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            padding: 20,
-                            usePointStyle: true
-                        }
-                    }
-                },
-                cutout: '60%'
-            }
-        });
-    }
-}
-</script>
+    <script src="${pageContext.request.contextPath}/assets/js/dashboard-charts.js"></script>
 </body>
 </html>
