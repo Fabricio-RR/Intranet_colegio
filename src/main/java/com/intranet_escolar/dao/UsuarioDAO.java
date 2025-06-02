@@ -130,6 +130,25 @@ public class UsuarioDAO {
 
     return existe;
 }
+    public String obtenerNombreCompletoPorDni(String dni) {
+    String nombreCompleto = "";
+
+    try (Connection conn = DatabaseConfig.getConnection();
+         CallableStatement cs = conn.prepareCall("{CALL sp_obtener_nombre_por_dni(?, ?)}")) {
+
+        cs.setString(1, dni);
+        cs.registerOutParameter(2, Types.VARCHAR);
+        cs.execute();
+
+        nombreCompleto = cs.getString(2);
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return nombreCompleto != null ? nombreCompleto : "usuario";
+}
+
     
     public boolean actualizarClavePorDni(String dni, String nuevaClave) {
         Connection conn = null;

@@ -77,6 +77,13 @@
                         ${error}
                     </div>
                 </c:if>
+                
+                <!-- Mensaje de éxito -->
+                <c:if test="${not empty param.mensaje}">
+                    <div id="successMsg" class="alert alert-success alert-dismissible fade show text-center" role="alert">
+                         ${param.mensaje}
+                    </div>
+                </c:if>
 
                 <div class="d-grid gap-2">
                     <button type="submit" class="btn btn-danger w-100 mt-3">Iniciar sesión</button>

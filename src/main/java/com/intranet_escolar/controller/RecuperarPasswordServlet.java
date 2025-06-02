@@ -6,12 +6,12 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
-import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.mail.EmailException;
-import org.apache.commons.mail.SimpleEmail;
+
 
 
 @WebServlet(name = "RecuperarPasswordServlet", urlPatterns = {"/recuperar-password"})
@@ -29,48 +29,55 @@ public class RecuperarPasswordServlet extends HttpServlet {
         HttpSession session = request.getSession();
 
         if ("1".equals(paso)) {
-            // Paso 1: Enviar código
-            String dni = request.getParameter("dni");
-            String email = request.getParameter("email");
-            //Valida si existe el usuario 
-            UsuarioDAO dao = new UsuarioDAO();
-            boolean existe = dao.existeUsuarioPorDniYCorreo(dni, email);
+        // Paso 1: Enviar código
+        String dni = request.getParameter("dni");
+        String email = request.getParameter("email");
 
-            if (!existe) {
-                request.setAttribute("error", "El DNI y el correo electrónico no están asociados a ningún usuario.");
-                request.setAttribute("pasoActual", "1");
-                request.getRequestDispatcher("/views/recuperar-password.jsp").forward(request, response);
-                return;
-            }
-            String codigo = generarCodigo();
+        // Instancia DAO antes de usarlo
+        UsuarioDAO dao = new UsuarioDAO();
 
-            // Lógica de bloqueo por intentos
-            Long bloqueo = (Long) session.getAttribute("bloqueado_hasta");
-            if (bloqueo != null && System.currentTimeMillis() < bloqueo) {
-                request.setAttribute("error", "Demasiados intentos fallidos. Intenta nuevamente en 30 minutos.");
-                request.setAttribute("pasoActual", "1");
-                request.getRequestDispatcher("/views/recuperar-password.jsp").forward(request, response);
-                return;
-            }
+        // Validar existencia del usuario por procedimiento almacenado
+        boolean existe = dao.existeUsuarioPorDniYCorreo(dni, email);
 
-            session.setAttribute("codigo_verificacion", codigo);
-            session.setAttribute("codigo_expira", System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(TOKEN_EXPIRATION_MINUTES));
-            session.setAttribute("intentos_codigo", 0);
-            session.setAttribute("dni_validado", dni);
-            session.setAttribute("email_validado", email);
-
-            try {
-                EmailUtil.enviarCodigo(email, codigo);
-                request.setAttribute("mensaje", "Se envió el código a tu correo electrónico.");
-            } catch (EmailException e) {
-                request.setAttribute("error", "Error al enviar el correo. Inténtalo nuevamente.");
-                request.setAttribute("pasoActual", "1");
-                request.getRequestDispatcher("/views/recuperar-password.jsp").forward(request, response);
-                return;
-            }
-
-            request.setAttribute("pasoActual", "2");
+        if (!existe) {
+            request.setAttribute("error", "El DNI y el correo electrónico no están asociados a ningún usuario.");
+            request.setAttribute("pasoActual", "1");
             request.getRequestDispatcher("/views/recuperar-password.jsp").forward(request, response);
+            return;
+        }
+
+        // Obtener nombre completo por procedimiento almacenado
+        String nombreUsuario = dao.obtenerNombreCompletoPorDni(dni);
+
+        String codigo = generarCodigo();
+
+        // Lógica de bloqueo por intentos
+        Long bloqueo = (Long) session.getAttribute("bloqueado_hasta");
+        if (bloqueo != null && System.currentTimeMillis() < bloqueo) {
+            request.setAttribute("error", "Demasiados intentos fallidos. Intenta nuevamente en 30 minutos.");
+            request.setAttribute("pasoActual", "1");
+            request.getRequestDispatcher("/views/recuperar-password.jsp").forward(request, response);
+            return;
+        }
+
+        session.setAttribute("codigo_verificacion", codigo);
+        session.setAttribute("codigo_expira", System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(TOKEN_EXPIRATION_MINUTES));
+        session.setAttribute("intentos_codigo", 0);
+        session.setAttribute("dni_validado", dni);
+        session.setAttribute("email_validado", email);
+        session.setAttribute("nombre_usuario", nombreUsuario); // opcional para mostrar en paso 3
+
+        try {
+            EmailUtil.enviarCodigo(email, codigo, nombreUsuario);
+            request.setAttribute("mensaje", "Se envió el código a tu correo electrónico.");
+        } catch (EmailException e) {
+            request.setAttribute("error", "Error al enviar el correo. Inténtalo nuevamente.");
+            request.setAttribute("pasoActual", "1");
+            request.getRequestDispatcher("/views/recuperar-password.jsp").forward(request, response);
+            return;
+        }
+        request.setAttribute("pasoActual", "2");
+        request.getRequestDispatcher("/views/recuperar-password.jsp").forward(request, response);
 
         } else if ("2".equals(paso)) {
             // Paso 2: Verificar código
@@ -125,7 +132,8 @@ public class RecuperarPasswordServlet extends HttpServlet {
 
             if (actualizado) {
                 session.invalidate();
-                response.sendRedirect(request.getContextPath() + "/views/login.jsp?mensaje=Contraseña actualizada correctamente");
+                String mensaje = URLEncoder.encode("Contraseña actualizada correctamente", StandardCharsets.UTF_8);
+                response.sendRedirect(request.getContextPath() + "/views/login.jsp?mensaje=" + mensaje);
             } else {
                 request.setAttribute("error", "Hubo un error al actualizar la contraseña.");
                 request.setAttribute("pasoActual", "3");

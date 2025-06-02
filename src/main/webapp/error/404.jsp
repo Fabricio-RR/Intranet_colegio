@@ -59,9 +59,6 @@
                 Por favor, verifica la URL o regresa a la página principal.
             </p>
             <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-                <a href="${pageContext.request.contextPath}/views/dashboard.jsp" class="btn btn-primary btn-lg px-4 gap-3">
-                    <i class="bi bi-house-door"></i> Ir al Dashboard
-                </a>
                 <button onclick="history.back()" class="btn btn-outline-secondary btn-lg px-4">
                     <i class="bi bi-arrow-left"></i> Volver atrás
                 </button>

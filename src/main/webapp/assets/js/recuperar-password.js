@@ -28,8 +28,6 @@ function iniciarTemporizador(segundos) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    let currentStep = 1;
-
     const btnPaso1 = document.getElementById('btnPaso1');
     const btnPaso2 = document.getElementById('btnPaso2');
     const btnPaso3 = document.getElementById('btnPaso3');
@@ -45,8 +43,29 @@ document.addEventListener('DOMContentLoaded', function () {
     const passwordStrength = document.getElementById('passwordStrength');
     const passwordFeedback = document.getElementById('passwordFeedback');
 
-    document.getElementById('toggleNewPassword').addEventListener('click', togglePasswordVisibility);
-    document.getElementById('toggleConfirmPassword').addEventListener('click', togglePasswordVisibility);
+    const errorAlerta = document.querySelector('.alert-danger');
+    const successAlerta = document.querySelector('.alert-success');
+
+    // Ocultar alerta de éxito después de 4 segundos
+    if (successAlerta) {
+        setTimeout(() => {
+            successAlerta.classList.remove('show');
+            successAlerta.classList.add('d-none');
+        }, 4000);
+    }
+
+    // Ocultar alertas de error al escribir
+    [dniInput, emailInput, newPasswordInput, confirmPasswordInput, ...codeInputs].forEach(input => {
+        input?.addEventListener('input', () => {
+            if (errorAlerta) {
+                errorAlerta.classList.remove('show');
+                errorAlerta.classList.add('d-none');
+            }
+        });
+    });
+
+    document.getElementById('toggleNewPassword')?.addEventListener('click', togglePasswordVisibility);
+    document.getElementById('toggleConfirmPassword')?.addEventListener('click', togglePasswordVisibility);
 
     function togglePasswordVisibility(e) {
         const input = e.target.closest('.input-group').querySelector('input');
@@ -62,30 +81,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    btnPaso1.addEventListener('click', function () {
-        const dni = dniInput.value.trim();
-        const email = emailInput.value.trim();
-
-        if (dni === '' || email === '') {
-            return;
-        }
-
-        const dniValido = /^\d{8}$/.test(dni);
-        const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
-        if (!dniValido) {
-            dniInput.focus();
-            return;
-        }
-
-        if (!emailValido) {
-            emailInput.focus();
-            return;
-        }
-
-    });
-
-    btnPaso2.addEventListener('click', function () {
+    btnPaso2?.addEventListener('click', function () {
         let codigo = "";
         codeInputs.forEach(input => codigo += input.value.trim());
         if (/^\d{6}$/.test(codigo)) {
@@ -96,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    newPasswordInput.addEventListener('input', function () {
+    newPasswordInput?.addEventListener('input', function () {
         const value = newPasswordInput.value;
         const score = evaluarSeguridad(value);
         passwordStrength.style.width = `${score}%`;
@@ -114,15 +110,24 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    btnPaso3.addEventListener('click', function (e) {
+    btnPaso3?.addEventListener('click', function (e) {
         if (newPasswordInput.value !== confirmPasswordInput.value) {
             e.preventDefault();
-            
+            mostrarErrorPaso3("Las contraseñas no coinciden.");
         }
     });
 
-    btnVolverPaso1.addEventListener('click', () => goToStep(1));
-    btnVolverPaso2.addEventListener('click', () => goToStep(2));
+    function mostrarErrorPaso3(mensaje) {
+        const alerta = document.getElementById('errorPaso3');
+        const span = document.getElementById('mensajeErrorPaso3');
+        span.textContent = mensaje;
+        alerta.classList.remove('d-none');
+        alerta.classList.add('show');
+        setTimeout(() => alerta.classList.add('d-none'), 4000);
+    }
+
+    btnVolverPaso1?.addEventListener('click', () => goToStep(1));
+    btnVolverPaso2?.addEventListener('click', () => goToStep(2));
 
     codeInputs.forEach((input, idx) => {
         input.addEventListener('input', function () {

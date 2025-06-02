@@ -125,16 +125,14 @@
                 <form id="formPaso2" action="${pageContext.request.contextPath}/recuperar-password" method="post">
                     <input type="hidden" name="paso" value="2">
                     <input type="hidden" name="codigo" id="codigoInput">
-
                     <div class="verification-code">
-                        <input type="text" maxlength="1" inputmode="numeric" pattern="\d" class="form-control code-input" autocomplete="off">
-                        <input type="text" maxlength="1" inputmode="numeric" pattern="\d" class="form-control code-input" autocomplete="off">
-                        <input type="text" maxlength="1" inputmode="numeric" pattern="\d" class="form-control code-input" autocomplete="off">
-                        <input type="text" maxlength="1" inputmode="numeric" pattern="\d" class="form-control code-input" autocomplete="off">
-                        <input type="text" maxlength="1" inputmode="numeric" pattern="\d" class="form-control code-input" autocomplete="off">
-                        <input type="text" maxlength="1" inputmode="numeric" pattern="\d" class="form-control code-input" autocomplete="off">
+                        <input type="text" maxlength="1" inputmode="numeric" pattern="\d" class="code-input" autocomplete="off">
+                        <input type="text" maxlength="1" inputmode="numeric" pattern="\d" class="code-input" autocomplete="off">
+                        <input type="text" maxlength="1" inputmode="numeric" pattern="\d" class="code-input" autocomplete="off">
+                        <input type="text" maxlength="1" inputmode="numeric" pattern="\d" class="code-input" autocomplete="off">
+                        <input type="text" maxlength="1" inputmode="numeric" pattern="\d" class="code-input" autocomplete="off">
+                        <input type="text" maxlength="1" inputmode="numeric" pattern="\d" class="code-input" autocomplete="off">
                     </div>
-
                     <div class="text-center mb-4">
                         <span id="countdown" class="text-muted">El código expira en: 05:00</span>
                     </div>
@@ -152,8 +150,11 @@
             <!-- Paso 3 -->
             <div id="paso3" style="display: none;">
                 <h5 class="text-center mb-4 custom-text">Crea una nueva contraseña</h5>
+                    <div id="errorPaso3" class="alert alert-danger d-none" role="alert">
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                    <span id="mensajeErrorPaso3"></span>
+                </div>
                 <p class="text-center text-muted mb-4">Tu identidad ha sido verificada. Ahora puedes crear una nueva contraseña.</p>
-                
                 <form id="formPaso3" action="${pageContext.request.contextPath}/recuperar-password" method="post">
                     <input type="hidden" name="paso" value="3">
                     
