@@ -3,7 +3,9 @@ package com.intranet_escolar.dao;
 import com.intranet_escolar.config.DatabaseConfig;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DashboardDAO {
@@ -51,21 +53,33 @@ public class DashboardDAO {
         return data;
     }
 
-    public ResultSet obtenerResumenRoles() {
+    public List<Map<String, Object>> obtenerResumenRoles() {
+        List<Map<String, Object>> lista = new ArrayList<>();
         String sql = "{CALL sp_dashboard_roles_resumen()}";
 
-        try {
-            CallableStatement stmt = conn.prepareCall(sql);
-            return stmt.executeQuery();
+        try (CallableStatement stmt = conn.prepareCall(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                Map<String, Object> rol = new HashMap<>();
+                rol.put("nombre", rs.getString("nombre"));
+                rol.put("icono", rs.getString("icono"));
+                rol.put("codigo", rs.getString("codigo"));
+                rol.put("total", rs.getInt("total"));
+                rol.put("activos", rs.getInt("activos"));
+                rol.put("inactivos", rs.getInt("inactivos"));
+                rol.put("ultimoAcceso", rs.getString("ultimo_acceso"));
+                lista.add(rol);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
-            return null;
         }
+
+        return lista;
     }
 
     public Map<String, Integer> obtenerMetricasSistema() {
         Map<String, Integer> metricas = new HashMap<>();
-        String sql = "{CALL sp_dashboard_metricas_sistema()}";
+        String sql = "{CALL sp_dashboard_metrics()}";
 
         try (CallableStatement stmt = conn.prepareCall(sql)) {
             ResultSet rs = stmt.executeQuery();

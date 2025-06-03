@@ -129,7 +129,7 @@
             </div>
         </div>
 
-        <!-- Gráficos Mejorados -->
+        <!-- Gráficos  -->
         <div class="row mb-4">
             <!-- Gráfico Principal -->
             <div class="col-lg-8 mb-4">
@@ -238,8 +238,7 @@
                     </div>
                 </div>
             </div>
-        </div>
-                               
+        </div>       
         <!-- Alertas del Sistema -->
         <div class="row mb-4">
             <div class="col-12">
@@ -355,6 +354,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom JS -->
     <script src="${pageContext.request.contextPath}/assets/js/common.js"></script>
-    <script src="${pageContext.request.contextPath}/assets/js/dashboard-charts.js"></script>
+    <script src="${pageContext.request.contextPath}/assets/js/dashboard.js"></script>
 </body>
 </html>

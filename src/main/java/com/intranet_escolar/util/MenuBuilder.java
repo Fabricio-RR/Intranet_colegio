@@ -1,4 +1,4 @@
-package com.intranet_escolar.util;
+/*package com.intranet_escolar.util;
 
 import com.intranet_escolar.model.entity.MenuItem;
 import com.intranet_escolar.model.entity.Rol;
@@ -66,4 +66,4 @@ public class MenuBuilder {
 
         return menu;
     }
-}
+}**/

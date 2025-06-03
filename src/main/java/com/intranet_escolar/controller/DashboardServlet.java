@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
 
@@ -33,11 +34,14 @@ public class DashboardServlet extends HttpServlet {
 
             // 2. Distribución de matrícula por nivel
             Map<String, Integer> niveles = dao.obtenerMatriculaPorNivel();
-            request.setAttribute("niveles", niveles);
+            request.setAttribute("matriculaInicial", niveles.get("inicial"));
+            request.setAttribute("matriculaPrimaria", niveles.get("primaria"));
+            request.setAttribute("matriculaSecundaria", niveles.get("secundaria"));
+
 
             // 3. Resumen de roles
-            ResultSet resumenRoles = dao.obtenerResumenRoles();
-            request.setAttribute("resumenRoles", resumenRoles);
+            List<Map<String, Object>> resumen = dao.obtenerResumenRoles();
+            request.setAttribute("resumenRoles", resumen);
 
             // 4. Métricas del sistema
             Map<String, Integer> metricas = dao.obtenerMetricasSistema();

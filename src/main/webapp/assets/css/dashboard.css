@@ -126,6 +126,15 @@ html, body {
 .stats-card:hover, .chart-container:hover, .quick-action:hover {
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
+.chart-container {
+  position: relative;
+  height: 100%;
+  min-height: 350px;
+}
+#matriculaPorNivelChart {
+  max-height: 400px;
+  width: 100%;
+}
 
 .stats-icon, .alert-icon, .activity-icon {
   width: 2.5rem;
@@ -181,22 +190,38 @@ html, body {
 .stats-change.positive { color: var(--success-color); }
 .stats-change.negative { color: var(--danger-color); }
 
-/* Quick Actions */
+/* Acciones rápidas */
+.quick-actions {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+  padding: 2rem;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.quick-actions h5 {
+  color: var(--text-dark);
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  font-size: 1.25rem;
+}
+
 .quick-action {
-  background: linear-gradient(135deg, #fff, var(--light-bg));
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
   border: 2px solid var(--border-color);
   border-radius: 16px;
   padding: 2rem 1.5rem;
-  color: var(--text-dark);
   text-decoration: none;
-  transition: 0.3s;
+  color: var(--text-dark);
+  transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   min-height: 140px;
   position: relative;
+  overflow: hidden;
 }
-
 .quick-action::before {
   content: "";
   position: absolute;
@@ -205,24 +230,36 @@ html, body {
   width: 100%;
   height: 100%;
   background: linear-gradient(90deg, transparent, rgba(17, 13, 89, 0.1), transparent);
-  transition: left 0.5s;
+  transition: left 0.5s ease;
 }
 
-.quick-action:hover::before { left: 100%; }
+.quick-action:hover::before {
+  left: 100%;
+}
+
 .quick-action:hover {
-  transform: translateY(-2px);
-  color: var(--primary-color);
   border-color: var(--primary-color);
+  color: var(--primary-color);
+  text-decoration: none;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(17, 13, 89, 0.15);
 }
 
 .quick-action i {
   font-size: 2.5rem;
   margin-bottom: 1rem;
-  transition: 0.3s;
+  transition: all 0.3s ease;
 }
 
 .quick-action:hover i {
   transform: scale(1.1);
+}
+
+.quick-action span {
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-align: center;
+  line-height: 1.3;
 }
 
 /* Badges */
