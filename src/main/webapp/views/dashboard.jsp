@@ -1,6 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -19,11 +21,8 @@
 <body class="admin-dashboard">
     <!-- Sidebar -->
     <jsp:include page="/includes/sidebar.jsp" />
-    
-    <!-- Header fijo -->
-    <%
-        request.setAttribute("tituloPagina", "Panel de Administración");
-    %>
+    <h1 id="pageTitleDesktop" class="h5 d-none d-md-block mb-0"></h1>
+    <h1 id="pageTitleMobile" class="h6 d-md-none mb-0"></h1>
     <jsp:include page="/includes/header.jsp" />
    
     <!-- Main Content con scroll -->
@@ -168,7 +167,20 @@
                         <i class="fas fa-chart-area me-2"></i>
                         Tendencia de Matrículas
                     </h5>
-                    <canvas id="tendenciaMatriculasChart" style="height: 350px;"></canvas>
+
+                    <!-- Preparar etiquetas y valores -->
+                    <c:set var="labelsTendencia" value="" />
+                    <c:set var="valoresTendencia" value="" />
+                    <c:forEach var="entry" items="${tendenciaMatricula}" varStatus="loop">
+                        <c:set var="labelsTendencia" value="${labelsTendencia}${fn:escapeXml(entry.key)}${loop.last ? '' : ','}" />
+                        <c:set var="valoresTendencia" value="${valoresTendencia}${entry.value}${loop.last ? '' : ','}" />
+                    </c:forEach>
+
+                    <!-- Gráfico de línea -->
+                    <canvas id="tendenciaMatriculasChart"
+                            data-labels="${labelsTendencia}"
+                            data-values="${valoresTendencia}"
+                            style="height: 350px;"></canvas>
                 </div>
             </div>
         </div>
@@ -182,7 +194,17 @@
                         <i class="fas fa-layer-group me-2"></i>
                         Distribución por Grados
                     </h5>
-                    <canvas id="distribucionGradosChart" style="height: 300px;"></canvas>
+                    <c:set var="labelsGrado" value="" />
+                    <c:set var="valoresGrado" value="" />
+                    <c:forEach var="entry" items="${matriculaPorGrado}" varStatus="loop">
+                        <c:set var="labelsGrado" value="${labelsGrado}${entry.key}${loop.last ? '' : ','}" />
+                        <c:set var="valoresGrado" value="${valoresGrado}${entry.value}${loop.last ? '' : ','}" />
+                    </c:forEach>
+
+                    <canvas id="distribucionGradosChart"
+                            data-labels="${labelsGrado}"
+                            data-values="${valoresGrado}"
+                            style="height: 300px;"></canvas>
                 </div>
             </div>
 
@@ -193,7 +215,12 @@
                         <i class="fas fa-tachometer-alt me-2"></i>
                         Métricas del Sistema
                     </h5>
-                    <canvas id="metricsChart" style="height: 300px;"></canvas>
+                    <canvas id="metricsChart"
+                        data-usuarios="${metricas.totalUsuarios}"
+                        data-publicaciones="${metricas.publicacionesActivas}"
+                        data-asistencias="${metricas.totalAsistencias}"
+                        data-calificaciones="${metricas.totalCalificaciones}"
+                        style="height: 300px;"></canvas>
                 </div>
             </div>
         </div>
@@ -238,50 +265,7 @@
                     </div>
                 </div>
             </div>
-        </div>       
-        <!-- Alertas del Sistema -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="system-alerts fade-in-up" style="animation-delay: 0.9s;">
-                    <h5 class="chart-title mb-3">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        Alertas del Sistema
-                    </h5>
-                    <c:choose>
-                        <c:when test="${not empty alertas}">
-                            <div class="row">
-                                <c:forEach items="${alertas}" var="alerta">
-                                    <div class="col-md-6 mb-3">
-                                        <div class="alert alert-${alerta.tipo} d-flex align-items-start">
-                                            <div class="me-3">
-                                                <i class="${alerta.icono} fa-2x"></i>
-                                            </div>
-                                            <div>
-                                                <h6 class="mb-1">${alerta.titulo}</h6>
-                                                <p class="mb-1">${alerta.mensaje}</p>
-                                                <c:if test="${not empty alerta.accion}">
-                                                    <a href="${alerta.enlace}" class="btn btn-sm btn-outline-primary">
-                                                        ${alerta.accion}
-                                                    </a>
-                                                </c:if>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </c:forEach>
-                            </div>
-                        </c:when>
-                        <c:otherwise>
-                            <div class="text-center py-4">
-                                <i class="fas fa-check-circle fa-3x text-success mb-3 pulse"></i>
-                                <p class="text-muted mb-0">No hay alertas pendientes</p>
-                                <small class="text-muted">El sistema está funcionando correctamente</small>
-                            </div>
-                        </c:otherwise>
-                    </c:choose>
-                </div>
-            </div>
-        </div>
-                       
+        </div>                              
         <!-- Resumen de Usuarios por Rol -->
         <div class="row mb-4">
             <div class="col-12">

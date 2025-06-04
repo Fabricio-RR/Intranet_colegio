@@ -48,7 +48,7 @@ public class LoginServlet extends HttpServlet {
                 session.setAttribute("usuario", usuario);
 
                 // Redirigir al dashboard
-                response.sendRedirect(request.getContextPath() + "/views/dashboard.jsp");
+                response.sendRedirect(request.getContextPath() + "/dashboard");
             } else {
                 // Usuario no existe o clave incorrecta
                 request.setAttribute("error", "DNI o contraseña incorrectos.");

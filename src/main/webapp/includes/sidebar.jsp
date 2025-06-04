@@ -13,7 +13,7 @@
 
             <!-- Opción fija: Dashboard -->
             <li class="nav-item">
-                <a class="nav-link active" href="${pageContext.request.contextPath}/views/dashboard.jsp">
+                <a class="nav-link active" href="${pageContext.request.contextPath}/dashboard">
                     <i class="fas fa-tachometer-alt me-2"></i>
                     Dashboard
                 </a>

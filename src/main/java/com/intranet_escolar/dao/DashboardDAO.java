@@ -3,10 +3,7 @@ package com.intranet_escolar.dao;
 import com.intranet_escolar.config.DatabaseConfig;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DashboardDAO {
 
@@ -20,8 +17,8 @@ public class DashboardDAO {
         Map<String, Object> stats = new HashMap<>();
         String sql = "{CALL sp_dashboard_estadisticas()}";
 
-        try (CallableStatement stmt = conn.prepareCall(sql)) {
-            ResultSet rs = stmt.executeQuery();
+        try (CallableStatement stmt = conn.prepareCall(sql);
+             ResultSet rs = stmt.executeQuery()) {
             if (rs.next()) {
                 stats.put("totalEstudiantes", rs.getInt("total_estudiantes"));
                 stats.put("totalDocentes", rs.getInt("total_docentes"));
@@ -39,12 +36,50 @@ public class DashboardDAO {
         Map<String, Integer> data = new HashMap<>();
         String sql = "{CALL sp_dashboard_matricula_por_nivel()}";
 
-        try (CallableStatement stmt = conn.prepareCall(sql)) {
-            ResultSet rs = stmt.executeQuery();
+        try (CallableStatement stmt = conn.prepareCall(sql);
+             ResultSet rs = stmt.executeQuery()) {
             if (rs.next()) {
                 data.put("inicial", rs.getInt("inicial"));
                 data.put("primaria", rs.getInt("primaria"));
                 data.put("secundaria", rs.getInt("secundaria"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return data;
+    }
+    public Map<String, Integer> obtenerMatriculaPorGrado() {
+        Map<String, Integer> datos = new LinkedHashMap<>(); 
+
+        String sql = "{CALL sp_dashboard_matricula_por_grado()}";
+
+        try (CallableStatement stmt = conn.prepareCall(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                String grado = rs.getString("grado");
+                int total = rs.getInt("total");
+                datos.put(grado, total);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return datos;
+    }
+    
+    public Map<String, Integer> obtenerTendenciaMatricula() {
+        Map<String, Integer> data = new LinkedHashMap<>();
+
+        String sql = "{CALL sp_dashboard_tendencia_matricula()}";
+        try (CallableStatement stmt = conn.prepareCall(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                String mes = rs.getString("mes");
+                int total = rs.getInt("total");
+                data.put(mes, total);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -62,7 +97,6 @@ public class DashboardDAO {
             while (rs.next()) {
                 Map<String, Object> rol = new HashMap<>();
                 rol.put("nombre", rs.getString("nombre"));
-                rol.put("icono", rs.getString("icono"));
                 rol.put("codigo", rs.getString("codigo"));
                 rol.put("total", rs.getInt("total"));
                 rol.put("activos", rs.getInt("activos"));
@@ -81,8 +115,8 @@ public class DashboardDAO {
         Map<String, Integer> metricas = new HashMap<>();
         String sql = "{CALL sp_dashboard_metrics()}";
 
-        try (CallableStatement stmt = conn.prepareCall(sql)) {
-            ResultSet rs = stmt.executeQuery();
+        try (CallableStatement stmt = conn.prepareCall(sql);
+             ResultSet rs = stmt.executeQuery()) {
             if (rs.next()) {
                 metricas.put("totalUsuarios", rs.getInt("total_usuarios"));
                 metricas.put("publicacionesActivas", rs.getInt("publicaciones_activas"));

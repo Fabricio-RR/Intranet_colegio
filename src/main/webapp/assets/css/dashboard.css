@@ -113,29 +113,49 @@ html, body {
 .admin-dashboard {
   min-height: 100vh;
 }
-
-/* CARD & COMPONENT STYLES */
-.stats-card, .quick-actions, .system-alerts, .chart-container, .admin-table {
+/* Tarjetas y Componentes Base */
+.stats-card, 
+.quick-actions, 
+.system-alerts, 
+.chart-container, 
+.admin-table {
   background: white;
-  border-radius: 16px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
   border: 1px solid rgba(0, 0, 0, 0.05);
   padding: 2rem;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: nowrap;
+  border-radius: 12px;
 }
 
-.stats-card:hover, .chart-container:hover, .quick-action:hover {
+.stats-card:hover, 
+.chart-container:hover, 
+.quick-action:hover {
+  transform: translateY(-4px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
+
+/* Contenedor de gráficos */
 .chart-container {
   position: relative;
-  height: 100%;
   min-height: 350px;
+  height: 100%;
 }
+
 #matriculaPorNivelChart {
-  max-height: 400px;
+  max-height: 350px;
+  width: 100%;
+}
+.chart-container canvas {
+  max-height: 350px;
   width: 100%;
 }
 
+
+/* Íconos generales */
 .stats-icon, .alert-icon, .activity-icon {
   width: 2.5rem;
   height: 2.5rem;
@@ -145,12 +165,14 @@ html, body {
   justify-content: center;
 }
 
+/* Estilos específicos para íconos de estadísticas */
 .stats-icon {
   width: 3.5rem;
   height: 3.5rem;
   font-size: 1.5rem;
   color: white;
   position: relative;
+  border-radius: 12px;
 }
 
 .stats-icon::before {
@@ -161,11 +183,43 @@ html, body {
   border-radius: 12px;
 }
 
+/* Colores para íconos */
 .stats-primary { background: linear-gradient(135deg, var(--primary-color), #1a1570); }
-.stats-danger { background: linear-gradient(135deg, var(--danger-color), #d4050f); }
+.stats-danger  { background: linear-gradient(135deg, var(--danger-color), #d4050f); }
 .stats-success { background: linear-gradient(135deg, var(--success-color), #1e7e34); }
-.stats-info { background: linear-gradient(135deg, var(--info-color), #138496); }
+.stats-info    { background: linear-gradient(135deg, var(--info-color), #138496); }
 .stats-warning { background: linear-gradient(135deg, var(--warning-color), #e0a800); }
+
+/* Contenido adicional para tarjetas */
+.stats-number {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  line-height: 1;
+  margin: 0.5rem 0;
+}
+
+.stats-label {
+  font-size: 0.875rem;
+  color: var(--text-light);
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.stats-change {
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-top: 0.25rem;
+}
+
+.stats-change.positive {
+  color: var(--success-color);
+}
+
+.stats-change.negative {
+  color: var(--danger-color);
+}
 
 /* Labels */
 .stats-number {
@@ -363,4 +417,3 @@ html, body {
 
 .fade-in-up { animation: slideInUp 0.6s ease-out; }
 .pulse { animation: pulse 2s infinite; }
-
