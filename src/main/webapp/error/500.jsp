@@ -62,7 +62,7 @@
 <body>
     <div class="container">
         <div class="error-container">
-            <img src="../assets/img/EscudoCDO.png" alt="Escudo CDO" class="ml-3" style="width: 100px; height: 150px; object-fit: contain;">
+            <img src="${pageContext.request.contextPath}/assets/img/EscudoCDO.png" alt="Escudo CDO" class="ml-3" style="width: 100px; height: 150px; object-fit: contain;">
             <h1 class="error-code">500</h1>
             <h2 class="error-message">Error del Servidor</h2>
             <p class="error-description">
@@ -78,9 +78,6 @@
             <% } %>
             
             <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-                <a href="../dashboard" class="btn btn-primary btn-lg px-4 gap-3">
-                    <i class="bi bi-house-door"></i> Ir al Dashboard
-                </a>
                 <button onclick="location.reload()" class="btn btn-outline-secondary btn-lg px-4">
                     <i class="bi bi-arrow-clockwise"></i> Recargar página
                 </button>
