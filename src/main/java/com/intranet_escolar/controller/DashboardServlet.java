@@ -23,7 +23,7 @@ public class DashboardServlet extends HttpServlet {
         String rolActivo = (String) session.getAttribute("rolActivo");
 
         if (rolActivo == null || rolActivo.isBlank()) {
-            response.sendRedirect(request.getContextPath() + "/views/selector.jsp");
+            response.sendRedirect(request.getContextPath() + "/views/selec-rol.jsp");
             return;
         }
 

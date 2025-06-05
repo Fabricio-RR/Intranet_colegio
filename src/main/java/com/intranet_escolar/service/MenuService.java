@@ -16,7 +16,7 @@ public class MenuService {
         List<MenuItem> menu = new ArrayList<>();
 
         if (permisosGenerales.contains("administrador")) {
-            menu.add(new MenuItem("usuarios", "/views/usuario/usuarios.jsp", "fas fa-users"));
+            menu.add(new MenuItem("usuarios", "/usuario/usuarios", "fas fa-users"));
             menu.add(new MenuItem("malla curricular", "/views/malla.jsp", "fas fa-chalkboard-teacher"));
             menu.add(new MenuItem("publicaciones", "/views/publicaciones.jsp", "fas fa-bullhorn"));
             menu.add(new MenuItem("reportes", "/views/reportes.jsp", "fas fa-file-alt"));

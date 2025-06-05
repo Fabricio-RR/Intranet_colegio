@@ -197,7 +197,7 @@ public class UsuarioDAO {
     
     public List<Usuario> listarUsuariosCompletos() {
         List<Usuario> lista = new ArrayList<>();
-        String sql = "CALL sp_listar_usuarios_completos()";
+        String sql = "CALL sp_listar_usuarios()";
 
         try (Connection conn = DatabaseConfig.getConnection();
              CallableStatement stmt = conn.prepareCall(sql);

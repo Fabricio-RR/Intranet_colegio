@@ -21,10 +21,10 @@
 <body class="admin-dashboard">
     <!-- Sidebar -->
     <jsp:include page="/includes/sidebar.jsp" />
-    <h1 id="pageTitleDesktop" class="h5 d-none d-md-block mb-0"></h1>
-    <h1 id="pageTitleMobile" class="h6 d-md-none mb-0"></h1>
+    <c:set var="tituloPaginaDesktop" value="Panel de Administración" scope="request" />
+    <c:set var="tituloPaginaMobile" value="Administración" scope="request" />
+    <c:set var="iconoPagina" value="fas fa-tachometer-alt" scope="request" />
     <jsp:include page="/includes/header.jsp" />
-   
     <!-- Main Content con scroll -->
     <main class="main-content">
         <!-- Información adicional -->

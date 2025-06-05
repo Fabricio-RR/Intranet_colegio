@@ -15,10 +15,12 @@
                 <i class="fas fa-bars"></i>
             </button>
             <h1 class="h5 d-none d-md-block mb-0">
-                <c:out value="${tituloPagina}" default="" />
+                 <i class="${iconoPagina} me-2"></i>
+                <c:out value="${tituloPaginaDesktop}" default="" />
             </h1>
             <h1 class="h6 d-md-none mb-0">
-                <c:out value="${tituloPagina}" default="" />
+                 <i class="${iconoPagina} me-2"></i>
+                <c:out value="${tituloPaginaMobile}" default="" />
             </h1>
         </div>
 

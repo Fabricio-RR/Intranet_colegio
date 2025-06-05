@@ -21,6 +21,10 @@ public class UsuariolistarServlet extends HttpServlet {
 
         UsuarioDAO usuarioDAO = new UsuarioDAO();
         List<Usuario> listaUsuarios = usuarioDAO.listarUsuariosCompletos();
+        System.out.println("Total usuarios obtenidos: " + listaUsuarios.size());
+for (Usuario u : listaUsuarios) {
+    System.out.println("Usuario: " + u.getNombres() + " " + u.getApellidos() + " - DNI: " + u.getDni());
+}
 
         request.setAttribute("usuarios", listaUsuarios);
         request.getRequestDispatcher("/views/usuario/usuarios.jsp").forward(request, response);
