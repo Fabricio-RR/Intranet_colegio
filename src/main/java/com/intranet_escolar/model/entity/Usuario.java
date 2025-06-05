@@ -13,13 +13,19 @@ public class Usuario {
     private boolean estado;
     private Date fecRegistro;
     private String fotoPerfil;
-    private List<Rol> roles;    
+    private List<Rol> roles;
+    private Alumno alumno;
+    private Docente docente;
+    private Apoderado apoderado;
+    private boolean esAlumno;
+    private boolean esDocente;
+    private boolean esApoderado;
 
     public Usuario() {
         roles = new ArrayList<>();
     }
 
-    public Usuario(int idUsuario, String dni, String nombres, String apellidos, String correo, String telefono, String clave, boolean estado, Date fecRegistro, String fotoPerfil, List<Rol> roles) {
+    public Usuario(int idUsuario, String dni, String nombres, String apellidos, String correo, String telefono, String clave, boolean estado, Date fecRegistro, String fotoPerfil, List<Rol> roles, Alumno alumno, Docente docente, Apoderado apoderado, boolean esAlumno, boolean esDocente, boolean esApoderado) {
         this.idUsuario = idUsuario;
         this.dni = dni;
         this.nombres = nombres;
@@ -31,6 +37,12 @@ public class Usuario {
         this.fecRegistro = fecRegistro;
         this.fotoPerfil = fotoPerfil;
         this.roles = roles;
+        this.alumno = alumno;
+        this.docente = docente;
+        this.apoderado = apoderado;
+        this.esAlumno = esAlumno;
+        this.esDocente = esDocente;
+        this.esApoderado = esApoderado;
     }
 
     public int getIdUsuario() {
@@ -120,8 +132,56 @@ public class Usuario {
     public void setRoles(List<Rol> roles) {
         this.roles = roles;
     }
+
+    public Alumno getAlumno() {
+        return alumno;
+    }
+
+    public void setAlumno(Alumno alumno) {
+        this.alumno = alumno;
+    }
+
+    public Docente getDocente() {
+        return docente;
+    }
+
+    public void setDocente(Docente docente) {
+        this.docente = docente;
+    }
+
+    public Apoderado getApoderado() {
+        return apoderado;
+    }
+
+    public void setApoderado(Apoderado apoderado) {
+        this.apoderado = apoderado;
+    }
+
+    public boolean isEsAlumno() {
+        return esAlumno;
+    }
+
+    public void setEsAlumno(boolean esAlumno) {
+        this.esAlumno = esAlumno;
+    }
+
+    public boolean isEsDocente() {
+        return esDocente;
+    }
+
+    public void setEsDocente(boolean esDocente) {
+        this.esDocente = esDocente;
+    }
+
+    public boolean isEsApoderado() {
+        return esApoderado;
+    }
+
+    public void setEsApoderado(boolean esApoderado) {
+        this.esApoderado = esApoderado;
+    }
     
-    @Override
+        @Override
     public String toString() {
         return "Usuario{" +
                "idUsuario=" + idUsuario +

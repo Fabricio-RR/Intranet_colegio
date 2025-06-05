@@ -235,7 +235,7 @@
                     </h5>
                     <div class="row">
                         <div class="col-lg-3 col-md-6 mb-3">
-                            <a href="${pageContext.request.contextPath}/views/usuarios/crear.jsp" 
+                            <a href="${pageContext.request.contextPath}/views/usuario/crear.jsp" 
                                class="quick-action">
                                 <i class="fas fa-user-plus"></i>
                                 <span>Nuevo Usuario</span>
@@ -275,7 +275,7 @@
                             <i class="fas fa-users-cog me-2"></i>
                             Resumen de Usuarios por Rol
                         </h5>
-                        <a href="${pageContext.request.contextPath}/views/usuarios/index.jsp" 
+                        <a href="${pageContext.request.contextPath}/views/usuario/usuarios.jsp" 
                            class="btn btn-admin-primary btn-sm">
                             <i class="fas fa-eye me-1"></i>
                             Ver Todos
@@ -307,7 +307,7 @@
                                                 <td><span class="text-warning fw-bold">${rol.inactivos}</span></td>
                                                 <td>${rol.ultimoAcceso}</td>
                                                 <td>
-                                                    <a href="${pageContext.request.contextPath}/views/usuarios/index.jsp?rol=${rol.codigo}" 
+                                                    <a href="${pageContext.request.contextPath}/views/usuario/usuarios.jsp?rol=${rol.codigo}" 
                                                        class="btn btn-sm btn-outline-primary">
                                                         <i class="fas fa-eye"></i>
                                                     </a>

@@ -3,6 +3,7 @@ package com.intranet_escolar.controller;
 import com.intranet_escolar.dao.UsuarioDAO;
 import com.intranet_escolar.model.entity.Permiso;
 import com.intranet_escolar.model.entity.Usuario;
+import com.intranet_escolar.model.entity.Rol;
 import com.intranet_escolar.model.entity.MenuItem;
 import com.intranet_escolar.service.MenuService;
 
@@ -12,6 +13,7 @@ import jakarta.servlet.http.*;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @WebServlet(name = "LoginServlet", urlPatterns = {"/login"})
 public class LoginServlet extends HttpServlet {
@@ -35,28 +37,38 @@ public class LoginServlet extends HttpServlet {
 
             if (usuario != null) {
                 HttpSession session = request.getSession();
-                // Si existe y la clave es válida
-                // Permisos por rol
-                List<Permiso> permisos = usuarioDAO.obtenerPermisos(usuario.getRoles());
-                session.setAttribute("permisos", permisos);
-
-                // Menú según roles
-                List<MenuItem> menuItems = MenuService.generarMenuPorRoles(usuario.getRoles());
-                session.setAttribute("menuItems", menuItems);
-
-                // Usuario en sesión
                 session.setAttribute("usuario", usuario);
 
-                // Redirigir al dashboard
-                response.sendRedirect(request.getContextPath() + "/dashboard");
+                List<Rol> roles = usuario.getRoles();
+                session.setAttribute("usuario", usuario);
+                session.setAttribute("roles", roles);
+
+                // Convertir los roles a String para los SP de permisos y menú
+                List<String> nombresRoles = roles.stream()
+                        .map(Rol::getNombre)
+                        .collect(Collectors.toList());
+
+                List<Permiso> permisos = usuarioDAO.obtenerPermisos(nombresRoles);
+                List<MenuItem> menuItems = MenuService.generarMenuPorRoles(nombresRoles);
+
+                session.setAttribute("permisos", permisos);
+                session.setAttribute("menuItems", menuItems);
+
+                if (roles.size() == 1) {
+                    String rol = roles.get(0).getNombre().toLowerCase();
+                    session.setAttribute("rolActivo", rol);
+                    response.sendRedirect(request.getContextPath() + "/dashboard/" + rol);
+                } else {
+                    response.sendRedirect(request.getContextPath() + "/views/selec-rol.jsp");
+                }
+
             } else {
-                // Usuario no existe o clave incorrecta
                 request.setAttribute("error", "DNI o contraseña incorrectos.");
                 request.getRequestDispatcher("/views/login.jsp").forward(request, response);
             }
 
         } catch (Exception e) {
-            e.printStackTrace(); // Para depuración
+            e.printStackTrace();
             request.setAttribute("error", "Error del sistema: " + e.getMessage());
             request.getRequestDispatcher("/views/login.jsp").forward(request, response);
         }
@@ -64,6 +76,6 @@ public class LoginServlet extends HttpServlet {
 
     @Override
     public String getServletInfo() {
-        return "Servlet para autenticación de usuarios";
+        return "Servlet para autenticación de usuarios con redirección por rol";
     }
 }

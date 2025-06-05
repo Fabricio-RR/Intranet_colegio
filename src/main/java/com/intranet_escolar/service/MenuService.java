@@ -7,16 +7,16 @@ import java.util.*;
 
 public class MenuService {
 
-    public static List<MenuItem> generarMenuPorRoles(List<Rol> roles) {
+    public static List<MenuItem> generarMenuPorRoles(List<String> nombresRoles) {
         Set<String> permisosGenerales = new HashSet<>();
-        for (Rol rol : roles) {
-            permisosGenerales.add(rol.getNombre().toLowerCase());
+        for (String nombre : nombresRoles) {
+            permisosGenerales.add(nombre.toLowerCase());
         }
 
         List<MenuItem> menu = new ArrayList<>();
 
         if (permisosGenerales.contains("administrador")) {
-            menu.add(new MenuItem("usuarios", "/views/usuarios.jsp", "fas fa-users"));
+            menu.add(new MenuItem("usuarios", "/views/usuario/usuarios.jsp", "fas fa-users"));
             menu.add(new MenuItem("malla curricular", "/views/malla.jsp", "fas fa-chalkboard-teacher"));
             menu.add(new MenuItem("publicaciones", "/views/publicaciones.jsp", "fas fa-bullhorn"));
             menu.add(new MenuItem("reportes", "/views/reportes.jsp", "fas fa-file-alt"));

@@ -8,18 +8,6 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
     <link href="${pageContext.request.contextPath}/assets/css/login.css" rel="stylesheet">
-    <style>
-        .custom-header { background-color: #0A0A3D; }
-        .custom-text { color: #0A0A3D; }
-        .error-message { color: red; font-size: 0.9em; display: none; }
-        .input-error { border-color: #ff0000; }
-        .input-group-append i { color: #ff0000; }
-        .hidden { display: none; }
-        @media (max-width: 576px) {
-            .custom-header h1 { font-size: 1.2rem; }
-            .custom-header img { width: 60px; height: 70px; }
-        }
-    </style>
 </head>
 <body class="bg-white d-flex flex-column align-items-center justify-content-center min-vh-100">
     <header class="w-100 py-4 custom-header text-white text-center d-flex justify-content-center align-items-center">

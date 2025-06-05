@@ -14,10 +14,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- DataTables CSS -->
     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-    <!-- Custom CSS 
-    <link href="${pageContext.request.contextPath}/assets/css/styles.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/assets/css/dashboard.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/assets/css/usuarios.css" rel="stylesheet">-->
 </head>
 <body class="admin-dashboard">
     <!-- Sidebar -->
@@ -44,7 +40,7 @@
                                 <i class="fas fa-file-excel me-1"></i>
                                 <span class="d-none d-sm-inline">Exportar</span>
                             </button>
-                            <a href="${pageContext.request.contextPath}/views/crear.jsp" 
+                            <a href="${pageContext.request.contextPath}/views/usuario/crear.jsp" 
                                class="btn btn-admin-primary">
                                 <i class="fas fa-plus me-1"></i>
                                 <span class="d-none d-sm-inline">Nuevo </span>Usuario
@@ -153,19 +149,37 @@
                     <div class="card-body">
                         <div class="table-responsive">
                             <table id="tablaUsuarios" class="table table-hover">
-                                <thead>
+                                 <thead>
                                     <tr>
-                                        <th>
-                                            <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
-                                        </th>
-                                        <th>Usuario</th>
-                                        <th>Roles</th>
+                                        <th>DNI</th>
+                                        <th>Nombre</th>
+                                        <th>Correo</th>
+                                        <th>Teléfono</th>
                                         <th>Estado</th>
-                                        <th>Información Adicional</th>
-                                        <th>Fecha Registro</th>
-                                        <th>Acciones</th>
+                                        <th>Roles</th>
                                     </tr>
                                 </thead>
+                                <tbody>
+                                    <c:forEach var="u" items="${usuarios}">
+                                        <tr>
+                                            <td>${u.dni}</td>
+                                            <td>${u.nombres} ${u.apellidos}</td>
+                                            <td>${u.correo}</td>
+                                            <td>${u.telefono}</td>
+                                            <td><c:choose>
+                                                    <c:when test="${u.estado}">Activo</c:when>
+                                                    <c:otherwise>Inactivo</c:otherwise>
+                                                </c:choose>
+                                            </td>
+                                            <td>
+                                                <c:forEach var="rol" items="${u.roles}">
+                                                    <span class="badge bg-secondary">${rol.nombre}</span>
+                                                </c:forEach>
+                                            </td>
+                                        </tr>
+                                    </c:forEach>
+                                </tbody>
+                                <!--
                                 <tbody>
                                     <c:forEach items="${usuarios}" var="usuario">
                                         <tr data-usuario-id="${usuario.id_usuario}">
@@ -310,6 +324,7 @@
                                         </tr>
                                     </c:forEach>
                                 </tbody>
+                                -->
                             </table>
                         </div>
                         
@@ -515,36 +530,36 @@
     <script src="${pageContext.request.contextPath}/assets/js/common.js"></script>
     <script src="${pageContext.request.contextPath}/assets/js/usuarios.js"></script>
     <script>
-// Manejar filtros rápidos
-document.querySelectorAll('input[name="filtroRapido"]').forEach(radio => {
-    radio.addEventListener('change', function() {
-        filtrarPorTipo(this.value);
+    // Manejar filtros rápidos
+    document.querySelectorAll('input[name="filtroRapido"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            filtrarPorTipo(this.value);
+        });
     });
-});
 
-// Manejar el toggle de filtros avanzados
-document.querySelector('[data-bs-toggle="collapse"]').addEventListener('click', function() {
-    const icon = this.querySelector('.toggle-icon');
-    const text = this.querySelector('.toggle-text');
-    
-    this.addEventListener('shown.bs.collapse', function() {
-        icon.classList.remove('fa-chevron-down');
-        icon.classList.add('fa-chevron-up');
-        text.textContent = 'Ocultar filtros avanzados';
-    });
-    
-    this.addEventListener('hidden.bs.collapse', function() {
-        icon.classList.remove('fa-chevron-up');
-        icon.classList.add('fa-chevron-down');
-        text.textContent = 'Mostrar filtros avanzados';
-    });
-});
+    // Manejar el toggle de filtros avanzados
+    document.querySelector('[data-bs-toggle="collapse"]').addEventListener('click', function() {
+        const icon = this.querySelector('.toggle-icon');
+        const text = this.querySelector('.toggle-text');
 
-function filtrarPorTipo(tipo) {
-    // Implementar lógica de filtrado por tipo
-    console.log('Filtrando por tipo:', tipo);
-    filtrarUsuarios();
-}
-</script>
+        this.addEventListener('shown.bs.collapse', function() {
+            icon.classList.remove('fa-chevron-down');
+            icon.classList.add('fa-chevron-up');
+            text.textContent = 'Ocultar filtros avanzados';
+        });
+
+        this.addEventListener('hidden.bs.collapse', function() {
+            icon.classList.remove('fa-chevron-up');
+            icon.classList.add('fa-chevron-down');
+            text.textContent = 'Mostrar filtros avanzados';
+        });
+    });
+
+    function filtrarPorTipo(tipo) {
+        // Implementar lógica de filtrado por tipo
+        console.log('Filtrando por tipo:', tipo);
+        filtrarUsuarios();
+    }
+    </script>
 </body>
 </html>

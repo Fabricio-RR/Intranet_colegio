@@ -28,7 +28,7 @@
         <nav aria-label="breadcrumb" class="mb-4">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">
-                    <a href="${pageContext.request.contextPath}/views/usuarios.jsp">
+                    <a href="${pageContext.request.contextPath}/views/usuario/usuarios.jsp">
                         <i class="fas fa-users"></i>Usuarios
                     </a>
                 </li>
@@ -51,9 +51,9 @@
                         <div class="card-body">
                             <div class="row">
                                 <!-- Foto de perfil -->
-                                <div class="col-md-3 text-center mb-4">
+                                <div class="col-md-3 text-center mb-4 d-flex flex-column align-items-center justify-content-center">
                                     <div class="foto-perfil-container">
-                                        <img id="previewFoto" src="/placeholder.svg?height=150&width=150" 
+                                        <img id="previewFoto" src="${pageContext.request.contextPath}/assets/img/icon-defecto.png?height=150&width=150" 
                                              alt="Foto de perfil" class="foto-perfil">
                                         <div class="foto-overlay">
                                             <i class="fas fa-camera"></i>
@@ -61,7 +61,7 @@
                                         </div>
                                         <input type="file" id="inputFoto" name="foto_perfil" accept="image/*" style="display: none;">
                                     </div>
-                                    <small class="text-muted">Máximo 2MB - JPG, PNG</small>
+                                    <small class="text-muted d-block mt-2">Máximo 2MB - JPG, PNG</small>
                                 </div>
                                 
                                 <div class="col-md-9">
@@ -303,7 +303,7 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
-                                <a href="${pageContext.request.contextPath}/views/usuarios.jsp" 
+                                <a href="${pageContext.request.contextPath}/views/usuario/usuarios.jsp" 
                                    class="btn btn-secondary">
                                     <i class="fas fa-arrow-left me-1"></i>
                                     Cancelar
