@@ -265,6 +265,122 @@ public class UsuarioDAO {
 
         return lista;
     }
+    
+    public Usuario obtenerUsuarioCompletoPorId(int idUsuario) {
+        Usuario usuario = null;
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             CallableStatement stmt = conn.prepareCall("{CALL sp_obtener_usuario_por_id(?)}")) {
+
+            stmt.setInt(1, idUsuario);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                usuario = new Usuario();
+                usuario.setIdUsuario(rs.getInt("id_usuario"));
+                usuario.setDni(rs.getString("dni"));
+                usuario.setNombres(rs.getString("nombres"));
+                usuario.setApellidos(rs.getString("apellidos"));
+                usuario.setCorreo(rs.getString("correo"));
+                usuario.setTelefono(rs.getString("telefono"));
+                usuario.setEstado(rs.getBoolean("estado"));
+                usuario.setFecRegistro(rs.getTimestamp("fec_registro"));
+                usuario.setFotoPerfil(rs.getString("foto_perfil"));
+
+                // Roles
+                String rolesConcatenados = rs.getString("roles");
+                List<Rol> roles = new ArrayList<>();
+                if (rolesConcatenados != null && !rolesConcatenados.isEmpty()) {
+                    for (String nombreRol : rolesConcatenados.split(",")) {
+                        Rol rol = new Rol();
+                        rol.setNombre(nombreRol.trim());
+                        roles.add(rol);
+                    }
+                }
+                usuario.setRoles(roles);
+
+                // Alumno
+                String codigoMatricula = rs.getString("codigo_matricula");
+                if (codigoMatricula != null) {
+                    Alumno alumno = new Alumno();
+                    alumno.setCodigo_matricula(codigoMatricula);
+                    alumno.setGrado(rs.getString("grado"));
+                    alumno.setSeccion(rs.getString("seccion"));
+                    usuario.setAlumno(alumno);
+                    usuario.setEsAlumno(true);
+                }
+
+                // Docente
+                int totalCursos = rs.getInt("total_cursos");
+                if (totalCursos > 0) {
+                    Docente docente = new Docente();
+                    docente.setTotalCursos(totalCursos);
+                    usuario.setDocente(docente);
+                    usuario.setEsDocente(true);
+                }
+
+                // Apoderado
+                int totalHijos = rs.getInt("total_hijos");
+                if (totalHijos > 0) {
+                    Apoderado apoderado = new Apoderado();
+                    apoderado.setHijos(new ArrayList<>(Collections.nCopies(totalHijos, new Alumno())));
+                    usuario.setApoderado(apoderado);
+                    usuario.setEsApoderado(true);
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return usuario;
+    }
+    
+    public List<Rol> listarTodosLosRoles() {
+        List<Rol> lista = new ArrayList<>();
+        String sql = "CALL sp_listar_todos_roles()";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             CallableStatement stmt = conn.prepareCall(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Rol rol = new Rol();
+                rol.setIdRol(rs.getInt("id_rol"));
+                rol.setNombre(rs.getString("nombre"));
+                rol.setDescripcion(rs.getString("descripcion"));
+                lista.add(rol);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return lista;
+    }
+    
+    public List<Map<String, Object>> obtenerBitacoraPorUsuario(int idUsuario) {
+        List<Map<String, Object>> registros = new ArrayList<>();
+        String sql = "CALL sp_bitacora_por_usuario(?)";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             CallableStatement stmt = conn.prepareCall(sql)) {
+
+            stmt.setInt(1, idUsuario);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Map<String, Object> registro = new HashMap<>();
+                registro.put("modulo", rs.getString("modulo"));
+                registro.put("accion", rs.getString("accion"));
+                registro.put("fecha", rs.getTimestamp("fecha"));
+                registros.add(registro);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return registros;
+    }
 }
-
-

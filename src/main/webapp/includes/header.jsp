@@ -7,6 +7,24 @@
 <!-- Custom CSS -->
     <link href="${pageContext.request.contextPath}/assets/css/styles.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/assets/css/dashboard.css" rel="stylesheet">
+    <style>
+        .dropdown-menu .dropdown-item {
+          transition: background-color 0.2s ease;
+        }
+
+        .dropdown-menu .dropdown-item:hover,
+        .dropdown-menu .dropdown-item:active,
+        .dropdown-menu .dropdown-item:focus {
+          background-color: #110d59 !important;
+          color: white !important;
+        }
+
+        .dropdown-menu .dropdown-item:hover i,
+        .dropdown-menu .dropdown-item:active i,
+        .dropdown-menu .dropdown-item:focus i {
+          color: white !important;
+        }
+        </style>
 <header class="dashboard-header">
     <div class="d-flex justify-content-between align-items-center h-100">
         <!-- Lado izquierdo: Botón toggle y título -->

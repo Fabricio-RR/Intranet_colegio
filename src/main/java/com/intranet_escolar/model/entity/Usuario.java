@@ -196,4 +196,14 @@ public class Usuario {
                ", fotoPerfil='" + fotoPerfil + '\'' +
                '}';
     }
+    public List<Integer> getRolesAsIds() {
+    List<Integer> ids = new ArrayList<>();
+    if (roles != null) {
+        for (Rol rol : roles) {
+            ids.add(rol.getIdRol());
+        }
+    }
+    return ids;
+}
+
 }

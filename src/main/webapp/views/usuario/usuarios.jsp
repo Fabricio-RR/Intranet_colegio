@@ -175,7 +175,7 @@
                                                         <i class="fas fa-edit"></i>
                                                     </button>
                                                     <div class="btn-group" role="group">
-                                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                                                        <button class="btn btn-sm btn-outline-success dropdown-toggle" data-bs-toggle="dropdown">
                                                             <i class="fas fa-cog"></i>
                                                         </button>
                                                         <ul class="dropdown-menu">
@@ -196,7 +196,6 @@
                                         </tr>
                                     </c:forEach>
                                 </tbody>
-
                             </table>
                         </div>
                     </div>
@@ -213,10 +212,10 @@
                     </div>
                     <div class="modal-body" id="contenidoUsuario"></div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                        <button type="button" class="btn btn-admin-primary" onclick="editarUsuarioModal()">
-                            <i class="fas fa-edit me-1"></i>Editar
+                        <button type="button" class="btn btn-outline-danger btn-sm btn-uniform" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-1"></i>Cerrar
                         </button>
+                        <div id="botonAccionModal"></div>
                     </div>
                 </div>
             </div>
@@ -233,7 +232,7 @@
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="${pageContext.request.contextPath}/assets/js/common.js"></script>
-    <script src="${pageContext.request.contextPath}/assets/js/usuarios.js"></script>
+    <script src="${pageContext.request.contextPath}/assets/js/usuario.js"></script>
 
     <script>
         $(document).ready(function () {

@@ -304,13 +304,13 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
-                                <a href="${pageContext.request.contextPath}/views/usuario/usuarios.jsp" 
-                                   class="btn btn-secondary">
+                                <a href="${pageContext.request.contextPath}/usuarios" 
+                                   class="btn btn-outline-danger btn-sm btn-uniform">
                                     <i class="fas fa-arrow-left me-1"></i>
                                     Cancelar
                                 </a>
                                 <div>
-                                    <button type="button" class="btn btn-outline-primary me-2" onclick="limpiarFormulario()">
+                                    <button type="button" class="btn btn-outline-success btn-sm btn-uniform" onclick="limpiarFormulario()">
                                         <i class="fas fa-eraser me-1"></i>
                                         Limpiar
                                     </button>
