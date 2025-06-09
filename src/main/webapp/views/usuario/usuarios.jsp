@@ -14,8 +14,10 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- DataTables CSS -->
     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    
 </head>
-<body class="admin-dashboard">
+<body class="admin-dashboard" data-context-path="${pageContext.request.contextPath}">
+
     <!-- Sidebar -->
     <jsp:include page="/includes/sidebar.jsp" />
     <c:set var="tituloPaginaDesktop" value="Gestión de Usuarios" scope="request" />
@@ -30,18 +32,13 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="card">
-                <div class="card-header">
-                    <div class="d-flex flex-wrap justify-content-end align-items-center gap-2">
-                        <button type="button" class="btn btn-outline-success btn-sm btn-uniform " onclick="exportarUsuarios()">
-                            <i class="fas fa-file-excel me-1"></i>
-                            <span>Exportar</span>
-                        </button>
-                        <a href="${pageContext.request.contextPath}/views/usuario/crear.jsp" 
-                           class="btn btn-admin-primary btn-sm btn-uniform">
-                            <i class="fas fa-plus me-1"></i>
-                            <span class="d-none d-sm-inline">Nuevo </span>Usuario
-                        </a>
-                    </div>
+                <div class="card-header d-flex flex-wrap justify-content-end align-items-center gap-2">
+                    <button type="button" class="btn btn-outline-success btn-sm btn-uniform" onclick="exportarUsuarios()" title="Exportar a Excel">
+                        <i class="fas fa-file-excel me-1"></i><span>Exportar</span>
+                    </button>
+                    <a href="${pageContext.request.contextPath}/usuarios?action=nuevo" class="btn btn-admin-primary btn-sm btn-uniform" title="Nuevo usuario">
+                        <i class="fas fa-plus me-1"></i><span class="d-none d-sm-inline">Crear</span> Usuario
+                    </a>
                 </div>
                 <div class="card-body">
                     <!-- Filtros Principales -->
@@ -69,7 +66,7 @@
                             <select class="form-select" id="filtroRol" onchange="filtrarUsuarios()">
                                 <option value="">Todos los roles</option>
                                 <c:forEach items="${rolesDisponibles}" var="rol">
-                                    <option value="${rol.id_rol}">${rol.nombre}</option>
+                                    <option value="${rol.idRol}">${rol.nombre}</option>
                                 </c:forEach>
                             </select>
                         </div>
@@ -119,11 +116,9 @@
                             </div>
                         </div>
                     </div>
-
                     <!-- Botón para mostrar/ocultar filtros avanzados -->
                      <div class="text-center mt-3">
-                        <button class="btn btn-link btn-sm" type="button" data-bs-toggle="collapse" 
-                                data-bs-target="#filtrosAvanzados" aria-expanded="false">
+                        <button class="btn btn-link btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#filtrosAvanzados" aria-expanded="false" onclick="alternarTextoFiltro(this)">
                             <i class="fas fa-filter me-1"></i>
                             <span class="toggle-text">Mostrar filtros avanzados</span>
                             <i class="fas fa-chevron-down ms-1 toggle-icon"></i>
@@ -154,40 +149,36 @@
                                 <tbody>
                                     <c:forEach items="${usuarios}" var="usuario">
                                         <tr>
-                                            <td>
-                                                <input type="checkbox" class="user-checkbox" value="${usuario.idUsuario}">
-                                            </td>
-                                            <td>${usuario.dni}</td>
-                                            <td>${usuario.nombres} ${usuario.apellidos}</td>
-                                            <td>${usuario.correo}</td>
-                                            <td>${usuario.telefono}</td>
+                                            <td><input type="checkbox" class="user-checkbox" value="${usuario.idUsuario}"></td>
+                                            <td>${fn:escapeXml(usuario.dni)}</td>
+                                            <td>${fn:escapeXml(usuario.nombres)} ${fn:escapeXml(usuario.apellidos)}</td>
+                                            <td>${fn:escapeXml(usuario.correo)}</td>
+                                            <td>${fn:escapeXml(usuario.telefono)}</td>
                                             <td>
                                                 <c:forEach var="rol" items="${usuario.roles}">
-                                                    <span class="badge bg-primary me-1">${rol.nombre}</span>
+                                                    <span class="badge bg-primary me-1">${fn:escapeXml(rol.nombre)}</span>
                                                 </c:forEach>
                                             </td>
                                             <td>
                                                 <div class="btn-group" role="group">
-                                                    <button class="btn btn-sm btn-outline-primary" onclick="verUsuario(${usuario.idUsuario})" title="Ver">
+                                                    <button class="btn btn-sm btn-outline-primary" onclick="verUsuario(${usuario.idUsuario})" title="Ver usuario">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
-                                                    <button class="btn btn-sm btn-outline-warning" onclick="editarUsuario(${usuario.idUsuario})" title="Editar">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-warning" onclick="editarUsuario(${usuario.idUsuario})" title="Editar usuario">
+                                                        <i class="fas fa-edit">
+                                                            
+                                                        </i></button>
                                                     <div class="btn-group" role="group">
                                                         <button class="btn btn-sm btn-outline-success dropdown-toggle" data-bs-toggle="dropdown">
                                                             <i class="fas fa-cog"></i>
                                                         </button>
                                                         <ul class="dropdown-menu">
-                                                            <li><a class="dropdown-item" href="#" onclick="resetearPassword(${usuario.idUsuario})">
+                                                            <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); resetearPassword(${usuario.idUsuario})">
                                                                 <i class="fas fa-key me-2"></i>Resetear Contraseña</a></li>
-                                                            <li><a class="dropdown-item" href="#" onclick="cambiarEstado(${usuario.idUsuario}, ${usuario.estado})">
-                                                                <i class="fas fa-toggle-on me-2"></i>
-                                                                ${usuario.estado ? 'Desactivar' : 'Activar'}</a></li>
-                                                            <li><a class="dropdown-item" href="#" onclick="verBitacora(${usuario.idUsuario})">
+                                                            <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); verBitacora(${usuario.idUsuario})">
                                                                 <i class="fas fa-history me-2"></i>Ver Bitácora</a></li>
                                                             <li><hr class="dropdown-divider"></li>
-                                                            <li><a class="dropdown-item text-danger" href="#" onclick="eliminarUsuario(${usuario.idUsuario})">
+                                                            <li><a class="dropdown-item text-danger" href="#" onclick=" event.preventDefault(); eliminarUsuario(${usuario.idUsuario})">
                                                                 <i class="fas fa-trash me-2"></i>Eliminar</a></li>
                                                         </ul>
                                                     </div>
@@ -202,7 +193,7 @@
                 </div>
             </div>
         </div>
-        <!-- Modal Ver Usuario -->
+        <!-- Modal Usuario -->
         <div class="modal fade" id="modalVerUsuario" tabindex="-1">
             <div class="modal-dialog modal-xl">
                 <div class="modal-content">
@@ -220,7 +211,6 @@
                 </div>
             </div>
         </div>
-
         <!-- Footer -->
         <jsp:include page="/includes/footer.jsp" />
     </main>

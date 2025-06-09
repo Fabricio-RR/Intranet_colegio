@@ -15,7 +15,8 @@
     <link href="${pageContext.request.contextPath}/assets/css/styles.css" rel="stylesheet">-->
     <link href="${pageContext.request.contextPath}/assets/css/formularios.css" rel="stylesheet">
 </head>
-<body class="admin-dashboard">
+<body class="admin-dashboard"data-context-path="${pageContext.request.contextPath}">
+
     <!-- Sidebar -->
     <jsp:include page="/includes/sidebar.jsp" />
     <c:set var="tituloPaginaDesktop" value="Crear Nuevo Usuario" scope="request" />
@@ -29,7 +30,7 @@
         <nav aria-label="breadcrumb" class="mb-4">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">
-                    <a href="${pageContext.request.contextPath}/views/usuario/usuarios.jsp">
+                    <a href="${pageContext.request.contextPath}/usuarios">
                         <i class="fas fa-users"></i>Usuarios
                     </a>
                 </li>
@@ -54,7 +55,7 @@
                                 <!-- Foto de perfil -->
                                 <div class="col-md-3 text-center mb-4 d-flex flex-column align-items-center justify-content-center">
                                     <div class="foto-perfil-container">
-                                        <img id="previewFoto" src="${pageContext.request.contextPath}/assets/img/icon-defecto.png?height=150&width=150" 
+                                        <img id="previewFoto" src="${pageContext.request.contextPath}/uploads/default.png?height=150&width=150" 
                                              alt="Foto de perfil" class="foto-perfil">
                                         <div class="foto-overlay">
                                             <i class="fas fa-camera"></i>
@@ -179,12 +180,36 @@
                                     <div class="roles-container">
                                         <c:forEach items="${rolesDisponibles}" var="rol">
                                             <div class="form-check role-check">
-                                                <input class="form-check-input" type="checkbox" value="${rol.id_rol}" 
-                                                       id="rol${rol.id_rol}" name="roles" onchange="manejarCambioRol(this)">
-                                                <label class="form-check-label" for="rol${rol.id_rol}">
+                                                <input class="form-check-input" type="checkbox" value="${rol.idRol}" 
+                                                    id="rol${rol.idRol}" name="roles">
+                                                <label class="form-check-label" for="rol${rol.idRol}">
                                                     <div class="role-card-small">
-                                                        <div class="role-icon-small bg-primary">
-                                                            <i class="fas fa-${rol.icono}"></i>
+                                                        <div class="role-icon-small" style="
+                                                            <c:choose>
+                                                                <c:when test="${rol.nombre eq 'Administrador'}">background-color: #0A0A3D;</c:when>
+                                                                <c:when test="${rol.nombre eq 'Docente'}">background-color: #007bff;</c:when>
+                                                                <c:when test="${rol.nombre eq 'Alumno'}">background-color: #28a745;</c:when>
+                                                                <c:when test="${rol.nombre eq 'Apoderado'}">background-color: #ffc107;</c:when>
+                                                                <c:otherwise>background-color: #6c757d;</c:otherwise>
+                                                            </c:choose>
+                                                        ">
+                                                            <c:choose>
+                                                                <c:when test="${rol.nombre eq 'Administrador'}">
+                                                                    <i class="fas fa-user-shield"></i>
+                                                                </c:when>
+                                                                <c:when test="${rol.nombre eq 'Docente'}">
+                                                                    <i class="fas fa-chalkboard-teacher"></i>
+                                                                </c:when>
+                                                                <c:when test="${rol.nombre eq 'Alumno'}">
+                                                                    <i class="fas fa-user-graduate"></i>
+                                                                </c:when>
+                                                                <c:when test="${rol.nombre eq 'Apoderado'}">
+                                                                    <i class="fas fa-users"></i>
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    <i class="fas fa-user-tag"></i>
+                                                                </c:otherwise>
+                                                            </c:choose>
                                                         </div>
                                                         <div class="role-info">
                                                             <strong>${rol.nombre}</strong>
@@ -195,111 +220,10 @@
                                             </div>
                                         </c:forEach>
                                     </div>
-                                    <div class="invalid-feedback">
-                                        Seleccione al menos un rol.
-                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Información Específica por Rol -->
-                    <div id="infoEspecifica" style="display: none;">
-                        <!-- Información de Estudiante -->
-                        <div class="card mb-4" id="infoAlumno" style="display: none;">
-                            <div class="card-header">
-                                <h5 class="mb-0">
-                                    <i class="fas fa-graduation-cap me-2"></i>
-                                    Información del Estudiante
-                                </h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-4 mb-3">
-                                        <label for="anioLectivo" class="form-label">Año Lectivo</label>
-                                        <select class="form-select" id="anioLectivo" name="id_anio_lectivo">
-                                            <option value="">Seleccionar año</option>
-                                            <c:forEach items="${aniosLectivos}" var="anio">
-                                                <option value="${anio.id_anio_lectivo}" ${anio.estado == 'activo' ? 'selected' : ''}>
-                                                    ${anio.nombre}
-                                                </option>
-                                            </c:forEach>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="nivel" class="form-label">Nivel</label>
-                                        <select class="form-select" id="nivel" name="id_nivel" onchange="cargarGrados()">
-                                            <option value="">Seleccionar nivel</option>
-                                            <c:forEach items="${niveles}" var="nivel">
-                                                <option value="${nivel.id_nivel}">${nivel.nombre}</option>
-                                            </c:forEach>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="grado" class="form-label">Grado</label>
-                                        <select class="form-select" id="grado" name="id_grado" onchange="cargarSecciones()">
-                                            <option value="">Seleccionar grado</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-4 mb-3">
-                                        <label for="seccion" class="form-label">Sección</label>
-                                        <select class="form-select" id="seccion" name="id_seccion">
-                                            <option value="">Seleccionar sección</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="codigoMatricula" class="form-label">Código de Matrícula</label>
-                                        <input type="text" class="form-control" id="codigoMatricula" name="codigo_matricula">
-                                        <div class="form-text">Se generará automáticamente si se deja vacío</div>
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="estadoMatricula" class="form-label">Estado de Matrícula</label>
-                                        <select class="form-select" id="estadoMatricula" name="estado_matricula">
-                                            <option value="regular">Regular</option>
-                                            <option value="condicional">Condicional</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Información de Apoderado -->
-                        <div class="card mb-4" id="infoApoderado" style="display: none;">
-                            <div class="card-header">
-                                <h5 class="mb-0">
-                                    <i class="fas fa-users me-2"></i>
-                                    Información del Apoderado
-                                </h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="alumnoAsignado" class="form-label">Estudiante a cargo</label>
-                                        <select class="form-select" id="alumnoAsignado" name="id_alumno">
-                                            <option value="">Seleccionar estudiante</option>
-                                            <c:forEach items="${estudiantesDisponibles}" var="estudiante">
-                                                <option value="${estudiante.id_alumno}">
-                                                    ${estudiante.nombres} ${estudiante.apellidos} - ${estudiante.codigo_matricula}
-                                                </option>
-                                            </c:forEach>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="parentesco" class="form-label">Parentesco</label>
-                                        <select class="form-select" id="parentesco" name="parentesco">
-                                            <option value="">Seleccionar parentesco</option>
-                                            <option value="padre">Padre</option>
-                                            <option value="madre">Madre</option>
-                                            <option value="tutor">Tutor</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Botones de Acción -->
                     <div class="card">
                         <div class="card-body">

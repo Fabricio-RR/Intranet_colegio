@@ -1,13 +1,63 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.intranet_escolar.model.entity;
 
-/**
- *
- * @author Hp
- */
 public class Curso {
+    private String nombreCurso;
+    private String grado;
+    private String seccion;
+    private String nivel;
+    private String anio;
+
+    public Curso() {
+    }
+
+    public Curso(String nombreCurso, String grado, String seccion, String nivel, String anio) {
+        this.nombreCurso = nombreCurso;
+        this.grado = grado;
+        this.seccion = seccion;
+        this.nivel = nivel;
+        this.anio = anio;
+    }
+
+    public String getNombreCurso() {
+        return nombreCurso;
+    }
+
+    public void setNombreCurso(String nombreCurso) {
+        this.nombreCurso = nombreCurso;
+    }
+
+    public String getGrado() {
+        return grado;
+    }
+
+    public void setGrado(String grado) {
+        this.grado = grado;
+    }
+
+    public String getSeccion() {
+        return seccion;
+    }
+
+    public void setSeccion(String seccion) {
+        this.seccion = seccion;
+    }
+
+    public String getNivel() {
+        return nivel;
+    }
+
+    public void setNivel(String nivel) {
+        this.nivel = nivel;
+    }
+
+    public String getAnio() {
+        return anio;
+    }
+
+    public void setAnio(String anio) {
+        this.anio = anio;
+    }
     
+    
+
 }

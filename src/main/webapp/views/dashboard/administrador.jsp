@@ -275,7 +275,7 @@
                             <i class="fas fa-users-cog me-2"></i>
                             Resumen de Usuarios por Rol
                         </h5>
-                        <a href="${pageContext.request.contextPath}/views/usuario/usuarios.jsp" 
+                        <a href="${pageContext.request.contextPath}/usuario/usuarios" 
                            class="btn btn-admin-primary btn-sm">
                             <i class="fas fa-eye me-1"></i>
                             Ver Todos
@@ -285,12 +285,12 @@
                         <table class="table table-hover mb-0">
                             <thead>
                                 <tr>
+                                    <th></th>
                                     <th>Rol</th>
                                     <th>Total Usuarios</th>
                                     <th>Activos</th>
                                     <th>Inactivos</th>
-                                    <th>Último Acceso</th>
-                                    <th>Acciones</th>
+                                    <th>Último Registró</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -298,6 +298,7 @@
                                     <c:when test="${not empty resumenRoles}">
                                         <c:forEach items="${resumenRoles}" var="rol">
                                             <tr>
+                                                <th></th>
                                                 <td>
                                                     <i class="${rol.icono} me-2"></i>
                                                     ${rol.nombre}
@@ -306,12 +307,6 @@
                                                 <td><span class="text-success fw-bold">${rol.activos}</span></td>
                                                 <td><span class="text-warning fw-bold">${rol.inactivos}</span></td>
                                                 <td>${rol.ultimoAcceso}</td>
-                                                <td>
-                                                    <a href="${pageContext.request.contextPath}/views/usuario/usuarios.jsp?rol=${rol.codigo}" 
-                                                       class="btn btn-sm btn-outline-primary">
-                                                        <i class="fas fa-eye"></i>
-                                                    </a>
-                                                </td>
                                             </tr>
                                         </c:forEach>
                                     </c:when>

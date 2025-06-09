@@ -1,17 +1,11 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- DataTables CSS -->
-    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-
-
 <div class="container-fluid">
     <!-- FOTO -->
     <div class="text-center mb-4">
-        <img src="${pageContext.request.contextPath}/uploads/${usuario.fotoPerfil}" alt="Foto de perfil"
-             class="rounded-circle shadow-sm" width="120" height="120" />
+    <c:set var="foto" value="${empty usuario.fotoPerfil ? 'default.png' : usuario.fotoPerfil}" />
+    <img src="${pageContext.request.contextPath}/uploads/${foto}" alt="Foto de perfil"
+         class="rounded-circle shadow-sm" width="120" height="120" />
     </div>
 
     <!-- DATOS BÁSICOS -->
@@ -50,9 +44,13 @@
         </div>
     </div>
 
-    <!-- DATOS DE ESTUDIANTE -->
+    <!-- DATOS DE ALUMNO -->
     <c:if test="${usuario.esAlumno}">
         <hr />
+        <div class="row mb-2">
+            <div class="col-md-4 fw-bold">Apoderado:</div>
+            <div class="col-md-8">${usuario.alumno.nombreApoderado} (${usuario.alumno.parentescoApoderado})</div>
+        </div>
         <div class="row mb-2">
             <div class="col-md-4 fw-bold">Código de Matrícula:</div>
             <div class="col-md-8">${usuario.alumno.codigoMatricula}</div>
@@ -80,22 +78,27 @@
         <hr />
         <div class="row mb-2">
             <div class="col-md-4 fw-bold">Parentesco:</div>
-            <div class="col-md-8">${usuario.apoderado.parentesco}</div>
+             <c:forEach var="hijo" items="${usuario.apoderado.hijos}">
+            <div class="col-md-8">${hijo.parentescoApoderado}</div>
+            </c:forEach>
         </div>
         <div class="row mb-2">
-            <div class="col-md-4 fw-bold">Alumno a cargo:</div>
-            <div class="col-md-8">${usuario.apoderado.nombreAlumno}</div>
+            <div class="col-md-4 fw-bold">Alumnos a cargo:</div>
+            <div class="col-md-8">
+                <c:forEach var="hijo" items="${usuario.apoderado.hijos}">
+                    ${hijo.nombres} ${hijo.apellidos} - ${hijo.nivel} - ${hijo.grado} "${hijo.seccion}" |
+                    Matrícula: ${hijo.codigoMatricula} | Año: ${hijo.anio}
+                </c:forEach>
+            </div>
         </div>
     </c:if>
 
     <!-- DATOS DE DOCENTE -->
     <c:if test="${usuario.esDocente}">
         <hr />
-        <div class="mb-2 fw-bold">Cursos Asignados:</div>
-        <ul>
-            <c:forEach var="curso" items="${usuario.docente.cursos}">
-                <li>${curso.nombre} - ${curso.nivel} ${curso.grado} "${curso.seccion}"</li>
-            </c:forEach>
-        </ul>
+        <div class="row mb-2">
+            <div class="col-md-4 fw-bold">Total de cursos asignados:</div>
+            <div class="col-md-8">${usuario.docente.totalCursos}</div>
+        </div>
     </c:if>
 </div>

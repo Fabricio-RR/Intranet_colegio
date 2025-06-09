@@ -69,4 +69,43 @@ public class EmailUtil {
         email.addTo(destinatario);
         email.send();
     }
+    
+    public static void enviarNuevaClave(String destinatario, String nuevaClave, String nombreUsuario) throws EmailException {
+        HtmlEmail email = new HtmlEmail();
+        email.setHostName(HOST);
+        email.setSmtpPort(PORT);
+        email.setAuthentication(AUTH_EMAIL, AUTH_PASSWORD);
+        email.setStartTLSRequired(true);
+        email.setFrom(FROM_EMAIL, FROM_NAME);
+        email.setSubject("Nueva Contraseña - Intranet Escolar");
+
+        String htmlMessage =
+            "<!DOCTYPE html>" +
+            "<html lang='es'>" +
+            "<head><meta charset='UTF-8'><title>Nueva Contraseña</title></head>" +
+            "<body style='font-family: Arial, sans-serif; background-color: #f4f4f4;'>" +
+            "  <table align='center' cellpadding='0' cellspacing='0' width='100%' style='padding: 20px; background-color: #f4f4f4;'>" +
+            "    <tr><td align='center'>" +
+            "      <table cellpadding='0' cellspacing='0' width='100%' style='max-width: 600px; background-color: #ffffff; padding: 20px; border-radius: 8px;'>" +
+            "        <tr><td style='text-align: center; padding-bottom: 20px;'>" +
+            "          <h2 style='color: #0A0A3D;'>Intranet Escolar</h2>" +
+            "          <p style='color: #555; font-size: 14px;'>Colegio Peruano Chino Diez de Octubre</p>" +
+            "        </td></tr>" +
+            "        <tr><td style='padding: 10px 0; font-size: 16px; color: #333;'>Estimado(a) <strong>" + nombreUsuario + "</strong>,</td></tr>" +
+            "        <tr><td style='padding: 10px 0; font-size: 16px; color: #333;'>Tu nueva contraseña temporal es:</td></tr>" +
+            "        <tr><td style='text-align: center; padding: 20px 0;'>" +
+            "          <div style='display: inline-block; background-color: #0A0A3D; color: white; font-size: 22px; padding: 12px 24px; border-radius: 6px; letter-spacing: 2px; font-weight: bold;'>" +
+                        nuevaClave + "</div></td></tr>" +
+            "        <tr><td style='font-size: 14px; color: #555;'>Por seguridad, cambia esta contraseña al iniciar sesión.</td></tr>" +
+            "        <tr><td style='padding-top: 30px; border-top: 1px solid #ddd; font-size: 12px; color: #999; text-align: center;'>© 2025 Intranet Escolar</td></tr>" +
+            "      </table>" +
+            "    </td></tr>" +
+            "  </table>" +
+            "</body></html>";
+
+        email.setHtmlMsg(htmlMessage);
+        email.setTextMsg("Tu nueva contraseña es: " + nuevaClave + "\nPor seguridad, cámbiala al iniciar sesión.");
+        email.addTo(destinatario);
+        email.send();
+    }
 }

@@ -5,13 +5,23 @@ import java.util.List;
 
 
 public class Apoderado {
+    private String parentesco;
     private List<Alumno> hijos;
 
     public Apoderado() {
     }
 
-    public Apoderado(List<Alumno> hijos) {
+    public Apoderado(String parentesco, List<Alumno> hijos) {
+        this.parentesco = parentesco;
         this.hijos = hijos;
+    }
+
+    public String getParentesco() {
+        return parentesco;
+    }
+
+    public void setParentesco(String parentesco) {
+        this.parentesco = parentesco;
     }
 
     public List<Alumno> getHijos() {
@@ -20,5 +30,5 @@ public class Apoderado {
 
     public void setHijos(List<Alumno> hijos) {
         this.hijos = hijos;
-    }  
+    }
 }

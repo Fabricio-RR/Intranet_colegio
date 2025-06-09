@@ -41,7 +41,7 @@ public class SeleccionarServlet extends HttpServlet {
                 session.setAttribute("permisos", permisos);
                 session.setAttribute("menuItems", menu);
 
-                response.sendRedirect(request.getContextPath() + "/views/dashboard/" + rol.toLowerCase()+".jsp");
+                response.sendRedirect(request.getContextPath() + "/dashboard/" + rol.toLowerCase());
                 return;
             }
         }
