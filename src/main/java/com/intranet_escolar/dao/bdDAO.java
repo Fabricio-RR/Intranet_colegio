@@ -5,16 +5,10 @@ import java.sql.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
-/**
- * Clase base para todos los DAOs - Jakarta EE 10
- */
 public abstract class bdDAO {
     
     private static final Logger logger = Logger.getLogger(bdDAO.class.getName());
     
-    /**
-     * Obtiene una conexión a la base de datos
-     */
     protected Connection getConnection() throws SQLException {
         return DatabaseConfig.getConnection();
     }
@@ -92,9 +86,6 @@ public abstract class bdDAO {
         }
     }
     
-    /**
-     * Ejecuta un INSERT y retorna el ID generado
-     */
     protected Long executeInsertAndGetId(String sql, Object... parameters) throws SQLException {
         Connection connection = null;
         PreparedStatement statement = null;
@@ -125,9 +116,6 @@ public abstract class bdDAO {
         }
     }
     
-    /**
-     * Verifica si existe un registro
-     */
     protected boolean exists(String sql, Object... parameters) throws SQLException {
         Connection connection = null;
         PreparedStatement statement = null;
@@ -148,9 +136,6 @@ public abstract class bdDAO {
         }
     }
     
-    /**
-     * Cuenta registros
-     */
     protected int count(String sql, Object... parameters) throws SQLException {
         Connection connection = null;
         PreparedStatement statement = null;
@@ -174,9 +159,7 @@ public abstract class bdDAO {
         }
     }
     
-    /**
-     * Ejecuta múltiples operaciones en una transacción
-     */
+
     protected void executeTransaction(TransactionCallback callback) throws SQLException {
         Connection connection = null;
         
@@ -211,9 +194,6 @@ public abstract class bdDAO {
         }
     }
     
-    /**
-     * Establece parámetros en un PreparedStatement
-     */
     private void setParameters(PreparedStatement statement, Object... parameters) throws SQLException {
         for (int i = 0; i < parameters.length; i++) {
             Object param = parameters[i];

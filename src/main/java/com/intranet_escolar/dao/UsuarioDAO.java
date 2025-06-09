@@ -34,8 +34,7 @@ public class UsuarioDAO {
             String claveHasheadaBD = null;
             Map<Integer, Rol> rolesMap = new HashMap<>();
 
-            while (rs.next()) {
-                if (usuario == null) {
+            if (rs.next()) {
                     usuario = new Usuario();
                     usuario.setIdUsuario(rs.getInt("id_usuario"));
                     usuario.setDni(rs.getString("dni"));
@@ -46,7 +45,6 @@ public class UsuarioDAO {
                     usuario.setEstado(rs.getBoolean("estado"));
                     usuario.setFotoPerfil(rs.getString("foto_perfil"));
                     claveHasheadaBD = rs.getString("clave");
-                }
 
                 int idRol = rs.getInt("id_rol");
                 String nombreRol = rs.getString("rol_nombre");
@@ -58,9 +56,6 @@ public class UsuarioDAO {
             }
 
             if (usuario != null && claveHasheadaBD != null) {
-                
-                System.out.println("Clave ingresada (texto plano): " + claveIngresada);
-                System.out.println("Clave hash desde BD: " + claveHasheadaBD);
 
                 if (BCrypt.checkpw(claveIngresada, claveHasheadaBD)) {
                     usuario.setRoles(new ArrayList<>(rolesMap.values()));

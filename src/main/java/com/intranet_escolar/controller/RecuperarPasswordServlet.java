@@ -33,10 +33,9 @@ public class RecuperarPasswordServlet extends HttpServlet {
         String dni = request.getParameter("dni");
         String email = request.getParameter("email");
 
-        // Instancia DAO antes de usarlo
         UsuarioDAO dao = new UsuarioDAO();
 
-        // Validar existencia del usuario por procedimiento almacenado
+        // Validar existencia del usuario 
         boolean existe = dao.existeUsuarioPorDniYCorreo(dni, email);
 
         if (!existe) {
