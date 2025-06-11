@@ -112,7 +112,6 @@
                 </div>
             </div>
         </div>
-
         <!-- Estadísticas del Estudiante -->
         <div class="row mb-4">
             <div class="col-lg-3 col-md-6 mb-4">
@@ -125,15 +124,27 @@
                             <div class="flex-grow-1">
                                 <div class="stats-label">Promedio Bimestre</div>
                                 <div class="stats-number">${promedioBimestre}</div>
-                                <div class="stats-change ${cambioPromedio >= 0 ? 'positive' : 'negative'}">
-                                    <i class="fas fa-${cambioPromedio >= 0 ? 'arrow-up' : 'arrow-down'} me-1"></i>
-                                    ${Math.abs(cambioPromedio)}
+                                <!-- Calcular cambio sin Math.abs(null) -->
+                                <c:choose>
+                                    <c:when test="${not empty cambioPromedio}">
+                                        <c:set var="cambio" value="${cambioPromedio}" />
+                                    </c:when>
+                                    <c:otherwise>
+                                        <c:set var="cambio" value="0" />
+                                    </c:otherwise>
+                                </c:choose>
+                                <c:set var="cambioAbs" value="${cambio >= 0 ? cambio : -cambio}" />
+
+                                <div class="stats-change ${cambio >= 0 ? 'positive' : 'negative'}">
+                                    <i class="fas fa-${cambio >= 0 ? 'arrow-up' : 'arrow-down'} me-1"></i>
+                                    ${cambioAbs}
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
             
             <div class="col-lg-3 col-md-6 mb-4">
                 <div class="card stats-card h-100 fade-in-up" style="animation-delay: 0.3s;">
