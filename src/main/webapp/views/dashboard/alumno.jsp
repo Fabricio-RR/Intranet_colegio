@@ -18,11 +18,12 @@
     <link href="${pageContext.request.contextPath}/assets/css/styles.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/assets/css/dashboard.css" rel="stylesheet">
 </head>
-<body class="admin-dashboard">
+<body class="estudiante-dashboard">
     <!-- Sidebar -->
     <jsp:include page="/includes/sidebar.jsp" />
-    <h1 id="pageTitleDesktop" class="h5 d-none d-md-block mb-0">Mi Portal Estudiantil</h1>
-    <h1 id="pageTitleMobile" class="h6 d-md-none mb-0">Mi Portal</h1>
+    <c:set var="tituloPaginaDesktop" value="Mi Portal Estudiantil" scope="request" />
+    <c:set var="tituloPaginaMobile" value="Mi Portal" scope="request" />
+    <c:set var="iconoPagina" value="fas fa-graduation-cap" scope="request" />
     <jsp:include page="/includes/header.jsp" />
    
     <!-- Main Content -->
@@ -34,7 +35,7 @@
                     <i class="fas fa-user-graduate me-2"></i>
                     Hola, ${sessionScope.usuario.nombres} ${sessionScope.usuario.apellidos}
                     <span class="ms-3">
-                        <i class="fas fa-graduation-cap me-1"></i>
+                        <i> | </i>
                         ${sessionScope.usuario.grado} "${sessionScope.usuario.seccion}"
                     </span>
                     <span class="ms-3">

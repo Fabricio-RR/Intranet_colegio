@@ -37,9 +37,9 @@ public class LoginServlet extends HttpServlet {
 
             if (usuario != null) {
                 HttpSession session = request.getSession();
-                session.setAttribute("usuario", usuario);
 
                 List<Rol> roles = usuario.getRoles();
+                System.out.println("Roles size = " + roles.size() + " → " + roles);
                 session.setAttribute("usuario", usuario);
                 session.setAttribute("roles", roles);
 
@@ -59,7 +59,9 @@ public class LoginServlet extends HttpServlet {
                     session.setAttribute("rolActivo", rol);
                     response.sendRedirect(request.getContextPath() + "/dashboard/" + rol);
                 } else {
-                    response.sendRedirect(request.getContextPath() + "/views/selec-rol.jsp");
+                    request.getRequestDispatcher("/views/selec-rol.jsp")
+                        .forward(request, response);
+                return;
                 }
 
             } else {

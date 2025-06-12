@@ -34,7 +34,8 @@ public class UsuarioDAO {
             String claveHasheadaBD = null;
             Map<Integer, Rol> rolesMap = new HashMap<>();
 
-            if (rs.next()) {
+            while (rs.next()) {
+                if (usuario == null) {
                     usuario = new Usuario();
                     usuario.setIdUsuario(rs.getInt("id_usuario"));
                     usuario.setDni(rs.getString("dni"));
@@ -45,7 +46,7 @@ public class UsuarioDAO {
                     usuario.setEstado(rs.getBoolean("estado"));
                     usuario.setFotoPerfil(rs.getString("foto_perfil"));
                     claveHasheadaBD = rs.getString("clave");
-
+                }
                 int idRol = rs.getInt("id_rol");
                 String nombreRol = rs.getString("rol_nombre");
                 String descripcionRol = rs.getString("rol_descripcion");
@@ -73,7 +74,7 @@ public class UsuarioDAO {
     }
 
     return usuario;
-}
+    }
     
     public List<Rol> obtenerRolesPorUsuario(int idUsuario) {
         List<Rol> roles = new ArrayList<>();

@@ -1,13 +1,6 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package com.intranet_escolar.model.DTO;
 
-/**
- *
- * @author Hp
- */
 public class HijoDTO {
     private int id;
     private String nombres;

@@ -41,7 +41,7 @@ public class ApoderadoService {
 
     public double obtenerPromedioBimestre(int idHijo) {
         try {
-            return dao.obtenerPromedioBimestre(idHijo);
+            return dao.obtenerPromedioBimestreApoderado(idHijo);
         } catch (SQLException e) {
             e.printStackTrace();
             return 0;
@@ -64,7 +64,7 @@ public class ApoderadoService {
 
     public int obtenerAsistencias(int idHijo) {
         try {
-            return dao.contarDiasAsistidos(idHijo);
+            return dao.contarDiasAsistidosApoderado(idHijo);
         } catch (SQLException e) {
             e.printStackTrace();
             return 0;
@@ -73,7 +73,7 @@ public class ApoderadoService {
 
     public int obtenerTotalDias(int idHijo) {
         try {
-            return dao.contarTotalDias(idHijo);
+            return dao.contarTotalDiasApoderado(idHijo);
         } catch (SQLException e) {
             e.printStackTrace();
             return 0;
@@ -82,7 +82,7 @@ public class ApoderadoService {
 
     public int obtenerMeritos(int idHijo) {
         try {
-            return dao.contarMeritosTotales(idHijo);
+            return dao.contarMeritosTotalesApoderado(idHijo);
         } catch (SQLException e) {
             e.printStackTrace();
             return 0;
@@ -91,7 +91,7 @@ public class ApoderadoService {
 
     public int obtenerMeritosRecientes(int idHijo) {
         try {
-            return dao.contarMeritosRecientes(idHijo);
+            return dao.contarMeritosRecientesApoderado(idHijo);
         } catch (SQLException e) {
             e.printStackTrace();
             return 0;
@@ -100,7 +100,7 @@ public class ApoderadoService {
 
     public int obtenerPosicion(int idHijo) {
         try {
-            return dao.obtenerPosicionActual(idHijo);
+            return dao.obtenerPosicionActualApoderado(idHijo);
         } catch (SQLException e) {
             e.printStackTrace();
             return 0;
@@ -109,7 +109,7 @@ public class ApoderadoService {
 
     public int obtenerTotalEstudiantesSeccion(int idHijo) {
         try {
-            return dao.obtenerTotalEstudiantesEnSeccion(idHijo);
+            return dao.obtenerTotalEstudiantesEnSeccionApoderado(idHijo);
         } catch (SQLException e) {
             e.printStackTrace();
             return 0;
@@ -118,7 +118,7 @@ public class ApoderadoService {
 
     public List<String> obtenerCursos(int idHijo) {
         try {
-            return dao.obtenerNombresCursos(idHijo);
+            return dao.obtenerNombresCursosApoderado(idHijo);
         } catch (SQLException e) {
             e.printStackTrace();
             return new ArrayList<>();
@@ -127,7 +127,7 @@ public class ApoderadoService {
 
     public List<Double> obtenerNotasPorCurso(int idHijo) {
         try {
-            return dao.obtenerPromediosCursos(idHijo);
+            return dao.obtenerPromediosCursosApoderado(idHijo);
         } catch (SQLException e) {
             e.printStackTrace();
             return new ArrayList<>();
@@ -136,7 +136,7 @@ public class ApoderadoService {
 
     public List<String> obtenerPeriodos(int idHijo) {
         try {
-            return dao.obtenerPeriodos(idHijo);
+            return dao.obtenerPeriodosApoderado(idHijo);
         } catch (SQLException e) {
             e.printStackTrace();
             return new ArrayList<>();
@@ -154,7 +154,7 @@ public class ApoderadoService {
 
     public List<NotaDTO> obtenerUltimasCalificaciones(int idHijo) {
         try {
-            return dao.obtenerUltimasCalificaciones(idHijo);
+            return dao.obtenerUltimasCalificacionesApoderado(idHijo);
         } catch (SQLException e) {
             e.printStackTrace();
             return new ArrayList<>();
@@ -163,7 +163,7 @@ public class ApoderadoService {
 
     public List<ComunicadoDTO> obtenerComunicadosRecientes(int idApoderado) {
         try {
-            return dao.obtenerComunicadosParaApoderado();
+            return dao.obtenerComunicadosApoderado();
         } catch (SQLException e) {
             e.printStackTrace();
             return new ArrayList<>();

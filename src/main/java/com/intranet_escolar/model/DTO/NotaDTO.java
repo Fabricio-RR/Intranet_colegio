@@ -9,16 +9,18 @@ public class NotaDTO {
     private double calificacion;
     private Date fecha;
     private String docente;
+    private String observaciones;
 
     public NotaDTO() {
     }
 
-    public NotaDTO(String curso, String tipoEvaluacion, double calificacion, Date fecha, String docente) {
+    public NotaDTO(String curso, String tipoEvaluacion, double calificacion, Date fecha, String docente, String observaciones) {
         this.curso = curso;
         this.tipoEvaluacion = tipoEvaluacion;
         this.calificacion = calificacion;
         this.fecha = fecha;
         this.docente = docente;
+        this.observaciones = observaciones;
     }
 
     public String getCurso() {
@@ -59,6 +61,14 @@ public class NotaDTO {
 
     public void setDocente(String docente) {
         this.docente = docente;
+    }
+
+    public String getObservaciones() {
+        return observaciones;
+    }
+
+    public void setObservaciones(String observaciones) {
+        this.observaciones = observaciones;
     }
     
 }

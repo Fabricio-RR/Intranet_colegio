@@ -18,11 +18,12 @@
     <link href="${pageContext.request.contextPath}/assets/css/styles.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/assets/css/dashboard.css" rel="stylesheet">
 </head>
-<body class="admin-dashboard">
+<body class="docente-dashboard">
     <!-- Sidebar -->
     <jsp:include page="/includes/sidebar.jsp" />
-    <h1 id="pageTitleDesktop" class="h5 d-none d-md-block mb-0">Dashboard Docente</h1>
-    <h1 id="pageTitleMobile" class="h6 d-md-none mb-0">Dashboard</h1>
+    <c:set var="tituloPaginaDesktop" value="Dashboard Docente" scope="request" />
+    <c:set var="tituloPaginaMobile" value="Dashboard" scope="request" />
+    <c:set var="iconoPagina" value="fas fa-tachometer-alt" scope="request" />
     <jsp:include page="/includes/header.jsp" />
    
     <!-- Main Content -->
@@ -122,7 +123,6 @@
                                 <tr>
                                     <th>Hora</th>
                                     <th>Curso</th>
-                                    <th>Sección</th>
                                     <th>Aula</th>
                                     <th>Estado</th>
                                 </tr>
@@ -134,8 +134,7 @@
                                             <strong>${clase.horaInicio} - ${clase.horaFin}</strong>
                                         </td>
                                         <td>${clase.nombreCurso}</td>
-                                        <td>${clase.seccion}</td>
-                                        <td>${clase.aula}</td>
+                                        <td>${clase.nivel} - ${clase.grado} "${clase.seccion}"</td>
                                         <td>
                                             <c:choose>
                                                 <c:when test="${clase.estado == 'completada'}">
@@ -247,6 +246,8 @@
                             <thead>
                                 <tr>
                                     <th>Curso</th>
+                                    <th>Nivel</th>
+                                    <th>Grado</th>
                                     <th>Sección</th>
                                     <th>Estudiantes</th>
                                     <th>Promedio</th>
@@ -260,6 +261,8 @@
                                         <td>
                                             <strong>${curso.nombre}</strong>
                                         </td>
+                                        <td>${curso.nivel}</td>
+                                        <td>${curso.grado}</td>
                                         <td>${curso.seccion}</td>
                                         <td>
                                             <span class="badge badge-admin-active">${curso.totalEstudiantes}</span>
