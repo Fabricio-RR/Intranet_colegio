@@ -165,10 +165,9 @@ public class MallaCurricular {
         this.idAperturaSeccion = idAperturaSeccion;
     }
 
-    public void setNombreDocente(String string) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public void setNombreDocente(String docente) {
+        this.docente = docente;
     }
-
     
 }
 

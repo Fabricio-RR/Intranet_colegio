@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -49,12 +50,16 @@ public class AlumnoService {
         return dto;
     }
 
-    public List<String> obtenerNombresCursos(int idAlumno) throws SQLException {
-        return dao.obtenerNombresCursosAlumno(idAlumno);
+    public String obtenerNombresCursos(int idAlumno) throws SQLException {
+        List<String> lista = dao.obtenerNombresCursosAlumno(idAlumno);
+        return String.join(",", lista);
     }
-
-    public List<Double> obtenerNotasPorCurso(int idAlumno) throws SQLException {
-        return dao.obtenerNotasCursosAlumno(idAlumno);
+    
+    public String obtenerNotasPorCurso(int idAlumno) throws SQLException {
+        List<Double> lista = dao.obtenerNotasCursosAlumno(idAlumno);
+        return lista.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(","));
     }
 
     public List<ClaseDTO> obtenerHorarioHoy(int idAlumno) throws SQLException {

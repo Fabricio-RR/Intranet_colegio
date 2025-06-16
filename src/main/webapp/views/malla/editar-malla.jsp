@@ -1,52 +1,59 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
-<html lang="es">
-<head>
-    <jsp:include page="/includes/meta.jsp"/>
-    <title>Editar Malla Curricular</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="admin-dashboard" data-context-path="${pageContext.request.contextPath}">
-<jsp:include page="/includes/sidebar.jsp" />
-<jsp:include page="/includes/header.jsp" />
-<main class="main-content container py-4">
-    <h4 class="mb-4"><i class="fas fa-pen me-2"></i>Editar Asignación de Malla Curricular</h4>
+  <h4 class="mb-4"><i class="fas fa-pen me-2"></i>Editar Malla Curricular - Nivel ${param.idNivel}</h4>
+  <form id="formEditarMalla" method="post" action="${pageContext.request.contextPath}/malla-curricular">
+    <input type="hidden" name="action" value="actualizarPorNivel" />
+    <input type="hidden" name="idNivel" value="${param.idNivel}" />
+    <input type="hidden" name="anio" value="${param.anio}" />
 
-    <form action="${pageContext.request.contextPath}/malla" method="post">
-        <input type="hidden" name="action" value="actualizar"/>
-        <input type="hidden" name="idMalla" value="${malla.idMalla}"/>
-
-        <div class="row g-3">
-            <div class="col-md-4">
-                <label class="form-label">Curso</label>
-                <input type="text" class="form-control" value="${malla.curso}" readonly>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Docente Asignado</label>
-                <select name="idDocente" class="form-select">
-                    <c:forEach var="docente" items="${docentes}">
-                        <option value="${docente.id}" ${docente.id == malla.idDocente ? 'selected' : ''}>${docente.nombre}</option>
-                    </c:forEach>
+    <div class="table-responsive">
+      <table class="table table-bordered align-middle table-sm">
+        <thead class="table-light">
+          <tr class="text-center">
+            <th>#</th>
+            <th>Curso</th>
+            <th>Docente</th>
+            <th>Orden</th>
+            <th>Activo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <c:forEach var="item" items="${detalleMalla}" varStatus="st">
+            <tr>
+              <td class="text-center">${st.index + 1}</td>
+              <td>${item.nombreCurso}</td>
+              <td>
+                <select name="idDocente_${item.idMalla}" class="form-select form-select-sm">
+                  <option value="">-- Sin docente --</option>
+                  <c:forEach var="doc" items="${docentes}">
+                    <option value="${doc.idUsuario}"
+                            <c:if test="${doc.idUsuario eq item.idDocente}">selected</c:if>>
+                      ${doc.nombres} ${doc.apellidos}
+                    </option>
+                  </c:forEach>
                 </select>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Estado</label>
-                <select name="activo" class="form-select">
-                    <option value="1" ${malla.activo == 1 ? 'selected' : ''}>Activo</option>
-                    <option value="0" ${malla.activo == 0 ? 'selected' : ''}>Inactivo</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="mt-4 d-flex justify-content-end">
-            <a href="${pageContext.request.contextPath}/malla?action=ver" class="btn btn-outline-secondary me-2">Cancelar</a>
-            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-        </div>
-    </form>
-
-<jsp:include page="/includes/footer.jsp" />
-</main>
+              </td>
+              <td class="text-center">
+                <input type="number" name="orden_${item.idMalla}" value="${item.orden}" class="form-control form-control-sm text-center" min="1" />
+              </td>
+              <td class="text-center">
+                <input type="checkbox" name="activo_${item.idMalla}" ${item.activo ? 'checked' : ''} />
+              </td>
+              <input type="hidden" name="idMalla[]" value="${item.idMalla}" />
+            </tr>
+          </c:forEach>
+        </tbody>
+      </table>
+    </div>
+    <div class="text-end mt-3">
+      <button type="submit" class="btn btn-admin-primary">
+        <i class="fas fa-save me-1"></i>Guardar Cambios
+      </button>
+      <button type="button" class="btn btn-outline-secondary ms-2" data-bs-dismiss="modal">
+        Cancelar
+      </button>
+    </div>
+  </form>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+

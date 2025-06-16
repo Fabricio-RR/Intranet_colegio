@@ -592,7 +592,6 @@ public class DashboardDAO {
                     examen.setSeccion(rs.getString("seccion"));
                     examen.setFecha(rs.getDate("fecha"));
                     examen.setTipo(rs.getString("tipo"));
-                    examen.setDiasRestantes(rs.getInt("dias_restantes"));
                     lista.add(examen);
                 }
             }

@@ -1,23 +1,41 @@
-
 package com.intranet_escolar.dao;
 
 import com.intranet_escolar.config.DatabaseConfig;
+import com.intranet_escolar.model.entity.AnioLectivo;
 import com.intranet_escolar.model.entity.MallaCurricular;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+public class MallaCurricularDAO {
 
-    public class MallaCurricularDAO {
-        
-    public List<MallaCurricular> listarResumenPorNivel(int anio) {
+    // NUEVO: Obtiene el id_anio_lectivo por nombre de año
+    public int obtenerIdAnioLectivoPorNombre(int nombreAnio) {
+        int id = 0;
+        String sql = "SELECT id_anio_lectivo FROM anio_lectivo WHERE nombre = ? AND estado = 'activo' LIMIT 1";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, String.valueOf(nombreAnio));
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    id = rs.getInt("id_anio_lectivo");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return id;
+    }
+
+    // Listar el resumen por nivel, RECIBE id_anio_lectivo
+    public List<MallaCurricular> listarResumenPorNivel(int idAnioLectivo) {
         List<MallaCurricular> lista = new ArrayList<>();
         String sql = "{CALL sp_resumen_malla_por_nivel(?)}";
 
         try (Connection conn = DatabaseConfig.getConnection();
              CallableStatement stmt = conn.prepareCall(sql)) {
 
-            stmt.setInt(1, anio);
+            stmt.setInt(1, idAnioLectivo);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     MallaCurricular r = new MallaCurricular();
@@ -34,8 +52,9 @@ import java.util.List;
         }
         return lista;
     }
-    
-    public List<MallaCurricular> listarDetallePorNivel(int idNivel, int anio) {
+
+    // Listar detalle por nivel, RECIBE idNivel y id_anio_lectivo
+    public List<MallaCurricular> listarDetallePorNivel(int idNivel, int idAnioLectivo) {
         List<MallaCurricular> lista = new ArrayList<>();
         String sql = "{CALL sp_detalle_malla_por_nivel(?, ?)}";
 
@@ -43,7 +62,7 @@ import java.util.List;
              CallableStatement stmt = conn.prepareCall(sql)) {
 
             stmt.setInt(1, idNivel);
-            stmt.setInt(2, anio);
+            stmt.setInt(2, idAnioLectivo);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
@@ -64,6 +83,8 @@ import java.util.List;
         return lista;
     }
 
+    // Obtiene el NOMBRE del año lectivo activo (ej: "2025")
+    /*
     public int obtenerAnioActivo() {
         int anio = 0;
         String sql = "{CALL sp_obtener_anio_activo()}";
@@ -73,7 +94,7 @@ import java.util.List;
              ResultSet rs = stmt.executeQuery()) {
 
             if (rs.next()) {
-                anio = rs.getInt("nombre");
+                anio = rs.getInt("nombre"); // Sigue retornando el NOMBRE
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -81,6 +102,8 @@ import java.util.List;
         return anio;
     }
 
+    // Lista nombres de años disponibles (puedes ajustar si quieres IDs)
+    
     public List<Integer> obtenerAniosDisponibles() {
         List<Integer> anios = new ArrayList<>();
         String sql = "{CALL sp_listar_anios_disponibles()}";
@@ -96,7 +119,41 @@ import java.util.List;
             e.printStackTrace();
         }
         return anios;
+    }*/
+    public List<AnioLectivo> obtenerAniosDisponibles() {
+        List<AnioLectivo> anios = new ArrayList<>();
+        String sql = "{CALL sp_listar_anios_disponibles()}";
+        try (Connection conn = DatabaseConfig.getConnection();
+             CallableStatement stmt = conn.prepareCall(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                anios.add(new AnioLectivo(
+                    rs.getInt("id_anio_lectivo"),
+                    rs.getString("nombre")
+                ));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return anios;
     }
+
+    public int obtenerAnioActivo() {
+        int idAnio = 0;
+        String sql = "{CALL sp_obtener_anio_activo()}";
+        try (Connection conn = DatabaseConfig.getConnection();
+             CallableStatement stmt = conn.prepareCall(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                idAnio = rs.getInt("id_anio_lectivo");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return idAnio;
+    }
+
+    
 
     public MallaCurricular obtenerPorId(int idMalla) {
         MallaCurricular m = null;
@@ -172,4 +229,29 @@ import java.util.List;
         }
         return false;
     }
+    public boolean desactivarPorNivel(int idNivel, int idAnioLectivo) {
+    // Desactiva cada registro de malla usando el SP sp_desactivar_malla
+    List<MallaCurricular> detalle = listarDetallePorNivel(idNivel, idAnioLectivo);
+    if (detalle.isEmpty()) {
+        return false;
+    }
+    boolean todosOk = true;
+    String sql = "{CALL sp_desactivar_malla(?)}";
+    try (Connection conn = DatabaseConfig.getConnection()) {
+        for (MallaCurricular m : detalle) {
+            try (CallableStatement stmt = conn.prepareCall(sql)) {
+                stmt.setInt(1, m.getIdMalla());
+                int res = stmt.executeUpdate();
+                if (res <= 0) {
+                    todosOk = false;
+                }
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+        return false;
+    }
+    return todosOk;
+}
+   
 }

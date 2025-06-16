@@ -6,6 +6,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <c:set var="paginaActiva" value="Usuarios" scope="request"/>
     <jsp:include page="/includes/meta.jsp" />
     <title>Gestión de Usuarios - Intranet Escolar</title>
     <!-- Bootstrap CSS -->
@@ -18,7 +19,6 @@
 </head>
 <body class="admin-dashboard" data-context-path="${pageContext.request.contextPath}">
 
-    <!-- Sidebar -->
     <jsp:include page="/includes/sidebar.jsp" />
     <c:set var="tituloPaginaDesktop" value="Gestión de Usuarios" scope="request" />
     <c:set var="tituloPaginaMobile" value="Usuarios" scope="request" />

@@ -143,7 +143,7 @@ public class UsuarioServlet extends HttpServlet {
             UsuarioDAO dao = new UsuarioDAO();
             if (dao.existeDni(dni)) {
                 response.setContentType("application/json");
-                response.setStatus(HttpServletResponse.SC_CONFLICT); // 409 Conflict
+                response.setStatus(HttpServletResponse.SC_CONFLICT); 
                 response.getWriter().write("{\"error\": \"El DNI ya está registrado.\"}");
                 return;
             }

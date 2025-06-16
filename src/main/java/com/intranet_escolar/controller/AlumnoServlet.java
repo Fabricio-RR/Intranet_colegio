@@ -49,9 +49,11 @@ public class AlumnoServlet extends HttpServlet {
             request.setAttribute("totalCursos", resumen.getTotalCursos());
             request.setAttribute("cursosAprobados", resumen.getCursosAprobados());
             
-            // 3. Gráfico de notas por curso
-            request.setAttribute("nombresCursos", service.obtenerNombresCursos(idAlumno));
-            request.setAttribute("notasCursos", service.obtenerNotasPorCurso(idAlumno));
+            // 3. Gráfico de notas por curso 
+            String nombresCursosStr = service.obtenerNombresCursos(idAlumno);
+            String notasCursosStr = service.obtenerNotasPorCurso(idAlumno);
+            request.setAttribute("nombresCursos", nombresCursosStr);
+            request.setAttribute("notasCursos", notasCursosStr);
             
             // 4. Horario de hoy
             List<ClaseDTO> horarioHoy = service.obtenerHorarioHoy(idAlumno);
@@ -67,6 +69,17 @@ public class AlumnoServlet extends HttpServlet {
             
             // 7. Fecha actual
             request.setAttribute("now", new Date());
+            
+           
+            System.out.println("DEBUG usuario: " + usuario);
+            if (usuario != null && usuario.getAlumno() != null) {
+                System.out.println("Grado: " + usuario.getAlumno().getGrado());
+                System.out.println("Seccion: " + usuario.getAlumno().getSeccion());
+                System.out.println("Nivel: " + usuario.getAlumno().getNivel());
+            } else {
+    System.out.println("DEBUG Alumno es null o usuario es null");
+}
+
             
             // 8. Forward a la vista
             request.getRequestDispatcher("/views/dashboard/alumno.jsp").forward(request, response);

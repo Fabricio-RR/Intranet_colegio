@@ -36,7 +36,7 @@
                     Hola, ${sessionScope.usuario.nombres} ${sessionScope.usuario.apellidos}
                     <span class="ms-3">
                         <i> | </i>
-                        ${sessionScope.usuario.grado} "${sessionScope.usuario.seccion}"
+                        ${sessionScope.usuario.alumno.grado} "${sessionScope.usuario.alumno.seccion}" - ${sessionScope.usuario.alumno.nivel} (${sessionScope.usuario.alumno.anio})
                     </span>
                     <span class="ms-3">
                         <i class="fas fa-calendar me-1"></i>
@@ -138,9 +138,9 @@
                         <i class="fas fa-chart-bar me-2"></i>
                         Mi Rendimiento por Curso
                     </h5>
-                    <canvas id="rendimientoCursosChart" 
-                        data-cursos="${fn:join(nombresCursos, ',')}"
-                        data-notas="${fn:join(notasCursos, ',')}"
+                    <canvas id="rendimientoCursosChart"
+                        data-cursos="${nombresCursos}"
+                        data-notas="${notasCursos}"
                         style="height: 350px;"></canvas>
                 </div>
             </div>

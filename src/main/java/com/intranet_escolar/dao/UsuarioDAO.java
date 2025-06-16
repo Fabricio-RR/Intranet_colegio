@@ -60,6 +60,7 @@ public class UsuarioDAO {
 
                 if (BCrypt.checkpw(claveIngresada, claveHasheadaBD)) {
                     usuario.setRoles(new ArrayList<>(rolesMap.values()));
+                    usuario = obtenerUsuarioCompletoPorId(usuario.getIdUsuario());
                 } else {
                     usuario = null;
                 }
@@ -90,7 +91,7 @@ public class UsuarioDAO {
                 Rol rol = new Rol();
                 rol.setIdRol(rs.getInt("id_rol"));
                 rol.setNombre(rs.getString("nombre"));
-                rol.setDescripcion(rs.getString("descripcion")); // Asegúrate que lo devuelve el SP
+                rol.setDescripcion(rs.getString("descripcion")); 
                 roles.add(rol);
             }
 
