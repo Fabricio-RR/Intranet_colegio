@@ -9,6 +9,12 @@ public class MallaCurricular {
     private int totalGrados;
     private int totalCursos;
     private int totalDocentes;
+    
+    private int totalInactivos;
+    private int totalCursosInactivos;
+    private int totalSeccionesInactivas;
+    private int totalGradosInactivos;
+
 
     // Para detalle por curso
     private int idMalla;
@@ -23,16 +29,21 @@ public class MallaCurricular {
     // Para edición
     private int idDocente;
     private int idAperturaSeccion;
+    private String NombreDocente;
 
     public MallaCurricular() {
     }
 
-    public MallaCurricular(int idNivel, String nombreNivel, int totalGrados, int totalCursos, int totalDocentes, int idMalla, int idCurso, String nombreCurso, String docente, String grado, String seccion, int orden, boolean activo, int idDocente, int idAperturaSeccion) {
+    public MallaCurricular(int idNivel, String nombreNivel, int totalGrados, int totalCursos, int totalDocentes, int totalInactivos, int totalCursosInactivos, int totalSeccionesInactivas, int totalGradosInactivos, int idMalla, int idCurso, String nombreCurso, String docente, String grado, String seccion, int orden, boolean activo, int idDocente, int idAperturaSeccion, String NombreDocente) {
         this.idNivel = idNivel;
         this.nombreNivel = nombreNivel;
         this.totalGrados = totalGrados;
         this.totalCursos = totalCursos;
         this.totalDocentes = totalDocentes;
+        this.totalInactivos = totalInactivos;
+        this.totalCursosInactivos = totalCursosInactivos;
+        this.totalSeccionesInactivas = totalSeccionesInactivas;
+        this.totalGradosInactivos = totalGradosInactivos;
         this.idMalla = idMalla;
         this.idCurso = idCurso;
         this.nombreCurso = nombreCurso;
@@ -43,6 +54,14 @@ public class MallaCurricular {
         this.activo = activo;
         this.idDocente = idDocente;
         this.idAperturaSeccion = idAperturaSeccion;
+        this.NombreDocente = NombreDocente;
+    }
+
+    public String getNombreDocente() {
+        return NombreDocente;
+    }
+     public void setNombreDocente(String docente) {
+        this.docente = docente;
     }
 
     public int getIdNivel() {
@@ -83,6 +102,38 @@ public class MallaCurricular {
 
     public void setTotalDocentes(int totalDocentes) {
         this.totalDocentes = totalDocentes;
+    }
+
+    public int getTotalInactivos() {
+        return totalInactivos;
+    }
+
+    public void setTotalInactivos(int totalInactivos) {
+        this.totalInactivos = totalInactivos;
+    }
+
+    public int getTotalCursosInactivos() {
+        return totalCursosInactivos;
+    }
+
+    public void setTotalCursosInactivos(int totalCursosInactivos) {
+        this.totalCursosInactivos = totalCursosInactivos;
+    }
+
+    public int getTotalSeccionesInactivas() {
+        return totalSeccionesInactivas;
+    }
+
+    public void setTotalSeccionesInactivas(int totalSeccionesInactivas) {
+        this.totalSeccionesInactivas = totalSeccionesInactivas;
+    }
+
+    public int getTotalGradosInactivos() {
+        return totalGradosInactivos;
+    }
+
+    public void setTotalGradosInactivos(int totalGradosInactivos) {
+        this.totalGradosInactivos = totalGradosInactivos;
     }
 
     public int getIdMalla() {
@@ -163,10 +214,6 @@ public class MallaCurricular {
 
     public void setIdAperturaSeccion(int idAperturaSeccion) {
         this.idAperturaSeccion = idAperturaSeccion;
-    }
-
-    public void setNombreDocente(String docente) {
-        this.docente = docente;
     }
     
 }

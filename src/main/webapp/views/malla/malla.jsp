@@ -51,52 +51,103 @@
     </div>
     <!-- Tarjetas por nivel -->
     <div class="row g-4">
-        <c:choose>
-            <c:when test="${empty resumenNiveles}">
-                <div class="col-12">
-                    <div class="alert alert-info text-center py-4">
-                        <i class="fas fa-info-circle fa-2x mb-2"></i><br>No hay malla curricular para el año seleccionado.
-                    </div>
-                </div>
-            </c:when>
-            <c:otherwise>
-                <c:forEach var="nivel" items="${resumenNiveles}">
-                    <div class="col-lg-4 col-md-6">
-                        <div class="card shadow-sm border-0 h-100">
-                            <div class="card-body">
-                                <h5 class="card-title fw-bold text-primary">${nivel.nombreNivel}</h5>
-                                <ul class="list-unstyled mb-3">
-                                    <br>
-                                    <li><span class="badge bg-info-subtle text-primary me-2"><i class="fas fa-graduation-cap"></i></span>
-                                        <span class="fw-bold text-dark">${nivel.totalGrados}</span> Grados
-                                    </li>
-                                    <br>
-                                    <li><span class="badge bg-success-subtle text-success me-2"><i class="fas fa-book"></i></span>
-                                        <span class="fw-bold text-dark">${nivel.totalCursos}</span> Cursos
-                                    </li>
-                                    <br>
-                                    <li><span class="badge bg-warning-subtle text-warning me-2"><i class="fas fa-chalkboard-teacher"></i></span>
-                                        <span class="fw-bold text-dark">${nivel.totalDocentes}</span> Docentes
-                                    </li>
-                                </ul>
-                                <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-outline-primary btn-sm flex-fill" onclick="verDetalleMalla(${nivel.idNivel})">
-                                        <i class="fas fa-eye me-1"></i> Ver Detalle
-                                    </button>
-                                    <button type="button" class="btn btn-outline-warning btn-sm flex-fill" onclick="cargarModal('Editar Malla', 'Cargando formulario...', '${pageContext.request.contextPath}/malla-curricular?action=editar&idNivel=${nivel.idNivel}&anio=${anioActual}')">
-                                        <i class="fas fa-edit me-1"></i> Editar
-                                    </button>
-                                    <button type="button" class="btn btn-outline-danger btn-sm flex-fill" onclick="desactivarNivel(${nivel.idNivel})">
-                                    <i class="fas fa-trash me-1"></i> Desactivar
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </c:forEach>
-            </c:otherwise>
-        </c:choose>
+      <c:forEach var="nivel" items="${nivelesActivos}">
+        <div class="col-lg-4 col-md-6">
+          <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+              <h5 class="card-title fw-bold text-primary">${nivel.nombreNivel}</h5>
+              <ul class="list-unstyled mb-3">
+                <li>
+                  <span class="badge bg-info-subtle text-primary me-2"><i class="fas fa-graduation-cap"></i></span>
+                  <span class="fw-bold text-dark">${nivel.totalGrados}</span> Grados
+                </li>
+                <br>
+                <li>
+                  <span class="badge bg-success-subtle text-success me-2"><i class="fas fa-book"></i></span>
+                  <span class="fw-bold text-dark">${nivel.totalCursos}</span> Cursos
+                </li>
+                <br>
+                <li>
+                  <span class="badge bg-warning-subtle text-warning me-2"><i class="fas fa-chalkboard-teacher"></i></span>
+                  <span class="fw-bold text-dark">${nivel.totalDocentes}</span> Docentes
+                </li>
+                <br>
+                <c:if test="${nivel.totalInactivos > 0}">
+                  <li>
+                    <span class="badge bg-danger-subtle text-danger me-2"><i class="fas fa-ban"></i></span>
+                    <span class="fw-bold text-danger">${nivel.totalInactivos}</span> Inactivas
+                  </li>
+                </c:if>
+              </ul>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-outline-primary btn-sm flex-fill" onclick="verDetalleMalla(${nivel.idNivel})">
+                  <i class="fas fa-eye me-1"></i> Ver Detalle
+                </button>
+                <button type="button" class="btn btn-outline-warning btn-sm flex-fill" onclick="cargarModal('Editar Malla', 'Cargando formulario...', '${pageContext.request.contextPath}/malla-curricular?action=editar&idNivel=${nivel.idNivel}&anio=${anioActual}')">
+                  <i class="fas fa-edit me-1"></i> Editar
+                </button>
+                <button type="button" class="btn btn-outline-danger btn-sm flex-fill" onclick="desactivarNivel(${nivel.idNivel})">
+                  <i class="fas fa-trash me-1"></i> Desactivar
+                </button><!--
+                <c:if test="${nivel.totalInactivos > 0}">
+                  <button type="button"
+                          class="btn btn-outline-danger btn-sm flex-fill"
+                          onclick="verDetalleMallaInactivas(${nivel.idNivel})">
+                    <i class="fas fa-eye-slash me-1"></i> Ver Inactivas
+                  </button>
+                </c:if>-->
+              </div>
+                  <br>
+            </div>
+          </div>
+        </div>
+      </c:forEach>
     </div>
+    <c:if test="${not empty nivelesInactivos}">
+    <h5 class="mt-4 text-danger">
+      <i class="fas fa-ban me-2"></i> Niveles totalmente inactivos
+    </h5>
+    <div class="row g-4">
+      <c:forEach var="nivel" items="${nivelesInactivos}">
+        <div class="col-lg-4 col-md-6">
+          <div class="card shadow-sm border-0 h-100 border-danger">
+            <div class="card-body">
+              <h5 class="card-title fw-bold text-secondary">
+                ${nivel.nombreNivel}
+                <span class="badge bg-danger ms-2">INACTIVO</span>
+              </h5>
+              <ul class="list-unstyled mb-3">
+                <li>
+                  <span class="badge bg-info-subtle text-primary me-2"><i class="fas fa-graduation-cap"></i></span>
+                  <span class="fw-bold text-dark">${nivel.totalGrados}</span> Grados
+                </li>
+                <br>
+                <li>
+                  <span class="badge bg-success-subtle text-success me-2"><i class="fas fa-book"></i></span>
+                  <span class="fw-bold text-dark">${nivel.totalCursos}</span> Cursos
+                </li>
+                <br>
+                <li>
+                  <span class="badge bg-warning-subtle text-warning me-2"><i class="fas fa-chalkboard-teacher"></i></span>
+                  <span class="fw-bold text-dark">${nivel.totalDocentes}</span> Docentes
+                </li>
+                <br>
+                <li>
+                  <span class="badge bg-danger-subtle text-danger me-2"><i class="fas fa-ban"></i></span>
+                  <span class="fw-bold text-danger">${nivel.totalInactivos}</span> Inactivas
+                </li>
+              </ul>
+              <!-- Botón para reactivar -->
+              <button type="button" class="btn btn-outline-success btn-sm flex-fill" onclick="reactivarNivel(${nivel.idNivel})">
+                <i class="fas fa-redo me-1"></i> Reactivar Nivel
+              </button>
+            </div>
+          </div>
+        </div>
+      </c:forEach>
+    </div>
+  </c:if>
+
     <br>
     <!-- Modal Detalle Malla -->
     <div class="modal fade" id="modalDetalleMalla" tabindex="-1" aria-hidden="true">
@@ -113,13 +164,14 @@
     <jsp:include page="/includes/footer.jsp" />
 </main>
 
-<!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="${pageContext.request.contextPath}/assets/js/common.js"></script>
-<script src="${pageContext.request.contextPath}/assets/js/malla.js"></script>
+    <!-- JS -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="${pageContext.request.contextPath}/assets/js/common.js"></script>
+    <script src="${pageContext.request.contextPath}/assets/js/malla.js"></script>
+
 </body>
 </html>

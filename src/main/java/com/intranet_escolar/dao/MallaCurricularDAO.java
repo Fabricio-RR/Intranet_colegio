@@ -44,6 +44,7 @@ public class MallaCurricularDAO {
                     r.setTotalGrados(rs.getInt("total_grados"));
                     r.setTotalCursos(rs.getInt("total_cursos"));
                     r.setTotalDocentes(rs.getInt("total_docentes"));
+                    r.setTotalInactivos(rs.getInt("total_inactivos"));
                     lista.add(r);
                 }
             }
@@ -68,6 +69,7 @@ public class MallaCurricularDAO {
                 while (rs.next()) {
                     MallaCurricular m = new MallaCurricular();
                     m.setIdMalla(rs.getInt("id_malla_curricular"));
+                    m.setIdDocente(rs.getInt("id_docente"));
                     m.setNombreCurso(rs.getString("curso"));
                     m.setNombreDocente(rs.getString("docente"));
                     m.setGrado(rs.getString("grado"));
@@ -231,27 +233,71 @@ public class MallaCurricularDAO {
     }
     public boolean desactivarPorNivel(int idNivel, int idAnioLectivo) {
     // Desactiva cada registro de malla usando el SP sp_desactivar_malla
-    List<MallaCurricular> detalle = listarDetallePorNivel(idNivel, idAnioLectivo);
-    if (detalle.isEmpty()) {
-        return false;
-    }
-    boolean todosOk = true;
-    String sql = "{CALL sp_desactivar_malla(?)}";
-    try (Connection conn = DatabaseConfig.getConnection()) {
-        for (MallaCurricular m : detalle) {
-            try (CallableStatement stmt = conn.prepareCall(sql)) {
-                stmt.setInt(1, m.getIdMalla());
-                int res = stmt.executeUpdate();
-                if (res <= 0) {
-                    todosOk = false;
+        List<MallaCurricular> detalle = listarDetallePorNivel(idNivel, idAnioLectivo);
+        if (detalle.isEmpty()) {
+            return false;
+        }
+        boolean todosOk = true;
+        String sql = "{CALL sp_desactivar_malla(?)}";
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            for (MallaCurricular m : detalle) {
+                try (CallableStatement stmt = conn.prepareCall(sql)) {
+                    stmt.setInt(1, m.getIdMalla());
+                    int res = stmt.executeUpdate();
+                    if (res <= 0) {
+                        todosOk = false;
+                    }
                 }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
-    } catch (Exception e) {
-        e.printStackTrace();
-        return false;
+        return todosOk;
     }
-    return todosOk;
-}
+    public List<MallaCurricular> listarDetallePorNivelInactivas(int idNivel, int idAnioLectivo) {
+        List<MallaCurricular> lista = new ArrayList<>();
+        String sql = "{CALL sp_detalle_malla_por_nivel_inactivas(?, ?)}";
+        try (Connection conn = DatabaseConfig.getConnection();
+             CallableStatement stmt = conn.prepareCall(sql)) {
+            stmt.setInt(1, idNivel);
+            stmt.setInt(2, idAnioLectivo);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    MallaCurricular m = new MallaCurricular();
+                    m.setIdMalla(rs.getInt("id_malla_curricular"));
+                    m.setNombreCurso(rs.getString("curso"));
+                    m.setNombreDocente(rs.getString("docente"));
+                    m.setGrado(rs.getString("grado"));
+                    m.setSeccion(rs.getString("seccion"));
+                    m.setOrden(rs.getInt("orden"));
+                    m.setActivo(rs.getBoolean("activo"));
+                    lista.add(m);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return lista;
+    }
+    public boolean reactivarPorNivel(int idNivel, int idAnioLectivo) {
+        List<MallaCurricular> detalle = listarDetallePorNivel(idNivel, idAnioLectivo);
+        if (detalle.isEmpty()) return false;
+        boolean todosOk = true;
+        String sql = "{CALL sp_activar_malla(?)}";
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            for (MallaCurricular m : detalle) {
+                try (CallableStatement stmt = conn.prepareCall(sql)) {
+                    stmt.setInt(1, m.getIdMalla());
+                    int res = stmt.executeUpdate();
+                    if (res <= 0) todosOk = false;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return todosOk;
+    }
    
 }
