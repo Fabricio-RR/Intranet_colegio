@@ -130,6 +130,7 @@
             <button class="btn btn-outline-secondary btn-sm btn-uniform" data-bs-dismiss="modal">
               <i class="fas fa-times me-1"></i> Cerrar
             </button>
+            <div id="botonAccionModal" class="ms-auto d-flex gap-2"></div>
           </div>
         </div>
       </div>

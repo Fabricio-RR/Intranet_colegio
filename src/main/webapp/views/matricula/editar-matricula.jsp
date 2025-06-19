@@ -54,35 +54,38 @@
                 </c:otherwise>
             </c:choose>
         </div>
+        
+        <!-- Ocultos para JS -->
+        <input type="hidden" id="idGradoActual" value="${matricula.idGrado}" />
+        <input type="hidden" id="idSeccionActual" value="${matricula.idSeccion}" />
 
-        <!-- Detalle Académico -->
         <div class="col-md-12 mt-3">
             <h5 class="fw-bold"><i class="fas fa-book-reader me-2"></i>Detalle Académico</h5>
             <div class="row">
                 <div class="col-md-3">
                     <label class="fw-semibold">Nivel:</label>
-                    <select class="form-select mb-2" name="nivel" required>
+                    <select id="selectNivel" class="form-select mb-2" name="nivel" required>
+                        <option value="">Seleccione un nivel</option>
                         <c:forEach var="n" items="${niveles}">
                             <option value="${n.idNivel}" ${matricula.idNivel == n.idNivel ? 'selected' : ''}>${n.nombre}</option>
                         </c:forEach>
                     </select>
                 </div>
+
                 <div class="col-md-3">
                     <label class="fw-semibold">Grado:</label>
-                    <select class="form-select mb-2" name="grado" required>
-                        <c:forEach var="g" items="${grados}">
-                            <option value="${g.idGrado}" ${matricula.idGrado == g.idGrado ? 'selected' : ''}>${g.nombre}</option>
-                        </c:forEach>
+                    <select id="selectGrado" class="form-select mb-2" name="grado" required>
+                        <option value="">Seleccione un grado</option>
                     </select>
                 </div>
+
                 <div class="col-md-3">
                     <label class="fw-semibold">Sección:</label>
-                    <select class="form-select mb-2" name="seccion" required>
-                        <c:forEach var="s" items="${secciones}">
-                            <option value="${s.idSeccion}" ${matricula.idSeccion == s.idSeccion ? 'selected' : ''}>${s.nombre}</option>
-                        </c:forEach>
+                    <select id="selectSeccion" class="form-select mb-2" name="seccion" required>
+                        <option value="">Seleccione una sección</option>
                     </select>
                 </div>
+
                 <div class="col-md-3">
                     <label class="fw-semibold">Estado:</label>
                     <select class="form-select mb-2" name="estado" required>
@@ -95,15 +98,6 @@
         </div>
     </div>
 
-    <!-- Botones -->
-    <div class="mt-4 d-flex justify-content-end gap-2">
-        <button type="submit" class="btn btn-admin-primary">
-            <i class="fas fa-save me-1"></i> Guardar cambios
-        </button>
-        <a href="${pageContext.request.contextPath}/matricula" class="btn btn-outline-secondary">
-            <i class="fas fa-times me-1"></i> Cancelar
-        </a>
-    </div>
 </form>
 </c:if>
 

@@ -43,15 +43,11 @@ public class MatriculaServlet extends HttpServlet {
                 default:
                     response.sendRedirect(request.getContextPath() + "/dashboard");
             }
-        } catch (SQLException e) {
+         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect(request.getContextPath() + "/error/500.jsp");
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-            response.sendRedirect(request.getContextPath() + "/error/404.jsp");
-        } catch (Exception e) {
-            e.printStackTrace();
-            response.sendRedirect(request.getContextPath() + "/error/500.jsp");
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"exito\":false, \"mensaje\":\"Error inesperado en el servidor [Servlet].\"}");
         }
     }
 
@@ -106,8 +102,9 @@ public class MatriculaServlet extends HttpServlet {
             }
             // ... otros casos futuros
         } catch (Exception e) {
-            e.printStackTrace();
-            response.sendRedirect(request.getContextPath() + "/views/error/500.jsp");
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        response.setContentType("application/json");
+        response.getWriter().write("{\"exito\":false, \"mensaje\":\"Error inesperado en el servidor\"}");
         }
     }
     private void guardarEdicionMatricula(HttpServletRequest request, HttpServletResponse response)
