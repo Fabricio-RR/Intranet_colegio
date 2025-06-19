@@ -7,13 +7,15 @@ import java.util.List;
 public class Apoderado {
     private String parentesco;
     private List<Alumno> hijos;
+    private Usuario usuario;
 
     public Apoderado() {
     }
 
-    public Apoderado(String parentesco, List<Alumno> hijos) {
+    public Apoderado(String parentesco, List<Alumno> hijos, Usuario usuario) {
         this.parentesco = parentesco;
         this.hijos = hijos;
+        this.usuario = usuario;
     }
 
     public String getParentesco() {
@@ -31,4 +33,12 @@ public class Apoderado {
     public void setHijos(List<Alumno> hijos) {
         this.hijos = hijos;
     }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }    
 }

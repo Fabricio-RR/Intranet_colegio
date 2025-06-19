@@ -10,16 +10,22 @@ public class Matricula {
     private String nombres;
     private String apellidos;
     private String codigoMatricula;
+    private int idNivel;
     private String nivel;
+    private int idGrado;
     private String grado;
+    private int idSeccion;
     private String seccion;
     private String estado; 
     private Date fecha;
+    private Alumno alumno;
+    private Apoderado apoderado;
+
 
     public Matricula() {
     }
 
-    public Matricula(int idMatricula, int idAlumno, int idAperturaSeccion, String dni, String nombres, String apellidos, String codigoMatricula, String nivel, String grado, String seccion, String estado, Date fecha) {
+    public Matricula(int idMatricula, int idAlumno, int idAperturaSeccion, String dni, String nombres, String apellidos, String codigoMatricula, int idNivel, String nivel, int idGrado, String grado, int idSeccion, String seccion, String estado, Date fecha, Alumno alumno, Apoderado apoderado) {
         this.idMatricula = idMatricula;
         this.idAlumno = idAlumno;
         this.idAperturaSeccion = idAperturaSeccion;
@@ -27,11 +33,16 @@ public class Matricula {
         this.nombres = nombres;
         this.apellidos = apellidos;
         this.codigoMatricula = codigoMatricula;
+        this.idNivel = idNivel;
         this.nivel = nivel;
+        this.idGrado = idGrado;
         this.grado = grado;
+        this.idSeccion = idSeccion;
         this.seccion = seccion;
         this.estado = estado;
         this.fecha = fecha;
+        this.alumno = alumno;
+        this.apoderado = apoderado;
     }
 
     public int getIdMatricula() {
@@ -90,6 +101,14 @@ public class Matricula {
         this.codigoMatricula = codigoMatricula;
     }
 
+    public int getIdNivel() {
+        return idNivel;
+    }
+
+    public void setIdNivel(int idNivel) {
+        this.idNivel = idNivel;
+    }
+
     public String getNivel() {
         return nivel;
     }
@@ -98,12 +117,28 @@ public class Matricula {
         this.nivel = nivel;
     }
 
+    public int getIdGrado() {
+        return idGrado;
+    }
+
+    public void setIdGrado(int idGrado) {
+        this.idGrado = idGrado;
+    }
+
     public String getGrado() {
         return grado;
     }
 
     public void setGrado(String grado) {
         this.grado = grado;
+    }
+
+    public int getIdSeccion() {
+        return idSeccion;
+    }
+
+    public void setIdSeccion(int idSeccion) {
+        this.idSeccion = idSeccion;
     }
 
     public String getSeccion() {
@@ -129,4 +164,21 @@ public class Matricula {
     public void setFecha(Date fecha) {
         this.fecha = fecha;
     }
+
+    public Alumno getAlumno() {
+        return alumno;
+    }
+
+    public void setAlumno(Alumno alumno) {
+        this.alumno = alumno;
+    }
+
+    public Apoderado getApoderado() {
+        return apoderado;
+    }
+
+    public void setApoderado(Apoderado apoderado) {
+        this.apoderado = apoderado;
+    }
+    
 }

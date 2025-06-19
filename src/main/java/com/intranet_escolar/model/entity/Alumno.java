@@ -3,6 +3,7 @@ package com.intranet_escolar.model.entity;
 
 public class Alumno {
     
+    private int idAlumno;
     private String codigoMatricula;
     private String grado;
     private String seccion;
@@ -12,11 +13,13 @@ public class Alumno {
     private String apellidos;
     private String nombreApoderado;
     private String parentescoApoderado;
-
+    private Usuario usuario;
+    
     public Alumno() {
     }
 
-    public Alumno(String codigoMatricula, String grado, String seccion, String nivel, String anio, String nombres, String apellidos, String nombreApoderado, String parentescoApoderado) {
+    public Alumno(int idAlumno, String codigoMatricula, String grado, String seccion, String nivel, String anio, String nombres, String apellidos, String nombreApoderado, String parentescoApoderado, Usuario usuario) {
+        this.idAlumno = idAlumno;
         this.codigoMatricula = codigoMatricula;
         this.grado = grado;
         this.seccion = seccion;
@@ -26,6 +29,15 @@ public class Alumno {
         this.apellidos = apellidos;
         this.nombreApoderado = nombreApoderado;
         this.parentescoApoderado = parentescoApoderado;
+        this.usuario = usuario;
+    }
+
+    public int getIdAlumno() {
+        return idAlumno;
+    }
+
+    public void setIdAlumno(int idAlumno) {
+        this.idAlumno = idAlumno;
     }
 
     public String getCodigoMatricula() {
@@ -98,6 +110,14 @@ public class Alumno {
 
     public void setParentescoApoderado(String parentescoApoderado) {
         this.parentescoApoderado = parentescoApoderado;
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
     }
     
 }
