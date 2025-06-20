@@ -85,14 +85,19 @@
                         <option value="">Seleccione una sección</option>
                     </select>
                 </div>
-
                 <div class="col-md-3">
                     <label class="fw-semibold">Estado:</label>
                     <select class="form-select mb-2" name="estado" required>
                         <option value="regular" ${matricula.estado == 'regular' ? 'selected' : ''}>Regular</option>
                         <option value="condicional" ${matricula.estado == 'condicional' ? 'selected' : ''}>Condicional</option>
                         <option value="retirado" ${matricula.estado == 'retirado' ? 'selected' : ''}>Retirado</option>
+                        <option value="egresado" ${matricula.estado == 'egresado' ? 'selected' : ''}>Egresado</option>
                     </select>
+                </div>
+                <div class="col-md-12" id="grupoObservacion" style="display: ${matricula.estado == 'condicional' ? 'block' : 'none'};">
+                    <label class="form-label fw-semibold">Observación (solo para condicional):</label>
+                    <textarea class="form-control" name="observacion" maxlength="255"
+                              placeholder="Ingrese la razón de la matrícula condicional">${matricula.observacion}</textarea>
                 </div>
             </div>
         </div>

@@ -76,15 +76,29 @@
                     <label class="fw-semibold">Estado:</label>
                     <p class="mb-0 text-uppercase">
                         <span class="badge 
-                            ${matricula.estado == 'regular' ? 'bg-success' :
-                              matricula.estado == 'condicional' ? 'bg-warning text-dark' :
+                            ${matricula.estado == 'regular' ? 'bg-success' : 
+                              matricula.estado == 'condicional' ? 'bg-warning text-dark' : 
+                              matricula.estado == 'egresado' ? 'bg-primary' : 
                               'bg-danger'}">
                             ${matricula.estado}
                         </span>
                     </p>
                 </div>
+                <div class="col-md-12">
+                    <c:if test="${matricula.estado == 'condicional' && not empty matricula.observacion}">
+                        <div class="alert alert-warning d-flex align-items-center mt-2" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <strong>Observación:</strong> ${matricula.observacion}
+                        </div>
+                    </c:if>
+                </div>
             </div>
         </div>
+        <div class="text-end mt-3">
+        <button type="button" class="btn btn-outline-danger btn-uniform" data-bs-dismiss="modal">
+          <i class="fas fa-times me-1"></i> Cancelar
+        </button>
+      </div>
     </div>
 </c:if>
 

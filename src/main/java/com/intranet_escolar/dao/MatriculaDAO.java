@@ -7,6 +7,7 @@ import com.intranet_escolar.model.entity.Matricula;
 import com.intranet_escolar.model.entity.Usuario;
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -98,6 +99,7 @@ public class MatriculaDAO {
                     matricula.setIdSeccion(rs.getInt("id_seccion"));
                     matricula.setSeccion(rs.getString("seccion"));
                     matricula.setEstado(rs.getString("estado"));
+                    matricula.setObservacion(rs.getString("observacion"));
                     matricula.setFecha(rs.getDate("fecha"));
                 }
             }
@@ -108,10 +110,10 @@ public class MatriculaDAO {
 
         return matricula;
     }
-    public boolean actualizarMatricula(int idMatricula, String codigoMatricula, String parentesco, int idNivel, int idGrado, int idSeccion, String estado) throws SQLException {
+    public boolean actualizarMatricula(int idMatricula, String codigoMatricula, String parentesco, int idNivel, int idGrado, int idSeccion, String estado, String observacion) throws SQLException {
         int idApertura = 0;
         String spLookup = "{CALL sp_obtener_apertura_seccion(?,?,?)}";
-        String spActualizar = "{CALL sp_actualizar_matricula(?,?,?,?,?)}";
+        String spActualizar = "{CALL sp_actualizar_matricula(?,?,?,?,?,?)}";
         try (Connection conn = DatabaseConfig.getConnection()) {
             // 1. Buscar id_apertura_seccion
             try (CallableStatement csLookup = conn.prepareCall(spLookup)) {
@@ -136,10 +138,20 @@ public class MatriculaDAO {
                 cs.setString(3, parentesco);
                 cs.setInt(4, idApertura);
                 cs.setString(5, estado);
+                cs.setString(6, observacion); 
                 int filas = cs.executeUpdate();
                 System.out.println("[DAO] Filas afectadas al actualizar matrícula: " + filas);
                 return filas > 0;
             }
+        }
+    }
+    public boolean cambiarEstadoMatricula(int idMatricula, String nuevoEstado) throws SQLException {
+        String sql = "UPDATE matricula SET estado = ? WHERE id_matricula = ?";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, nuevoEstado);
+            ps.setInt(2, idMatricula);
+            return ps.executeUpdate() > 0;
         }
     }
 }

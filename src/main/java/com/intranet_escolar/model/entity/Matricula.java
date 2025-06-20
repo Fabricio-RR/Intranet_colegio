@@ -17,6 +17,7 @@ public class Matricula {
     private int idSeccion;
     private String seccion;
     private String estado; 
+    private String observacion;
     private Date fecha;
     private Alumno alumno;
     private Apoderado apoderado;
@@ -25,7 +26,7 @@ public class Matricula {
     public Matricula() {
     }
 
-    public Matricula(int idMatricula, int idAlumno, int idAperturaSeccion, String dni, String nombres, String apellidos, String codigoMatricula, int idNivel, String nivel, int idGrado, String grado, int idSeccion, String seccion, String estado, Date fecha, Alumno alumno, Apoderado apoderado) {
+    public Matricula(int idMatricula, int idAlumno, int idAperturaSeccion, String dni, String nombres, String apellidos, String codigoMatricula, int idNivel, String nivel, int idGrado, String grado, int idSeccion, String seccion, String estado, String observacion, Date fecha, Alumno alumno, Apoderado apoderado) {
         this.idMatricula = idMatricula;
         this.idAlumno = idAlumno;
         this.idAperturaSeccion = idAperturaSeccion;
@@ -40,6 +41,7 @@ public class Matricula {
         this.idSeccion = idSeccion;
         this.seccion = seccion;
         this.estado = estado;
+        this.observacion = observacion;
         this.fecha = fecha;
         this.alumno = alumno;
         this.apoderado = apoderado;
@@ -155,6 +157,14 @@ public class Matricula {
 
     public void setEstado(String estado) {
         this.estado = estado;
+    }
+
+    public String getObservacion() {
+        return observacion;
+    }
+
+    public void setObservacion(String observacion) {
+        this.observacion = observacion;
     }
 
     public Date getFecha() {

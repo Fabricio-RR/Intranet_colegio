@@ -93,9 +93,10 @@
                                             <button onclick="editarMatricula(${m.idMatricula})" class="btn btn-sm btn-outline-warning" title="Editar matrícula">
                                                 <i class="fas fa-edit"></i>
                                             </button>
-                                            <a href="${pageContext.request.contextPath}/matricula?action=anular&id=${m.idMatricula}" class="btn btn-sm btn-outline-danger" title="Anular matrícula">
+                                            <button type="button" class="btn btn-sm btn-outline-danger" title="Anular matrícula"
+                                                onclick="confirmarAnularMatricula(${m.idMatricula})">
                                                 <i class="fas fa-ban"></i>
-                                            </a>
+                                            </button>
                                             <a href="${pageContext.request.contextPath}/matricula?action=constancia&id=${m.idMatricula}" class="btn btn-sm btn-outline-secondary" title="Imprimir constancia">
                                                 <i class="fas fa-file-pdf"></i>
                                             </a>
@@ -126,12 +127,7 @@
               <p class="mt-2">Cargando información...</p>
             </div>
           </div>
-          <div class="modal-footer">
-            <button class="btn btn-outline-secondary btn-sm btn-uniform" data-bs-dismiss="modal">
-              <i class="fas fa-times me-1"></i> Cerrar
-            </button>
             <div id="botonAccionModal" class="ms-auto d-flex gap-2"></div>
-          </div>
         </div>
       </div>
     </div>
@@ -139,8 +135,8 @@
     <jsp:include page="/includes/footer.jsp" />
 
     <!-- JS -->
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -161,5 +157,30 @@
 
 
     </script>
+        <c:if test="${param.msg == 'ok'}">
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Éxito',
+                    text: 'Matrícula actualizada correctamente',
+                    confirmButtonColor: '#110d59'
+                });
+            });
+        </script>
+    </c:if>
+    <c:if test="${param.msg == 'error'}">
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo actualizar la matrícula',
+                    confirmButtonColor: '#110d59'
+                });
+            });
+        </script>
+    </c:if>
+
 </body>
 </html>

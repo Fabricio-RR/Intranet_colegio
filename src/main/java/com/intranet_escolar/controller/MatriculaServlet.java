@@ -39,9 +39,10 @@ public class MatriculaServlet extends HttpServlet {
                 case "editar":
                     mostrarFormularioEdicion(request, response);
                     break;
-                // Puedes añadir más casos aquí (anular, constancia, etc.)
+                case "anular":
+                    anularMatricula(request, response);
                 default:
-                    response.sendRedirect(request.getContextPath() + "/dashboard");
+                    response.sendRedirect(request.getContextPath() + "/matricula");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -95,17 +96,17 @@ public class MatriculaServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        System.out.println("[DEBUG] doPost /matricula entró!!");
-        response.setContentType("application/json");
         String action = request.getParameter("action");
+        response.setContentType("application/json");
         try {
             if ("editarGuardar".equals(action)) {
                 guardarEdicionMatricula(request, response);
-                return;
+            } else if ("anular".equals(action)) {
+                anularMatricula(request, response);
+            } else {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                response.getWriter().write("{\"exito\":false, \"mensaje\":\"Acción no válida\"}");
             }
-            // ... otros casos futuros ...
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"exito\":false, \"mensaje\":\"Acción no válida\"}");
         } catch (Exception e) {
             e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -114,42 +115,52 @@ public class MatriculaServlet extends HttpServlet {
     }
 
     private void guardarEdicionMatricula(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
-        try {
-            int idMatricula = Integer.parseInt(request.getParameter("idMatricula"));
-            String codigoMatricula = request.getParameter("codigoMatricula");
-            String parentesco = request.getParameter("parentesco");
-            int idNivel = Integer.parseInt(request.getParameter("nivel"));
-            int idGrado = Integer.parseInt(request.getParameter("grado"));
-            int idSeccion = Integer.parseInt(request.getParameter("seccion"));
-            String estado = request.getParameter("estado");
-
-            // LOG datos recibidos
-            System.out.println("[DEBUG] Editar matrícula:");
-            System.out.println("  idMatricula = " + idMatricula);
-            System.out.println("  codigoMatricula = " + codigoMatricula);
-            System.out.println("  parentesco = " + parentesco);
-            System.out.println("  idNivel = " + idNivel);
-            System.out.println("  idGrado = " + idGrado);
-            System.out.println("  idSeccion = " + idSeccion);
-            System.out.println("  estado = " + estado);
-
-            boolean actualizado = matriculaDAO.actualizarMatricula(
-                idMatricula, codigoMatricula, parentesco, idNivel, idGrado, idSeccion, estado
-            );
-
-            if (actualizado) {
-                response.getWriter().write("{\"exito\":true, \"mensaje\":\"Matrícula actualizada correctamente\"}");
-            } else {
-                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                response.getWriter().write("{\"exito\":false, \"mensaje\":\"Ocurrió un error al actualizar la matrícula\"}");
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"exito\":false, \"mensaje\":\"Error inesperado en el servidor\"}");
+        throws IOException {
+    try {
+        int idMatricula = Integer.parseInt(request.getParameter("idMatricula"));
+        String codigoMatricula = request.getParameter("codigoMatricula");
+        String parentesco = request.getParameter("parentesco");
+        int idNivel = Integer.parseInt(request.getParameter("nivel"));
+        int idGrado = Integer.parseInt(request.getParameter("grado"));
+        int idSeccion = Integer.parseInt(request.getParameter("seccion"));
+        String estado = request.getParameter("estado");
+        String observacion = "";
+        if ("condicional".equals(estado)) {
+            observacion = request.getParameter("observacion");
         }
+
+        boolean actualizado = matriculaDAO.actualizarMatricula(
+            idMatricula, codigoMatricula, parentesco, idNivel, idGrado, idSeccion, estado, observacion
+        );
+
+        if (actualizado) {
+            response.sendRedirect(request.getContextPath() + "/matricula?msg=ok");
+        } else {
+            response.sendRedirect(request.getContextPath() + "/matricula?msg=error");
+        }
+    } catch (Exception ex) {
+        ex.printStackTrace();
+        response.sendRedirect(request.getContextPath() + "/matricula?msg=error");
     }
+}
+    private void anularMatricula(HttpServletRequest request, HttpServletResponse response)
+        throws IOException {
+    int id = Integer.parseInt(request.getParameter("id"));
+    boolean exito;
+    try {
+        exito = matriculaDAO.cambiarEstadoMatricula(id, "retirado");
+        if (exito) {
+            response.getWriter().write("{\"exito\":true, \"mensaje\":\"Matrícula anulada correctamente.\"}");
+        } else {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("{\"exito\":false, \"mensaje\":\"No se pudo anular la matrícula.\"}");
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        response.getWriter().write("{\"exito\":false, \"mensaje\":\"Error en el servidor.\"}");
+    }
+}
 
     @Override
     public String getServletInfo() {
