@@ -108,13 +108,12 @@ public class MatriculaDAO {
 
         return matricula;
     }
-    public boolean actualizarMatricula(int idMatricula, String codigoMatricula, String parentesco, int idNivel, int idGrado, int idSeccion, String estado) {
-        boolean exito = false;
+    public boolean actualizarMatricula(int idMatricula, String codigoMatricula, String parentesco, int idNivel, int idGrado, int idSeccion, String estado) throws SQLException {
         int idApertura = 0;
         String spLookup = "{CALL sp_obtener_apertura_seccion(?,?,?)}";
         String spActualizar = "{CALL sp_actualizar_matricula(?,?,?,?,?)}";
         try (Connection conn = DatabaseConfig.getConnection()) {
-            // 1. Buscar id_apertura_seccion via SP
+            // 1. Buscar id_apertura_seccion
             try (CallableStatement csLookup = conn.prepareCall(spLookup)) {
                 csLookup.setInt(1, idGrado);
                 csLookup.setInt(2, idSeccion);
@@ -125,6 +124,11 @@ public class MatriculaDAO {
                     }
                 }
             }
+            System.out.println("[DAO] idApertura encontrado: " + idApertura + " para grado=" + idGrado + ", seccion=" + idSeccion + ", nivel=" + idNivel);
+            if (idApertura == 0) {
+                throw new SQLException("No existe apertura_seccion con esos parámetros");
+            }
+
             // 2. Actualizar matrícula (SP)
             try (CallableStatement cs = conn.prepareCall(spActualizar)) {
                 cs.setInt(1, idMatricula);
@@ -132,11 +136,10 @@ public class MatriculaDAO {
                 cs.setString(3, parentesco);
                 cs.setInt(4, idApertura);
                 cs.setString(5, estado);
-                exito = cs.executeUpdate() > 0;
+                int filas = cs.executeUpdate();
+                System.out.println("[DAO] Filas afectadas al actualizar matrícula: " + filas);
+                return filas > 0;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-        return exito;
     }
 }

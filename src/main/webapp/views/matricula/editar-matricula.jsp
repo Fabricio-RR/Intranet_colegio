@@ -3,7 +3,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <c:if test="${not empty matricula}">
-<form id="formEditarMatricula" method="post" action="${pageContext.request.contextPath}/matricula">
+<form id="formEditarMatricula" method="post" action="${pageContext.request.contextPath}/matricula" autocomplete="off">
     <input type="hidden" name="action" value="editarGuardar"/>
     <input type="hidden" name="idMatricula" value="${matricula.idMatricula}"/>
 
@@ -55,7 +55,7 @@
             </c:choose>
         </div>
         
-        <!-- Ocultos para JS -->
+        <!-- Ocultos para JS (si los usas para cargar grados/secciones, déjalos) -->
         <input type="hidden" id="idGradoActual" value="${matricula.idGrado}" />
         <input type="hidden" id="idSeccionActual" value="${matricula.idSeccion}" />
 
@@ -96,11 +96,18 @@
                 </div>
             </div>
         </div>
+        <!-- Botones -->
+        <div class="text-end mt-3">
+      <button type="submit" class="btn btn-admin-primary">
+        <i class="fas fa-save me-1"></i> Guardar Cambios
+      </button>
+      <button type="button" class="btn btn-outline-danger btn-uniform" data-bs-dismiss="modal">
+        <i class="fas fa-times me-1"></i> Cancelar
+      </button>
     </div>
-
+    </div>
 </form>
 </c:if>
-
 <c:if test="${empty matricula}">
     <div class="alert alert-warning text-center" role="alert">
         <i class="fas fa-info-circle me-2"></i>No se encontró información de la matrícula.

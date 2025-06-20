@@ -39,11 +39,11 @@ public class MatriculaServlet extends HttpServlet {
                 case "editar":
                     mostrarFormularioEdicion(request, response);
                     break;
-                // Puedes añadir más casos aquí, por ejemplo: "anular", "constancia", etc.
+                // Puedes añadir más casos aquí (anular, constancia, etc.)
                 default:
                     response.sendRedirect(request.getContextPath() + "/dashboard");
             }
-         } catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.setContentType("application/json");
@@ -74,8 +74,9 @@ public class MatriculaServlet extends HttpServlet {
         request.setAttribute("matricula", matricula);
         request.getRequestDispatcher("/views/matricula/detalle.jsp").forward(request, response);
     }
+
     private void mostrarFormularioEdicion(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException, SQLException {
+            throws ServletException, IOException, SQLException {
         int id = Integer.parseInt(request.getParameter("id"));
         Matricula matricula = matriculaDAO.obtenerMatriculaPorId(id);
         AcademicoDAO academicoDAO = new AcademicoDAO();
@@ -91,24 +92,29 @@ public class MatriculaServlet extends HttpServlet {
         request.getRequestDispatcher("/views/matricula/editar-matricula.jsp").forward(request, response);
     }
 
-
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
+        System.out.println("[DEBUG] doPost /matricula entró!!");
+        response.setContentType("application/json");
         String action = request.getParameter("action");
         try {
             if ("editarGuardar".equals(action)) {
                 guardarEdicionMatricula(request, response);
+                return;
             }
-            // ... otros casos futuros
+            // ... otros casos futuros ...
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("{\"exito\":false, \"mensaje\":\"Acción no válida\"}");
         } catch (Exception e) {
+            e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        response.setContentType("application/json");
-        response.getWriter().write("{\"exito\":false, \"mensaje\":\"Error inesperado en el servidor\"}");
+            response.getWriter().write("{\"exito\":false, \"mensaje\":\"Error inesperado en el servidor.\"}");
         }
     }
+
     private void guardarEdicionMatricula(HttpServletRequest request, HttpServletResponse response)
-        throws IOException {
+            throws IOException {
         try {
             int idMatricula = Integer.parseInt(request.getParameter("idMatricula"));
             String codigoMatricula = request.getParameter("codigoMatricula");
@@ -118,11 +124,20 @@ public class MatriculaServlet extends HttpServlet {
             int idSeccion = Integer.parseInt(request.getParameter("seccion"));
             String estado = request.getParameter("estado");
 
+            // LOG datos recibidos
+            System.out.println("[DEBUG] Editar matrícula:");
+            System.out.println("  idMatricula = " + idMatricula);
+            System.out.println("  codigoMatricula = " + codigoMatricula);
+            System.out.println("  parentesco = " + parentesco);
+            System.out.println("  idNivel = " + idNivel);
+            System.out.println("  idGrado = " + idGrado);
+            System.out.println("  idSeccion = " + idSeccion);
+            System.out.println("  estado = " + estado);
+
             boolean actualizado = matriculaDAO.actualizarMatricula(
                 idMatricula, codigoMatricula, parentesco, idNivel, idGrado, idSeccion, estado
             );
 
-            response.setContentType("application/json");
             if (actualizado) {
                 response.getWriter().write("{\"exito\":true, \"mensaje\":\"Matrícula actualizada correctamente\"}");
             } else {
@@ -130,8 +145,8 @@ public class MatriculaServlet extends HttpServlet {
                 response.getWriter().write("{\"exito\":false, \"mensaje\":\"Ocurrió un error al actualizar la matrícula\"}");
             }
         } catch (Exception ex) {
+            ex.printStackTrace();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.setContentType("application/json");
             response.getWriter().write("{\"exito\":false, \"mensaje\":\"Error inesperado en el servidor\"}");
         }
     }
