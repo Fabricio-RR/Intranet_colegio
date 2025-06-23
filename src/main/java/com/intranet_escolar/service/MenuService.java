@@ -18,7 +18,8 @@ public class MenuService {
         if (permisosGenerales.contains("administrador")) {
             menu.add(new MenuItem("Usuarios", "/usuarios", "fas fa-users"));
             menu.add(new MenuItem("Malla Curricular", "/malla-curricular", "fas fa-chalkboard-teacher"));
-            menu.add(new MenuItem("Matricula", "/matricula", "fas fa-user-graduate me-2"));        
+            menu.add(new MenuItem("Matricula", "/matricula", "fas fa-user-graduate me-2"));  
+            menu.add(new MenuItem("Criterio", "/criterio","fas fa-clipboard-list"));
             menu.add(new MenuItem("Publicaciones", "/views/publicaciones.jsp", "fas fa-bullhorn"));
             menu.add(new MenuItem("Reportes", "/views/reportes.jsp", "fas fa-file-alt"));
             menu.add(new MenuItem("Configuración", "/views/configuracion.jsp", "fas fa-cogs"));

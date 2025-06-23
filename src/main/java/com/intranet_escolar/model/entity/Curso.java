@@ -1,6 +1,7 @@
 package com.intranet_escolar.model.entity;
 
 public class Curso {
+    private int idCurso;
     private String nombreCurso;
     private String grado;
     private String seccion;
@@ -10,12 +11,21 @@ public class Curso {
     public Curso() {
     }
 
-    public Curso(String nombreCurso, String grado, String seccion, String nivel, String anio) {
+    public Curso(int idCurso, String nombreCurso, String grado, String seccion, String nivel, String anio) {
+        this.idCurso = idCurso;
         this.nombreCurso = nombreCurso;
         this.grado = grado;
         this.seccion = seccion;
         this.nivel = nivel;
         this.anio = anio;
+    }
+
+    public int getIdCurso() {
+        return idCurso;
+    }
+
+    public void setIdCurso(int idCurso) {
+        this.idCurso = idCurso;
     }
 
     public String getNombreCurso() {
@@ -58,6 +68,4 @@ public class Curso {
         this.anio = anio;
     }
     
-    
-
 }
