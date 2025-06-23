@@ -5,6 +5,7 @@ import com.intranet_escolar.model.entity.MenuItem;
 import com.intranet_escolar.model.entity.Permiso;
 import com.intranet_escolar.model.entity.Usuario;
 import com.intranet_escolar.service.MenuService;
+import com.intranet_escolar.util.SesionUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -21,11 +22,10 @@ public class SeleccionarServlet extends HttpServlet {
             throws ServletException, IOException {
         String rol = request.getParameter("rol");
         HttpSession session = request.getSession();
-
-        if (rol != null && session.getAttribute("usuario") != null) {
+        
+        if (rol != null && SesionUtil.getUsuarioLogueado(request) != null) {
             session.setAttribute("rolActivo", rol.toLowerCase());
-
-            Usuario usuario = (Usuario) session.getAttribute("usuario");
+            Usuario usuario = SesionUtil.getUsuarioLogueado(request);
 
             // Convertir roles a nombre y filtrar solo el seleccionado
             List<String> nombresRoles = usuario.getRoles().stream()
@@ -46,7 +46,6 @@ public class SeleccionarServlet extends HttpServlet {
             }
         }
 
-        // Fallback
         response.sendRedirect(request.getContextPath() + "/views/login.jsp");
     }
 }

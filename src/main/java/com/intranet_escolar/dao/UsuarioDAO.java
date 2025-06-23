@@ -608,5 +608,36 @@ public class UsuarioDAO {
 
         return lista;
     }
+    public List<Usuario> buscarUsuariosPorTerminoYRol(String termino, String tipo) {
+    List<Usuario> lista = new ArrayList<>();
+    String sql =
+        "SELECT u.id_usuario, u.dni, u.nombres, u.apellidos FROM usuario u " +
+        "JOIN user_rol ur ON u.id_usuario = ur.id_usuario " +
+        "JOIN rol r ON ur.id_rol = r.id_rol " +
+        "WHERE (u.dni LIKE ? OR u.nombres LIKE ? OR u.apellidos LIKE ?) " +
+        "AND r.nombre = ? AND u.estado = 1 LIMIT 10";
+    try (Connection con = DatabaseConfig.getConnection();
+         PreparedStatement ps = con.prepareStatement(sql)) {
+        String param = "%" + (termino != null ? termino : "") + "%";
+        ps.setString(1, param);
+        ps.setString(2, param);
+        ps.setString(3, param);
+        ps.setString(4, tipo.equalsIgnoreCase("alumno") ? "Alumno" : "Apoderado");
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Usuario u = new Usuario();
+                u.setIdUsuario(rs.getInt("id_usuario"));
+                u.setDni(rs.getString("dni"));
+                u.setNombres(rs.getString("nombres"));
+                u.setApellidos(rs.getString("apellidos"));
+                lista.add(u);
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return lista;
+}
+
 }
 

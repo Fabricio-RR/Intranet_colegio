@@ -16,15 +16,15 @@
     <link href="${pageContext.request.contextPath}/assets/css/styles.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/assets/css/calificaciones.css" rel="stylesheet">
 </head>
-<body>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <jsp:include page="/includes/sidebar.jsp" />
+<body class="admin-dashboard" data-context-path="${pageContext.request.contextPath}">
+    <jsp:include page="/includes/sidebar.jsp"/>
+    <c:set var="tituloPaginaDesktop" value="Gestión de Matrículas" scope="request"/>
+    <c:set var="tituloPaginaMobile" value="Matrícula" scope="request"/>
+    <c:set var="iconoPagina" value="fas fa-user-graduate me-2" scope="request"/>
+    <jsp:include page="/includes/header.jsp"/>
 
-            <!-- Main Content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                <jsp:include page="/includes/header.jsp" />
+    <main class="main-content">
+
 
                 <!-- Filtros y Acciones -->
                 <div class="row mb-4">
@@ -51,7 +51,7 @@
                                                 </c:forEach>
                                             </select>
                                         </div>
-                                        <c:if test="${sessionScope.usuario.rol eq 'PROFESOR' || sessionScope.usuario.rol eq 'ADMIN'}">
+                                        
                                             <div class="col-md-4">
                                                 <label for="filtroEstudiante" class="form-label">Estudiante</label>
                                                 <select class="form-select" id="filtroEstudiante" name="estudiante">
@@ -62,7 +62,7 @@
                                                 </select>
                                             </div>
                                         </c:if>
-                                        <c:if test="${sessionScope.usuario.rol eq 'APODERADO'}">
+                                 
                                             <div class="col-md-4">
                                                 <label for="filtroHijo" class="form-label">Hijo</label>
                                                 <select class="form-select" id="filtroHijo" name="hijo">
@@ -194,7 +194,7 @@
                 <div class="card mb-4">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">Calificaciones Detalladas</h5>
-                        <c:if test="${sessionScope.usuario.rol eq 'PROFESOR' || sessionScope.usuario.rol eq 'ADMIN'}">
+                        
                             <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#agregarCalificacionModal">
                                 <i class="fas fa-plus me-1"></i> Agregar Calificación
                             </button>
@@ -211,7 +211,7 @@
                                         <th>Fecha</th>
                                         <th>Calificación</th>
                                         <th>Ponderación</th>
-                                        <c:if test="${sessionScope.usuario.rol eq 'PROFESOR' || sessionScope.usuario.rol eq 'ADMIN'}">
+                                        
                                             <th>Acciones</th>
                                         </c:if>
                                     </tr>
@@ -225,7 +225,7 @@
                                             <td>${calificacion.fecha}</td>
                                             <td><span class="badge ${calificacion.notaClase}">${calificacion.nota}</span></td>
                                             <td>${calificacion.ponderacion}%</td>
-                                            <c:if test="${sessionScope.usuario.rol eq 'PROFESOR' || sessionScope.usuario.rol eq 'ADMIN'}">
+                                           
                                                 <td>
                                                     <button class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#editarCalificacionModal" data-id="${calificacion.id}">
                                                         <i class="fas fa-edit"></i>
@@ -239,7 +239,7 @@
                                     </c:forEach>
                                     <c:if test="${empty calificaciones}">
                                         <tr>
-                                            <td colspan="${sessionScope.usuario.rol eq 'PROFESOR' || sessionScope.usuario.rol eq 'ADMIN' ? '7' : '6'}" class="text-center py-4">
+                                            
                                                 <p class="text-muted mb-0">No hay calificaciones disponibles para los filtros seleccionados</p>
                                             </td>
                                         </tr>
@@ -334,7 +334,7 @@
                                                 </c:forEach>
                                             </div>
                                         </c:if>
-                                        <c:if test="${sessionScope.usuario.rol eq 'PROFESOR' || sessionScope.usuario.rol eq 'ADMIN' || sessionScope.usuario.rol eq 'APODERADO'}">
+                                        
                                             <div class="comentario-footer">
                                                 <button class="btn btn-sm btn-link" data-bs-toggle="collapse" data-bs-target="#responderComentario${comentario.id}" aria-expanded="false">
                                                     <i class="fas fa-reply me-1"></i>Responder
@@ -360,7 +360,7 @@
                                     </div>
                                 </c:if>
                             </div>
-                            <c:if test="${sessionScope.usuario.rol eq 'PROFESOR' || sessionScope.usuario.rol eq 'ADMIN'}">
+                            
                                 <hr>
                                 <h6 class="mb-3">Agregar Comentario</h6>
                                 <form action="${pageContext.request.contextPath}/calificaciones/agregar-comentario" method="post">
@@ -401,7 +401,7 @@
     </div>
 
     <!-- Agregar Calificación Modal -->
-    <c:if test="${sessionScope.usuario.rol eq 'PROFESOR' || sessionScope.usuario.rol eq 'ADMIN'}">
+    
         <div class="modal fade" id="agregarCalificacionModal" tabindex="-1" aria-labelledby="agregarCalificacionModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">

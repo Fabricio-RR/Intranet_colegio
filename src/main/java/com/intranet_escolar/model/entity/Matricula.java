@@ -6,10 +6,17 @@ public class Matricula {
     private int idMatricula;
     private int idAlumno;
     private int idAperturaSeccion;
+    // Datos del alumno
     private String dni;
     private String nombres;
     private String apellidos;
     private String codigoMatricula;
+    // Datos de apoderado
+    private String dniApoderado;
+    private String nombresApoderado;
+    private String apellidosApoderado;
+    private String parentesco;
+    // Datos académicos
     private int idNivel;
     private String nivel;
     private int idGrado;
@@ -19,14 +26,14 @@ public class Matricula {
     private String estado; 
     private String observacion;
     private Date fecha;
+    // Otras vistas
     private Alumno alumno;
     private Apoderado apoderado;
-
-
+    
     public Matricula() {
-    }
+    }    
 
-    public Matricula(int idMatricula, int idAlumno, int idAperturaSeccion, String dni, String nombres, String apellidos, String codigoMatricula, int idNivel, String nivel, int idGrado, String grado, int idSeccion, String seccion, String estado, String observacion, Date fecha, Alumno alumno, Apoderado apoderado) {
+    public Matricula(int idMatricula, int idAlumno, int idAperturaSeccion, String dni, String nombres, String apellidos, String codigoMatricula, String dniApoderado, String nombresApoderado, String apellidosApoderado, String parentesco, int idNivel, String nivel, int idGrado, String grado, int idSeccion, String seccion, String estado, String observacion, Date fecha, Alumno alumno, Apoderado apoderado) {
         this.idMatricula = idMatricula;
         this.idAlumno = idAlumno;
         this.idAperturaSeccion = idAperturaSeccion;
@@ -34,6 +41,10 @@ public class Matricula {
         this.nombres = nombres;
         this.apellidos = apellidos;
         this.codigoMatricula = codigoMatricula;
+        this.dniApoderado = dniApoderado;
+        this.nombresApoderado = nombresApoderado;
+        this.apellidosApoderado = apellidosApoderado;
+        this.parentesco = parentesco;
         this.idNivel = idNivel;
         this.nivel = nivel;
         this.idGrado = idGrado;
@@ -101,6 +112,38 @@ public class Matricula {
 
     public void setCodigoMatricula(String codigoMatricula) {
         this.codigoMatricula = codigoMatricula;
+    }
+
+    public String getDniApoderado() {
+        return dniApoderado;
+    }
+
+    public void setDniApoderado(String dniApoderado) {
+        this.dniApoderado = dniApoderado;
+    }
+
+    public String getNombresApoderado() {
+        return nombresApoderado;
+    }
+
+    public void setNombresApoderado(String nombresApoderado) {
+        this.nombresApoderado = nombresApoderado;
+    }
+
+    public String getApellidosApoderado() {
+        return apellidosApoderado;
+    }
+
+    public void setApellidosApoderado(String apellidosApoderado) {
+        this.apellidosApoderado = apellidosApoderado;
+    }
+
+    public String getParentesco() {
+        return parentesco;
+    }
+
+    public void setParentesco(String parentesco) {
+        this.parentesco = parentesco;
     }
 
     public int getIdNivel() {

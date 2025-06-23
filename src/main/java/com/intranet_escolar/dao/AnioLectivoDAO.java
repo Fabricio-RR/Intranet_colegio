@@ -43,6 +43,7 @@ public class AnioLectivoDAO {
         }
         return anios;
     }
+    
     public int obtenerAnioActivo() {
         int idAnio = 0;
         String sql = "{CALL sp_obtener_anio_activo()}";
@@ -57,6 +58,38 @@ public class AnioLectivoDAO {
         }
         return idAnio;
     }
-    
-    
+
+    public List<AnioLectivo> obtenerAniosParaMatricula() {
+        List<AnioLectivo> anios = new ArrayList<>();
+        String sql = "SELECT id_anio_lectivo, nombre FROM anio_lectivo WHERE estado IN ('activo', 'preparacion') ORDER BY nombre DESC";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                anios.add(new AnioLectivo(
+                    rs.getInt("id_anio_lectivo"),
+                    rs.getString("nombre")
+                ));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return anios;
+    } 
+    public String obtenerNombrePorId(int idAnioLectivo) {
+        String nombre = "";
+        String sql = "SELECT nombre FROM anio_lectivo WHERE id_anio_lectivo = ?";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, idAnioLectivo);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    nombre = rs.getString("nombre");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return nombre;
+    }
 }

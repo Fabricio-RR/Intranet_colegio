@@ -11,14 +11,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-
-
 /**
  *
  * @author Hp
  */
-@WebServlet(name = "ProfesorServlet", urlPatterns = {"/ProfesorServlet"})
-public class ProfesorServlet extends HttpServlet {
+@WebServlet(name = "AperturaSeccionServlet", urlPatterns = {"/AperturaSeccionServlet"})
+public class AperturaSeccionServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -37,10 +35,10 @@ public class ProfesorServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ProfesorServlet</title>");            
+            out.println("<title>Servlet AperturaSeccionServlet</title>");            
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet ProfesorServlet at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet AperturaSeccionServlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }

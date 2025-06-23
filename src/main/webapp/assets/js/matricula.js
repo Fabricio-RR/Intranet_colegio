@@ -6,10 +6,19 @@ document.addEventListener("DOMContentLoaded", function () {
     if (selectAnio) {
         selectAnio.addEventListener("change", function () {
             const idAnio = this.value;
-            window.location.href = contextPath + '/matricula?anio=' + idAnio;
+            // Detecta si estamos en la vista de creación (por la URL)
+            const isCrear = window.location.href.includes("action=crear");
+            if (isCrear) {
+                // Mantente en el formulario de creación
+                window.location.href = contextPath + '/matricula?action=crear&anio=' + idAnio;
+            } else {
+                // Redirige a la lista por año
+                window.location.href = contextPath + '/matricula?anio=' + idAnio;
+            }
         });
     }
 });
+
 
 // SweetAlert feedback (puedes usarlo para otras acciones, no para guardar)
 function mostrarExitoMatricula(mensaje, callback) {
@@ -240,8 +249,63 @@ function anularMatricula(idMatricula) {
         });
     });
 }
+function inicializarAutocompleteUsuarios() {
+    function setupAutocomplete(inputId, rol, idHidden, sugerenciasDiv) {
+        const input = document.getElementById(inputId);
+        const sugerencias = document.getElementById(sugerenciasDiv);
+        const hiddenId = document.getElementById(idHidden);
+        
+        if (!input || !sugerencias || !hiddenId) return;
+
+        let timeout = null;
+        input.addEventListener('input', function () {
+            clearTimeout(timeout);
+            const termino = input.value.trim();
+            if (termino.length < 2) {
+                sugerencias.innerHTML = '';
+                hiddenId.value = '';
+                return;
+            }
+            timeout = setTimeout(() => {
+                fetch(contextPath + `/usuarios/buscar?rol=${rol}&term=${encodeURIComponent(termino)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        sugerencias.innerHTML = '';
+                        if (data.length === 0) {
+                            sugerencias.innerHTML = '<div class="autocomplete-item text-muted">Sin resultados</div>';
+                            hiddenId.value = '';
+                        } else {
+                            data.forEach(u => {
+                                const div = document.createElement('div');
+                                div.className = 'autocomplete-item';
+                                div.textContent = `${u.dni} - ${u.nombres} ${u.apellidos}`;
+                                div.onclick = function () {
+                                    input.value = `${u.dni} - ${u.nombres} ${u.apellidos}`;
+                                    hiddenId.value = u.id;
+                                    sugerencias.innerHTML = '';
+                                };
+                                sugerencias.appendChild(div);
+                            });
+                        }
+                    });
+            }, 300);
+        });
+
+        // Oculta sugerencias al hacer click fuera
+        document.addEventListener('click', function (e) {
+            if (!input.contains(e.target) && !sugerencias.contains(e.target)) {
+                sugerencias.innerHTML = '';
+            }
+        });
+    }
+
+    setupAutocomplete('dniAlumno', 'alumno', 'idAlumno', 'sugerenciasAlumno');
+    setupAutocomplete('dniApoderado', 'apoderado', 'idApoderado', 'sugerenciasApoderado');
+}
+document.addEventListener('DOMContentLoaded', inicializarAutocompleteUsuarios);
+
 
 // Exportar (dummy, luego implementar)
 function exportarMatriculas() {
-    Swal.fire("Exportar", "Funcionalidad no implementada aún.", "info");
+    window.location.href = contextPath + '/matricula?action=exportarExcel';
 }

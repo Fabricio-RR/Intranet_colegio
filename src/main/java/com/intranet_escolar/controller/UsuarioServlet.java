@@ -4,6 +4,7 @@ import com.intranet_escolar.dao.UsuarioDAO;
 import com.intranet_escolar.model.entity.Usuario;
 import com.intranet_escolar.util.BitacoraMensajeUtil;
 import com.intranet_escolar.util.EmailUtil;
+import com.intranet_escolar.util.SesionUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -194,8 +195,7 @@ public class UsuarioServlet extends HttpServlet {
 
             boolean exito = dao.crearUsuarioConRoles(usuario, idsRoles);
 
-            HttpSession session = request.getSession(false);
-            Usuario usuarioActual = (session != null) ? (Usuario) session.getAttribute("usuario") : null;
+            Usuario usuarioActual = SesionUtil.getUsuarioLogueado(request);
             if (usuarioActual != null) {
                 String accion = BitacoraMensajeUtil.mensajeCrear(usuario, idsRoles);
                 dao.registrarBitacora(usuarioActual.getIdUsuario(), "usuario/crear-usuario", accion);
@@ -271,8 +271,7 @@ public class UsuarioServlet extends HttpServlet {
             UsuarioDAO dao = new UsuarioDAO();
             dao.actualizarUsuario(usuario, idsRoles);
             // Registrar bitácora
-            HttpSession session = request.getSession(false);
-            Usuario usuarioActual = (session != null) ? (Usuario) session.getAttribute("usuario") : null;
+            Usuario usuarioActual = SesionUtil.getUsuarioLogueado(request);
             if (usuarioActual != null) {
                 String accion = BitacoraMensajeUtil.mensajeEditar(usuario);
                 usuarioDAO.registrarBitacora(usuarioActual.getIdUsuario(), "Usuarios", accion);
@@ -295,8 +294,7 @@ public class UsuarioServlet extends HttpServlet {
                 try {
                     EmailUtil.enviarNuevaClave(usuario.getCorreo(), nuevaClave, usuario.getNombres());
                     // Obtener el usuario actual desde sesión
-                    HttpSession session = request.getSession(false);
-                    Usuario usuarioActual = (session != null) ? (Usuario) session.getAttribute("usuario") : null;
+                    Usuario usuarioActual = SesionUtil.getUsuarioLogueado(request);
                     if (usuarioActual != null) {
                         String accion = BitacoraMensajeUtil.mensajeResetear(usuario);
                         usuarioDAO.registrarBitacora(usuarioActual.getIdUsuario(), "Usuarios", accion);
@@ -315,8 +313,7 @@ public class UsuarioServlet extends HttpServlet {
             try {
                 usuarioDAO.cambiarEstadoUsuario(id, false); // false = inactivo (desactivado)
                 // Obtener el usuario actual desde sesión
-                HttpSession session = request.getSession(false);
-                Usuario usuarioActual = (session != null) ? (Usuario) session.getAttribute("usuario") : null;
+                Usuario usuarioActual = SesionUtil.getUsuarioLogueado(request);
                 Usuario afectado = usuarioDAO.obtenerUsuarioCompletoPorId(id); // obtener usuario desactivado
                 if (usuarioActual != null && afectado != null) {
                     String accion = BitacoraMensajeUtil.mensajeDesactivar(afectado);

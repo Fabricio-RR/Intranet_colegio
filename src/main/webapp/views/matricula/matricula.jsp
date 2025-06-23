@@ -39,7 +39,7 @@
                             <button type="button" class="btn btn-outline-success btn-sm btn-uniform" onclick="exportarMatriculas()" title="Exportar a Excel">
                                 <i class="fas fa-file-excel me-1"></i> Exportar
                             </button>
-                            <a href="${pageContext.request.contextPath}/matricula?action=nuevo" class="btn btn-admin-primary btn-sm btn-uniform">
+                            <a href="${pageContext.request.contextPath}/matricula?action=crear" class="btn btn-admin-primary btn-sm btn-uniform">
                                 <i class="fas fa-plus me-1"></i> Nueva Matrícula
                             </a>
                         </div>
@@ -157,30 +157,43 @@
 
 
     </script>
-        <c:if test="${param.msg == 'ok'}">
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Éxito',
-                    text: 'Matrícula actualizada correctamente',
-                    confirmButtonColor: '#110d59'
+    <c:choose>
+        <c:when test="${param.msg == 'ok'}">
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Éxito!',
+                        text: 'Matrícula actualizada correctamente.',
+                        confirmButtonColor: '#110d59'
+                    });
                 });
-            });
-        </script>
-    </c:if>
-    <c:if test="${param.msg == 'error'}">
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'No se pudo actualizar la matrícula',
-                    confirmButtonColor: '#110d59'
+            </script>
+        </c:when>
+        <c:when test="${param.msg == 'creado'}">
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Matrícula registrada!',
+                        text: 'La matrícula se guardó correctamente.',
+                        confirmButtonColor: '#110d59'
+                    });
                 });
-            });
-        </script>
-    </c:if>
-
+            </script>
+        </c:when>
+        <c:when test="${param.msg == 'error'}">
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Hubo un problema al procesar la matrícula. Revise los datos o intente nuevamente.',
+                        confirmButtonColor: '#110d59'
+                    });
+                });
+            </script>
+        </c:when>
+    </c:choose>
 </body>
 </html>

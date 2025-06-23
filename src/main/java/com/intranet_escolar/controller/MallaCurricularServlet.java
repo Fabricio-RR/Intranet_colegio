@@ -5,6 +5,8 @@ import com.intranet_escolar.dao.MallaCurricularDAO;
 import com.intranet_escolar.model.entity.AnioLectivo;
 import com.intranet_escolar.model.entity.MallaCurricular;
 import com.intranet_escolar.model.entity.Usuario;
+import com.intranet_escolar.util.BitacoraUtil;
+import com.intranet_escolar.util.SesionUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -110,18 +112,18 @@ public class MallaCurricularServlet extends HttpServlet {
         request.getRequestDispatcher("/views/malla/editar-malla.jsp").forward(request, response);
     }
 
-     private void procesarEdicionPorNivel(HttpServletRequest request, HttpServletResponse response)
+    private void procesarEdicionPorNivel(HttpServletRequest request, HttpServletResponse response)
         throws IOException {
         String[] ids = request.getParameterValues("idMalla[]");
         boolean exito = true;
+
+        Usuario usuarioSesion = SesionUtil.getUsuarioLogueado(request);
 
         if (ids != null) {
             for (String s : ids) {
                 int idM = Integer.parseInt(s);
                 String dp = request.getParameter("idDocente_" + idM);
-                int idDoc = (dp != null && !dp.isEmpty())
-                          ? Integer.parseInt(dp)
-                          : 0;
+                int idDoc = (dp != null && !dp.isEmpty()) ? Integer.parseInt(dp) : 0;
                 int orden  = Integer.parseInt(request.getParameter("orden_" + idM));
                 boolean act= request.getParameter("activo_" + idM) != null;
 
@@ -131,6 +133,19 @@ public class MallaCurricularServlet extends HttpServlet {
                 m.setOrden(orden);
                 m.setActivo(act);
                 exito = exito && mallaDAO.actualizar(m);
+
+                // Registrar en bitácora por cada cambio (o solo uno al final si prefieres)
+                if (usuarioSesion != null) {
+                    String mensaje = String.format(
+                        "Actualizó curso (id_malla=%d), asignó docente %d, orden %d, estado %s",
+                        idM, idDoc, orden, act ? "activo" : "inactivo"
+                    );
+                    BitacoraUtil.registrar(
+                        usuarioSesion.getIdUsuario(),
+                        "MallaCurricular",
+                        mensaje
+                    );
+                }
             }
         }
         if (exito) {
@@ -140,12 +155,16 @@ public class MallaCurricularServlet extends HttpServlet {
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,"Ocurrió un error al actualizar la malla.");
         }
     }
-     
+
     private void desactivarPorNivel(HttpServletRequest request, HttpServletResponse response) throws IOException {
         int idNivel = Integer.parseInt(request.getParameter("idNivel"));
         int anio = Integer.parseInt(request.getParameter("anio"));
         boolean ok = mallaDAO.desactivarPorNivel(idNivel, anio);
-
+        Usuario usuarioSesion = SesionUtil.getUsuarioLogueado(request);
+        if (usuarioSesion != null && ok) {
+            String mensaje = String.format("Desactivó la malla curricular del nivel %d, año %d", idNivel, anio);
+            BitacoraUtil.registrar(usuarioSesion.getIdUsuario(), "MallaCurricular", mensaje);
+        }
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         if (ok) {
@@ -168,7 +187,13 @@ public class MallaCurricularServlet extends HttpServlet {
     int idNivel = Integer.parseInt(request.getParameter("idNivel"));
     int idAnio = Integer.parseInt(request.getParameter("anio"));
     boolean exito = mallaDAO.reactivarPorNivel(idNivel, idAnio);
-
+    
+    Usuario usuarioSesion = SesionUtil.getUsuarioLogueado(request);
+    if (usuarioSesion != null && exito) {
+        String mensaje = String.format("Reactivó la malla curricular del nivel %d, año %d", idNivel, idAnio);
+        BitacoraUtil.registrar(usuarioSesion.getIdUsuario(), "MallaCurricular", mensaje);
+    }
+    
     response.setContentType("application/json");
     response.getWriter().write("{\"mensaje\":\""
             + (exito ? "Nivel reactivado correctamente." : "No se pudo reactivar el nivel.")

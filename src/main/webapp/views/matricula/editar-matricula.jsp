@@ -24,8 +24,7 @@
             <p class="mb-2">${matricula.alumno.usuario.telefono}</p>
 
             <label class="fw-semibold">Código de Matrícula:</label>
-            <input type="text" class="form-control mb-2" name="codigoMatricula" 
-                   value="${matricula.alumno.codigoMatricula}" maxlength="20" required/>
+            <p class="mb-2">${matricula.alumno.codigoMatricula}</p>
         </div>
 
         <!-- Apoderado -->
