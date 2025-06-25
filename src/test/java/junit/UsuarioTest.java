@@ -1,3 +1,5 @@
+package junit;
+
 
 import com.intranet_escolar.dao.UsuarioDAO;
 import com.intranet_escolar.model.entity.Usuario;
@@ -14,7 +16,6 @@ import org.mindrot.jbcrypt.BCrypt;
 
 
 public class UsuarioTest {
- 
     // --- LOGIN ---
  @Test
     public void testLoginUsuarioValido() {
@@ -27,7 +28,6 @@ public class UsuarioTest {
         assertNotNull(usuario, "El usuario no debe ser null si el login es válido");
         assertEquals(dni, usuario.getDni(), "El DNI debe coincidir con el ingresado");
     }
-
     @Test
     public void testLoginUsuarioInvalido() {
         // Datos que NO existen

@@ -1,10 +1,11 @@
+package junit;
+
 import com.intranet_escolar.util.EmailUtil;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class EmailTest {
-
     @Test
     public void testEnviarCodigo() {
         String destinatario = "fabriciorr4@gmail.com";
@@ -15,7 +16,6 @@ public class EmailTest {
             EmailUtil.enviarCodigo(destinatario, codigo, nombre);
         });
     }
-
     @Test
     public void testEnviarNuevaClave() {
         String destinatario = "test@gmail.com";
@@ -27,12 +27,3 @@ public class EmailTest {
         });
     }
 }
-
-
-
-
-
-
-
-
-

@@ -20,6 +20,10 @@ public class ApoderadoService {
             throw new RuntimeException("Error al inicializar DashboardDAO", e);
         }
     }
+    
+    public ApoderadoService(DashboardDAO daoMock) {
+        this.dao = daoMock;
+    }
 
     public List<HijoDTO> obtenerHijos(int idApoderado) {
         try {

@@ -299,5 +299,25 @@ public class MallaCurricularDAO {
         }
         return todosOk;
     }
-   
+    // Obtiene todas las mallas activas con info de grado, sección y curso (para combos)
+    public List<MallaCurricular> listarTodosActivos() {
+        List<MallaCurricular> lista = new ArrayList<>();
+        String sql = "{CALL sp_listar_mallas_curriculares_activas()}";
+        try (Connection conn = DatabaseConfig.getConnection();
+             CallableStatement stmt = conn.prepareCall(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                MallaCurricular m = new MallaCurricular();
+                m.setIdMalla(rs.getInt("id_malla_curricular"));
+                m.setNombreCurso(rs.getString("nombre_curso"));
+                m.setGrado(rs.getString("grado"));
+                m.setSeccion(rs.getString("seccion"));
+                m.setActivo(rs.getBoolean("activo"));
+                lista.add(m);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return lista;
+    }
 }

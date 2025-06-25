@@ -8,18 +8,19 @@ import java.util.*;
 public class PeriodoDAO {
     public List<Periodo> listarTodos() {
         List<Periodo> lista = new ArrayList<>();
-        String sql = "SELECT id_periodo, CONCAT('Bimestre ', UPPER(bimestre), ' - Mes ', mes) AS nombre FROM periodo WHERE estado='habilitado' ORDER BY id_periodo";
+        String sql = "{CALL sp_listar_periodos()}";
         try (Connection con = DatabaseConfig.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ResultSet rs = ps.executeQuery();
+             CallableStatement cs = con.prepareCall(sql);
+             ResultSet rs = cs.executeQuery()) {
             while (rs.next()) {
                 Periodo p = new Periodo();
                 p.setIdPeriodo(rs.getInt("id_periodo"));
-                p.setNombre(rs.getString("nombre")); // Asegúrate de que tu modelo Periodo tenga un atributo 'nombre'
+                p.setNombre(rs.getString("nombre"));
+                // ...otros campos
                 lista.add(p);
             }
-        } catch (SQLException ex) {
-            ex.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return lista;
     }

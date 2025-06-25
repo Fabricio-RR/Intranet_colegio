@@ -281,7 +281,7 @@ public class MatriculaServlet extends HttpServlet {
         styleTitulo.setFont(fontTitulo);
         styleTitulo.setAlignment(HorizontalAlignment.CENTER);
 
-        // === ESTILO PARA ENCABEZADOS DE TABLA ===
+        //  ESTILO PARA ENCABEZADOS DE TABLA 
         CellStyle headerStyle = workbook.createCellStyle();
         XSSFFont fontHeader = (XSSFFont) workbook.createFont();
         fontHeader.setBold(true);
@@ -295,14 +295,14 @@ public class MatriculaServlet extends HttpServlet {
         headerStyle.setBorderLeft(BorderStyle.THIN);
         headerStyle.setBorderRight(BorderStyle.THIN);
 
-        // === ESTILO PARA CELDAS DE DATOS (CON BORDES) ===
+        //  ESTILO PARA CELDAS DE DATOS (CON BORDES) 
         CellStyle cellStyle = workbook.createCellStyle();
         cellStyle.setBorderTop(BorderStyle.THIN);
         cellStyle.setBorderBottom(BorderStyle.THIN);
         cellStyle.setBorderLeft(BorderStyle.THIN);
         cellStyle.setBorderRight(BorderStyle.THIN);
 
-        // === ESTILO PARA FECHA ===
+        //  ESTILO PARA FECHA 
         CellStyle fechaCellStyle = workbook.createCellStyle();
         fechaCellStyle.cloneStyleFrom(cellStyle);
         short df = workbook.getCreationHelper().createDataFormat().getFormat("dd/MM/yyyy");
@@ -312,14 +312,14 @@ public class MatriculaServlet extends HttpServlet {
             List<Matricula> matriculas = matriculaDAO.listarMatriculasParaExportar(anio.getIdAnioLectivo());
             Sheet sheet = workbook.createSheet(anio.getNombre());
 
-            // --- TÍTULO ---
+            //  TÍTULO 
             Row rowTitulo = sheet.createRow(0);
             Cell cellTitulo = rowTitulo.createCell(0);
             cellTitulo.setCellValue("COLEGIO PERUANO CHINO DIEZ DE OCTUBRE");
             cellTitulo.setCellStyle(styleTitulo);
             sheet.addMergedRegion(new CellRangeAddress(0, 1, 0, 11)); // De columna A a M
 
-            // --- Encabezados ---
+            //  Encabezados 
             int filaEncabezado = 3;
             Row header = sheet.createRow(filaEncabezado);
             String[] cols = {
@@ -332,7 +332,7 @@ public class MatriculaServlet extends HttpServlet {
                 c.setCellStyle(headerStyle);
             }
 
-            // --- Datos ---
+            //  Datos 
             int rowIdx = filaEncabezado + 1;
             for (Matricula m : matriculas) {
                 Row row = sheet.createRow(rowIdx++);
@@ -366,7 +366,7 @@ public class MatriculaServlet extends HttpServlet {
                 }
             }
 
-            // --- Ajuste de columnas ---
+            //  Ajuste de columnas 
             for (int i = 0; i < cols.length; i++) {
                 sheet.autoSizeColumn(i);
             }
