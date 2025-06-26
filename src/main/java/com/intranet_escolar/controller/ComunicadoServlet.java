@@ -1,88 +1,116 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package com.intranet_escolar.controller;
 
+import com.intranet_escolar.dao.AnioLectivoDAO;
+import com.intranet_escolar.dao.ComunicadoDAO;
+import com.intranet_escolar.model.entity.AnioLectivo;
+import com.intranet_escolar.model.entity.Comunicado;
+import com.intranet_escolar.model.entity.Usuario;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.*;
 
 
-/**
- *
- * @author Hp
- */
-@WebServlet(name = "ComunicadoServlet", urlPatterns = {"/ComunicadoServlet"})
+@WebServlet(name = "ComunicadoServlet", urlPatterns = {"/comunicado"})
 public class ComunicadoServlet extends HttpServlet {
+    private final ComunicadoDAO comunicadoDAO = new ComunicadoDAO();
+    private final AnioLectivoDAO anioLectivoDAO = new AnioLectivoDAO();
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet ComunicadoServlet</title>");            
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet ComunicadoServlet at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
-    }
-
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        String action = request.getParameter("action");
+        String idAnioParam = request.getParameter("idAnioLectivo");
+        Integer idAnioLectivo = (idAnioParam != null && !idAnioParam.isEmpty())
+                ? Integer.parseInt(idAnioParam)
+                : anioLectivoDAO.obtenerAnioActivo(); 
+
+        switch (action == null ? "listar" : action) {
+            case "crear" -> {
+                request.setAttribute("idAnioLectivo", idAnioLectivo);
+                request.getRequestDispatcher("/views/comunicado/crear_comunicado.jsp").forward(request, response);
+            }
+            case "editar" -> {
+                int id = Integer.parseInt(request.getParameter("id"));
+                Comunicado comunicado = comunicadoDAO.obtenerPorId(id);
+                request.setAttribute("comunicado", comunicado);
+                request.setAttribute("idAnioLectivo", comunicado.getIdAnioLectivo());
+                request.getRequestDispatcher("/views/comunicado/editar_comunicado.jsp").forward(request, response);
+            }
+            case "ver" -> {
+                int id = Integer.parseInt(request.getParameter("id"));
+                Comunicado comunicado = comunicadoDAO.obtenerPorId(id);
+                request.setAttribute("comunicado", comunicado);
+                request.getRequestDispatcher("/views/comunicado/ver_comunicado.jsp").forward(request, response);
+            }
+            case "eliminar" -> {
+                int id = Integer.parseInt(request.getParameter("id"));
+                comunicadoDAO.eliminar(id);
+                response.sendRedirect("comunicado?idAnioLectivo=" + idAnioLectivo + "&success=1&op=delete");
+            }
+            default -> {
+                List<AnioLectivo> aniosLectivos = anioLectivoDAO.obtenerAniosDisponibles();
+                List<Comunicado> comunicados = comunicadoDAO.listarPorAnio(idAnioLectivo);
+                request.setAttribute("comunicados", comunicados);
+                request.setAttribute("aniosLectivos", aniosLectivos);
+                request.setAttribute("idAnioLectivo", idAnioLectivo);
+                request.getRequestDispatcher("/views/comunicado/comunicados.jsp").forward(request, response);
+            }
+        }
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        String action = request.getParameter("action");
+        HttpSession session = request.getSession();
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+
+        if ("guardar".equals(action)) {
+            Comunicado comunicado = new Comunicado();
+            comunicado.setIdUsuario(usuario.getIdUsuario());
+            comunicado.setTitulo(request.getParameter("titulo"));
+            comunicado.setContenido(request.getParameter("contenido"));
+            comunicado.setCategoria(request.getParameter("categoria"));
+            comunicado.setDestinatario(request.getParameter("destinatario"));
+            comunicado.setFecInicio(request.getParameter("fec_inicio"));
+            comunicado.setFecFin(request.getParameter("fec_fin"));
+            comunicado.setArchivo(request.getParameter("archivo"));
+            comunicado.setEstado("programada");
+            comunicado.setNotificarCorreo("1".equals(request.getParameter("notificar_correo")));
+            comunicado.setIdAnioLectivo(Integer.parseInt(request.getParameter("idAnioLectivo")));
+
+            comunicadoDAO.guardar(comunicado);
+
+            response.sendRedirect("comunicado?idAnioLectivo=" + comunicado.getIdAnioLectivo() + "&success=1&op=add");
+        }
+
+        if ("actualizar".equals(action)) {
+            int id = Integer.parseInt(request.getParameter("id"));
+            Comunicado comunicado = comunicadoDAO.obtenerPorId(id);
+
+            comunicado.setTitulo(request.getParameter("titulo"));
+            comunicado.setContenido(request.getParameter("contenido"));
+            comunicado.setCategoria(request.getParameter("categoria"));
+            comunicado.setDestinatario(request.getParameter("destinatario"));
+            comunicado.setFecInicio(request.getParameter("fec_inicio"));
+            comunicado.setFecFin(request.getParameter("fec_fin"));
+            comunicado.setArchivo(request.getParameter("archivo"));
+            comunicado.setNotificarCorreo("1".equals(request.getParameter("notificar_correo")));
+
+            comunicadoDAO.actualizar(comunicado);
+            response.sendRedirect("comunicado?idAnioLectivo=" + comunicado.getIdAnioLectivo() + "&success=1&op=edit");
+        }
     }
 
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
     @Override
     public String getServletInfo() {
         return "Short description";
-    }// </editor-fold>
+    }
 
 }
+

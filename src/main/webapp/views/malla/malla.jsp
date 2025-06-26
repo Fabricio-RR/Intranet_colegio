@@ -31,11 +31,10 @@
             <div class="d-flex align-items-center gap-2 ">
                 <label for="anioLectivo" class="mb-0 fw-semibold" style="white-space: nowrap;">Año Lectivo:</label>
                 <select id="anioLectivo" class="form-select form-select-sm" style="min-width: 120px;">
-    <c:forEach var="anio" items="${anios}">
-        <option value="${anio.idAnioLectivo}" ${anio.idAnioLectivo == anioActual ? 'selected' : ''}>${anio.nombre}</option>
-    </c:forEach>
-</select>
-
+                    <c:forEach var="anio" items="${anios}">
+                        <option value="${anio.idAnioLectivo}" ${anio.idAnioLectivo == anioActual ? 'selected' : ''}>${anio.nombre}</option>
+                    </c:forEach>
+                </select>
             </div>
             <div class="d-flex gap-2">
                 <button type="button" class="btn btn-outline-success btn-sm btn-uniform" onclick="exportarUsuarios()" title="Exportar a Excel">
