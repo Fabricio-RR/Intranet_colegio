@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
@@ -84,14 +84,25 @@
 
             <!-- Filtros para seleccionar malla curricular y periodo -->
             <form class="row g-3 mb-4" method="get" action="criterio">
-                <div class="col-md-4">
+                <div class="col-md-2">
+                    <label class="form-label">Año lectivo</label>
+                    <select name="idAnioLectivo" class="form-select" required onchange="this.form.submit()">
+                        <option value="">Seleccione...</option>
+                        <c:forEach var="anio" items="${aniosLectivos}">
+                            <option value="${anio.idAnioLectivo}" <c:if test="${anio.idAnioLectivo == idAnioLectivo}">selected</c:if>>
+                                ${anio.nombre}
+                            </option>
+                        </c:forEach>
+                    </select>
+                </div>
+                <div class="col-md-3">
                     <label class="form-label">Curso / Malla Curricular</label>
                     <select name="idMallaCurricular" class="form-select" required>
                         <option value="">Seleccione...</option>
                         <c:forEach var="entry" items="${mallasCurricularesAgrupadas}">
                             <optgroup label="${entry.key}">
                                 <c:forEach var="malla" items="${entry.value}">
-                                    <option value="${malla.idMalla}" ${malla.idMalla == idMallaCurricular ? 'selected' : ''}>
+                                    <option value="${malla.idMalla}" <c:if test="${malla.idMalla == idMallaCurricular}">selected</c:if>>
                                         ${malla.nombreCurso}
                                     </option>
                                 </c:forEach>
@@ -99,12 +110,12 @@
                         </c:forEach>
                     </select>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-2">
                     <label class="form-label">Periodo</label>
                     <select name="idPeriodo" class="form-select" required>
                         <option value="">Seleccione...</option>
                         <c:forEach var="periodo" items="${periodos}">
-                            <option value="${periodo.idPeriodo}" ${periodo.idPeriodo == idPeriodo ? 'selected' : ''}>${periodo.nombre}</option>
+                            <option value="${periodo.idPeriodo}" <c:if test="${periodo.idPeriodo == idPeriodo}">selected</c:if>>${periodo.nombre}</option>
                         </c:forEach>
                     </select>
                 </div>
@@ -146,10 +157,12 @@
                                     <span class="badge bg-${mc.activo ? 'success' : 'secondary'}">${mc.activo ? 'Sí' : 'No'}</span>
                                 </td>
                                 <td>
-                                    <button class="btn btn-sm btn-outline-warning"
-                                        data-bs-toggle="modal" data-bs-target="#modalEditarMallaCriterio"
-                                        data-id="${mc.idMallaCriterio}" data-criterio="${mc.idCriterio}"
-                                        data-tipo="${mc.tipo}" data-formula="${mc.formula}" data-activo="${mc.activo ? '1' : '0'}" title="Editar">
+                                    <button class="btn btn-sm btn-outline-warning"data-bs-toggle="modal" data-bs-target="#modalEditarMallaCriterio"
+                                        data-id="${mc.idMallaCriterio}" 
+                                        data-criterio="${mc.idCriterio}"
+                                        data-tipo="${mc.tipo}"
+                                        data-formula="${mc.formula}" 
+                                        data-activo="${mc.activo ? '1' : '0'}" title="Editar">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                     <button class="btn btn-sm btn-outline-danger" onclick="desactivarMallaCriterio(${mc.idMallaCriterio})" title="Desactivar">
@@ -300,6 +313,8 @@
                     <div class="modal-body">
                         <input type="hidden" name="action" value="editarMallaCriterio"/>
                         <input type="hidden" id="editIdMallaCriterio" name="idMallaCriterio"/>
+                        <input type="hidden" name="idMallaCurricular" value="${idMallaCurricular}"/>
+                        <input type="hidden" name="idPeriodo" value="${idPeriodo}"/>
                         <div class="mb-3">
                             <label class="form-label">Criterio</label>
                             <select id="editIdCriterio" name="idCriterio" class="form-select" required>
@@ -323,7 +338,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Activo</label>
-                            <select id="editActivo" name="activo" class="form-select" required>
+                            <select id="editCatalogoActivo" name="activo" class="form-select" required>
                                 <option value="1">Sí</option>
                                 <option value="0">No</option>
                             </select>
@@ -340,35 +355,48 @@
 
     <jsp:include page="/includes/footer.jsp" />
 </main>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="${pageContext.request.contextPath}/assets/js/common.js"></script>
 <script>
-/* =============== Mostrar SweetAlert de éxito/error si corresponde =============== */
-<%-- 
-    Se apoya en parámetros success/error puestos por el Servlet: 
-    ejemplo: criterio?success=1#catalogo 
---%>
+/* =============== Mostrar SweetAlert detallados según operación =============== */
 <%
     String success = request.getParameter("success");
     String error = request.getParameter("error");
+    String op = request.getParameter("op"); // Nuevo: puedes pasar "add", "edit", "disable"
+    // Si quieres saber la operación en el servlet, agrega ?success=1&op=add o ?success=1&op=edit
 %>
 <% if ("1".equals(success)) { %>
-Swal.fire({
-    icon: 'success',
-    title: '¡Operación exitosa!',
-    timer: 1500,
-    showConfirmButton: false
-});
+    <% if ("add".equals(request.getParameter("op"))) { %>
+        Swal.fire({ icon: 'success', title: '¡Criterio agregado!', text: 'El criterio se agregó correctamente.', timer: 1800, showConfirmButton: false });
+    <% } else if ("edit".equals(request.getParameter("op"))) { %>
+        Swal.fire({ icon: 'success', title: '¡Cambios guardados!', text: 'El criterio fue actualizado correctamente.', timer: 1800, showConfirmButton: false });
+    <% } else if ("disable".equals(request.getParameter("op"))) { %>
+        Swal.fire({ icon: 'info', title: 'Criterio desactivado', text: 'El criterio fue desactivado. Puedes volver a activarlo cuando quieras.', timer: 1800, showConfirmButton: false });
+    <% } else { %>
+        Swal.fire({ icon: 'success', title: '¡Operación exitosa!', timer: 1500, showConfirmButton: false });
+    <% } %>
 <% } else if ("1".equals(error)) { %>
-Swal.fire({
-    icon: 'error',
-    title: '¡Error!',
-    text: 'Ocurrió un error al procesar la solicitud',
-    timer: 2000,
-    showConfirmButton: false
-});
+    Swal.fire({
+        icon: 'error',
+        title: '¡Error!',
+        text: 'Ocurrió un error al procesar la solicitud. Por favor, verifica los datos ingresados o contacta a soporte.',
+        timer: 2500,
+        showConfirmButton: false
+    });
 <% } %>
+
+/* =============== Tab activo en recarga por filtros =============== */
+window.addEventListener('DOMContentLoaded', function() {
+    var idMalla = "${idMallaCurricular}";
+    var idPeriodo = "${idPeriodo}";
+    if (idMalla && idMalla !== "" && idMalla !== "null" && idPeriodo && idPeriodo !== "" && idPeriodo !== "null") {
+        var tabMalla = document.querySelector('#tab-malla');
+        var bsTab = new bootstrap.Tab(tabMalla);
+        bsTab.show();
+    }
+});
 
 /* =============== Modal Editar Catálogo de Criterios =============== */
 var modalEditarCatalogo = document.getElementById('modalEditarCatalogo');
@@ -378,9 +406,7 @@ modalEditarCatalogo?.addEventListener('show.bs.modal', function (event) {
     document.getElementById('editNombre').value = button.getAttribute('data-nombre');
     document.getElementById('editBase').value = button.getAttribute('data-base');
     document.getElementById('editDescripcion').value = button.getAttribute('data-descripcion');
-    // Selecciona activo o inactivo correctamente en el select
-    var activoValue = button.getAttribute('data-activo') === "true" ? "1" : "0";
-    document.getElementById('editActivo').value = activoValue;
+    document.getElementById('editActivo').value = button.getAttribute('data-activo');
 });
 
 /* =============== Modal Editar Malla Criterio =============== */
@@ -388,28 +414,42 @@ var modalEditarMalla = document.getElementById('modalEditarMallaCriterio');
 modalEditarMalla?.addEventListener('show.bs.modal', function (event) {
     var button = event.relatedTarget;
     document.getElementById('editIdMallaCriterio').value = button.getAttribute('data-id');
-    // Selecciona el criterio correctamente
-    var criterioSelect = document.getElementById('editIdCriterio');
+    // Cambia aquí:
+    var criterioSelect = modalEditarMalla.querySelector('#editIdCriterio');
     var idCriterio = button.getAttribute('data-criterio');
+    
+    if (!criterioSelect) {
+        console.error("No se encontró el select #editIdCriterio dentro del modal editar.");
+        return;
+    }
+
     for (var i = 0; i < criterioSelect.options.length; i++) {
-        if (criterioSelect.options[i].value === idCriterio) {
+        if (criterioSelect.options[i].value == idCriterio) {
             criterioSelect.selectedIndex = i;
             break;
         }
     }
     document.getElementById('editTipo').value = button.getAttribute('data-tipo');
     document.getElementById('editFormula').value = button.getAttribute('data-formula');
-    // Selecciona activo o inactivo correctamente en el select
-    var activoValue = button.getAttribute('data-activo') === "true" ? "1" : "0";
-    document.getElementById('editActivo').value = activoValue;
+    var activoSelect = document.getElementById('editCatalogoActivo');
+    var activoValue = button.getAttribute('data-activo');
+    for (var i = 0; i < activoSelect.options.length; i++) {
+        activoSelect.options[i].removeAttribute('selected');
+        if (activoSelect.options[i].value == activoValue) {
+            activoSelect.options[i].setAttribute('selected', 'selected');
+            activoSelect.selectedIndex = i;
+        }
+    }
+    activoSelect.value = activoValue; // línea extra para máxima compatibilidad
+
 });
 
 /* =============== Desactivar Catálogo (Soft Delete) =============== */
 function desactivarCatalogo(id) {
     Swal.fire({
         icon: 'warning',
-        title: '¿Está seguro?',
-        text: 'Esta acción desactivará el criterio. Podrá volver a activarlo luego si lo desea.',
+        title: '¿Desactivar criterio?',
+        text: '¿Está seguro que desea desactivar este criterio? No se eliminará, solo se ocultará del uso activo.',
         showCancelButton: true,
         confirmButtonColor: '#d33',
         cancelButtonColor: '#6c757d',
@@ -423,13 +463,12 @@ function desactivarCatalogo(id) {
 
 /* =============== Desactivar Malla Criterio (Soft Delete) =============== */
 function desactivarMallaCriterio(id) {
-    // Recupera los filtros para mantener la vista después de la acción
     var idMalla = "${idMallaCurricular}";
     var idPeriodo = "${idPeriodo}";
     Swal.fire({
         icon: 'warning',
-        title: '¿Está seguro?',
-        text: 'Esta acción desactivará el criterio de la malla. Podrá volver a activarlo luego si lo desea.',
+        title: '¿Desactivar criterio de malla?',
+        text: '¿Está seguro que desea desactivar este criterio de la malla curricular? Podrá reactivarlo si lo necesita.',
         showCancelButton: true,
         confirmButtonColor: '#d33',
         cancelButtonColor: '#6c757d',
@@ -442,6 +481,5 @@ function desactivarMallaCriterio(id) {
     });
 }
 </script>
-
 </body>
 </html>

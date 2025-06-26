@@ -1,9 +1,11 @@
 package com.intranet_escolar.controller;
 
+import com.intranet_escolar.dao.AnioLectivoDAO;
 import com.intranet_escolar.dao.CriterioDAO;
 import com.intranet_escolar.dao.MallaCriterioDAO;
 import com.intranet_escolar.dao.MallaCurricularDAO;
 import com.intranet_escolar.dao.PeriodoDAO;
+import com.intranet_escolar.model.entity.AnioLectivo;
 import com.intranet_escolar.model.entity.Criterio;
 import com.intranet_escolar.model.entity.MallaCriterio;
 import com.intranet_escolar.model.entity.MallaCurricular;
@@ -12,14 +14,12 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @WebServlet(name = "CriterioServlet", urlPatterns = {"/criterio"})
 public class CriterioServlet extends HttpServlet {
 
+    private final AnioLectivoDAO anioLectivoDAO = new AnioLectivoDAO();
     private final CriterioDAO criterioDAO = new CriterioDAO();
     private final MallaCriterioDAO mallaCriterioDAO = new MallaCriterioDAO();
     private final MallaCurricularDAO mallaCurricularDAO = new MallaCurricularDAO();
@@ -30,7 +30,6 @@ public class CriterioServlet extends HttpServlet {
             throws ServletException, IOException {
 
         String action = request.getParameter("action");
-        // Permite desactivar por GET desde JS (Swal)
         if ("desactivarCatalogo".equals(action)) {
             desactivarCatalogo(request, response);
             return;
@@ -39,21 +38,40 @@ public class CriterioServlet extends HttpServlet {
             return;
         }
 
-        //  Catálogo Criterio
+        // 1. Cargar años lectivos disponibles
+        List<AnioLectivo> aniosLectivos = anioLectivoDAO.obtenerAniosDisponibles();
+        String idAnioLectivoParam = request.getParameter("idAnioLectivo");
+        Integer idAnioLectivo = null;
+
+        // Default: año activo si no hay selección previa
+        if (idAnioLectivoParam != null && !idAnioLectivoParam.isEmpty()) {
+            idAnioLectivo = Integer.parseInt(idAnioLectivoParam);
+        } else if (!aniosLectivos.isEmpty()) {
+            idAnioLectivo = anioLectivoDAO.obtenerAnioActivo();
+        }
+
+        // 2. Cargar catálogo de criterios
         List<Criterio> criteriosCatalogo = criterioDAO.listarTodos();
 
-        // Mallas agrupadas (para combo)
-        List<MallaCurricular> listaMallas = mallaCurricularDAO.listarTodosActivos();
+        // 3. Cargar mallas curriculares filtradas por año lectivo
+        List<MallaCurricular> listaMallas = new ArrayList<>();
+        if (idAnioLectivo != null && idAnioLectivo > 0) {
+            listaMallas = mallaCurricularDAO.listarTodosActivosPorAnio(idAnioLectivo);
+        }
+        // Agrupar por grado-sección
         Map<String, List<MallaCurricular>> mallasCurricularesAgrupadas = new LinkedHashMap<>();
         for (MallaCurricular m : listaMallas) {
             String key = m.getGrado() + " - Sección " + m.getSeccion();
             mallasCurricularesAgrupadas.computeIfAbsent(key, k -> new ArrayList<>()).add(m);
         }
 
-        // Periodos 
-        List<Periodo> periodos = periodoDAO.listarTodos();
+        // 4. Periodos **sólo del año seleccionado**
+        List<Periodo> periodos = new ArrayList<>();
+        if (idAnioLectivo != null && idAnioLectivo > 0) {
+            periodos = periodoDAO.listarPorAnioLectivo(idAnioLectivo); // Este método debes tenerlo en tu DAO de Periodo
+        }
 
-        // Filtros de malla/periodo 
+        // 5. Filtros: malla/periodo seleccionados
         String idMallaCurricular = request.getParameter("idMallaCurricular");
         String idPeriodo = request.getParameter("idPeriodo");
         List<MallaCriterio> mallaCriterios = new ArrayList<>();
@@ -62,11 +80,14 @@ public class CriterioServlet extends HttpServlet {
                 && !idMallaCurricular.isEmpty() && !idPeriodo.isEmpty()
                 && !idMallaCurricular.equals("null") && !idPeriodo.equals("null")) {
             mallaCriterios = mallaCriterioDAO.listarPorMallaYPeriodo(
-                Integer.parseInt(idMallaCurricular),
-                Integer.parseInt(idPeriodo)
+                    Integer.parseInt(idMallaCurricular),
+                    Integer.parseInt(idPeriodo)
             );
         }
 
+        // Enviar atributos a JSP
+        request.setAttribute("aniosLectivos", aniosLectivos);
+        request.setAttribute("idAnioLectivo", idAnioLectivo);
         request.setAttribute("criteriosCatalogo", criteriosCatalogo);
         request.setAttribute("mallasCurricularesAgrupadas", mallasCurricularesAgrupadas);
         request.setAttribute("periodos", periodos);
@@ -81,22 +102,22 @@ public class CriterioServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String action = request.getParameter("action");
+        // Conserva el año lectivo y los filtros en la redirección
+        String idAnioLectivo = request.getParameter("idAnioLectivo");
+        String idMallaCurricular = request.getParameter("idMallaCurricular");
+        String idPeriodo = request.getParameter("idPeriodo");
 
         try {
-            //  Catálogo 
             if ("agregarCatalogo".equals(action)) {
                 agregarCatalogo(request, response);
             } else if ("editarCatalogo".equals(action)) {
                 editarCatalogo(request, response);
             } else if ("desactivarCatalogo".equals(action)) {
                 desactivarCatalogo(request, response);
-            }
-
-            //  Malla Criterio 
-            else if ("agregarMallaCriterio".equals(action)) {
-                agregarMallaCriterio(request, response);
+            } else if ("agregarMallaCriterio".equals(action)) {
+                agregarMallaCriterio(request, response, idAnioLectivo, idMallaCurricular, idPeriodo);
             } else if ("editarMallaCriterio".equals(action)) {
-                editarMallaCriterio(request, response);
+                editarMallaCriterio(request, response, idAnioLectivo, idMallaCurricular, idPeriodo);
             } else if ("desactivarMallaCriterio".equals(action)) {
                 desactivarMallaCriterio(request, response);
             } else {
@@ -104,12 +125,11 @@ public class CriterioServlet extends HttpServlet {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            // En caso de error genérico, mostrar SweetAlert de error
             response.sendRedirect("criterio?error=1#catalogo");
         }
     }
 
-    //  Catálogo 
+    // ===== Métodos CRUD de Catálogo =====
     private void agregarCatalogo(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
             String nombre = request.getParameter("nombre");
@@ -162,10 +182,10 @@ public class CriterioServlet extends HttpServlet {
         }
     }
 
-    // Malla Criterio 
-    private void agregarMallaCriterio(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String idMallaCurricular = request.getParameter("idMallaCurricular");
-        String idPeriodo = request.getParameter("idPeriodo");
+    // ===== Métodos CRUD de Malla Criterio (con filtros) =====
+
+    private void agregarMallaCriterio(HttpServletRequest request, HttpServletResponse response,
+                                      String idAnioLectivo, String idMallaCurricular, String idPeriodo) throws IOException {
         try {
             int idMalla = Integer.parseInt(idMallaCurricular);
             int idPer = Integer.parseInt(idPeriodo);
@@ -183,21 +203,22 @@ public class CriterioServlet extends HttpServlet {
             m.setActivo(activo);
 
             mallaCriterioDAO.agregar(m);
-            response.sendRedirect("criterio?idMallaCurricular=" + idMallaCurricular + "&idPeriodo=" + idPeriodo + "&success=1#malla");
+            // Mantener filtros y año en la URL tras guardar
+            response.sendRedirect("criterio?idAnioLectivo=" + idAnioLectivo + "&idMallaCurricular=" + idMallaCurricular + "&idPeriodo=" + idPeriodo + "&success=1#malla");
         } catch (Exception e) {
-            response.sendRedirect("criterio?idMallaCurricular=" + idMallaCurricular + "&idPeriodo=" + idPeriodo + "&error=1#malla");
+            response.sendRedirect("criterio?idAnioLectivo=" + idAnioLectivo + "&idMallaCurricular=" + idMallaCurricular + "&idPeriodo=" + idPeriodo + "&error=1#malla");
         }
     }
 
-    private void editarMallaCriterio(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String idMallaCurricular = request.getParameter("idMallaCurricular");
-        String idPeriodo = request.getParameter("idPeriodo");
+    private void editarMallaCriterio(HttpServletRequest request, HttpServletResponse response,
+                                     String idAnioLectivo, String idMallaCurricular, String idPeriodo) throws IOException {
         try {
             int idMallaCriterio = Integer.parseInt(request.getParameter("idMallaCriterio"));
             int idCriterio = Integer.parseInt(request.getParameter("idCriterio"));
             String tipo = request.getParameter("tipo");
             String formula = request.getParameter("formula");
             boolean activo = "1".equals(request.getParameter("activo"));
+            int idPer = Integer.parseInt(idPeriodo);
 
             MallaCriterio m = new MallaCriterio();
             m.setIdMallaCriterio(idMallaCriterio);
@@ -205,23 +226,25 @@ public class CriterioServlet extends HttpServlet {
             m.setTipo(tipo);
             m.setFormula(formula);
             m.setActivo(activo);
+            m.setIdPeriodo(idPer);
 
             mallaCriterioDAO.editar(m);
-            response.sendRedirect("criterio?idMallaCurricular=" + idMallaCurricular + "&idPeriodo=" + idPeriodo + "&success=1#malla");
+            response.sendRedirect("criterio?idAnioLectivo=" + idAnioLectivo + "&idMallaCurricular=" + idMallaCurricular + "&idPeriodo=" + idPeriodo + "&success=1#malla");
         } catch (Exception e) {
-            response.sendRedirect("criterio?idMallaCurricular=" + idMallaCurricular + "&idPeriodo=" + idPeriodo + "&error=1#malla");
+            response.sendRedirect("criterio?idAnioLectivo=" + idAnioLectivo + "&idMallaCurricular=" + idMallaCurricular + "&idPeriodo=" + idPeriodo + "&error=1#malla");
         }
     }
 
     private void desactivarMallaCriterio(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String idAnioLectivo = request.getParameter("idAnioLectivo");
         String idMallaCurricular = request.getParameter("idMallaCurricular");
         String idPeriodo = request.getParameter("idPeriodo");
         try {
             int idMallaCriterio = Integer.parseInt(request.getParameter("idMallaCriterio"));
             mallaCriterioDAO.desactivar(idMallaCriterio);
-            response.sendRedirect("criterio?idMallaCurricular=" + idMallaCurricular + "&idPeriodo=" + idPeriodo + "&success=1#malla");
+            response.sendRedirect("criterio?idAnioLectivo=" + idAnioLectivo + "&idMallaCurricular=" + idMallaCurricular + "&idPeriodo=" + idPeriodo + "&success=1#malla");
         } catch (Exception e) {
-            response.sendRedirect("criterio?idMallaCurricular=" + idMallaCurricular + "&idPeriodo=" + idPeriodo + "&error=1#malla");
+            response.sendRedirect("criterio?idAnioLectivo=" + idAnioLectivo + "&idMallaCurricular=" + idMallaCurricular + "&idPeriodo=" + idPeriodo + "&error=1#malla");
         }
     }
 

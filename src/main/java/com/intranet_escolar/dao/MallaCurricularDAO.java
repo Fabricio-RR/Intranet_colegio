@@ -320,4 +320,25 @@ public class MallaCurricularDAO {
         }
         return lista;
     }
+    public List<MallaCurricular> listarTodosActivosPorAnio(int idAnioLectivo) {
+        List<MallaCurricular> lista = new ArrayList<>();
+        String sql = "{CALL sp_listar_mallas_por_anio(?)}";
+        try (Connection conn = DatabaseConfig.getConnection();
+             CallableStatement stmt = conn.prepareCall(sql)) {
+            stmt.setInt(1, idAnioLectivo);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    MallaCurricular m = new MallaCurricular();
+                    m.setIdMalla(rs.getInt("id_malla_curricular"));
+                    m.setNombreCurso(rs.getString("nombre_curso"));
+                    m.setGrado(rs.getString("grado"));
+                    m.setSeccion(rs.getString("seccion"));
+                    lista.add(m);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return lista;
+    }
 }

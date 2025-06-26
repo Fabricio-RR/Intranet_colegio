@@ -61,7 +61,7 @@ public class MallaCriterioDAO {
             cs.setString(3, m.getTipo());
             cs.setString(4, m.getFormula());
             cs.setBoolean(5, m.isActivo());
-            cs.setInt(6, m.getIdPeriodo()); // Si tu SP lo pide, sino elimina este parámetro
+            cs.setInt(6, m.getIdPeriodo()); 
             cs.execute();
         } catch (SQLException e) {
             e.printStackTrace();
