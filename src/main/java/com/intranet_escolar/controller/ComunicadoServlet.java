@@ -12,13 +12,19 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 @WebServlet(name = "ComunicadoServlet", urlPatterns = {"/comunicado"})
 public class ComunicadoServlet extends HttpServlet {
     private final ComunicadoDAO comunicadoDAO = new ComunicadoDAO();
     private final AnioLectivoDAO anioLectivoDAO = new AnioLectivoDAO();
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -77,8 +83,17 @@ public class ComunicadoServlet extends HttpServlet {
             comunicado.setContenido(request.getParameter("contenido"));
             comunicado.setCategoria(request.getParameter("categoria"));
             comunicado.setDestinatario(request.getParameter("destinatario"));
-            comunicado.setFecInicio(request.getParameter("fec_inicio"));
-            comunicado.setFecFin(request.getParameter("fec_fin"));
+            try {
+                Date fechaInicio = sdf.parse(request.getParameter("fec_inicio"));
+                Date fechaFin = sdf.parse(request.getParameter("fec_fin"));
+                comunicado.setFecInicio(fechaInicio);
+                comunicado.setFecFin(fechaFin);
+            } catch (ParseException e) {
+                e.printStackTrace();
+                request.setAttribute("error", "Formato de fecha inválido");
+                request.getRequestDispatcher("/views/comunicado/crear_comunicado.jsp").forward(request, response);
+                return;
+            }
             comunicado.setArchivo(request.getParameter("archivo"));
             comunicado.setEstado("programada");
             comunicado.setNotificarCorreo("1".equals(request.getParameter("notificar_correo")));
@@ -97,8 +112,17 @@ public class ComunicadoServlet extends HttpServlet {
             comunicado.setContenido(request.getParameter("contenido"));
             comunicado.setCategoria(request.getParameter("categoria"));
             comunicado.setDestinatario(request.getParameter("destinatario"));
-            comunicado.setFecInicio(request.getParameter("fec_inicio"));
-            comunicado.setFecFin(request.getParameter("fec_fin"));
+            try {
+                Date fechaInicio = sdf.parse(request.getParameter("fec_inicio"));
+                Date fechaFin = sdf.parse(request.getParameter("fec_fin"));
+                comunicado.setFecInicio(fechaInicio);
+                comunicado.setFecFin(fechaFin);
+            } catch (ParseException e) {
+                e.printStackTrace();
+                request.setAttribute("error", "Formato de fecha inválido");
+                request.getRequestDispatcher("/views/comunicado/crear_comunicado.jsp").forward(request, response);
+                return;
+            }
             comunicado.setArchivo(request.getParameter("archivo"));
             comunicado.setNotificarCorreo("1".equals(request.getParameter("notificar_correo")));
 

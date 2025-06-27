@@ -26,8 +26,8 @@ public class ComunicadoDAO {
                     c.setContenido(rs.getString("contenido"));
                     c.setCategoria(rs.getString("categoria"));
                     c.setDestinatario(rs.getString("destinatario"));
-                    c.setFecInicio(rs.getString("fec_inicio"));
-                    c.setFecFin(rs.getString("fec_fin"));
+                    c.setFecInicio(rs.getDate("fec_inicio"));
+                    c.setFecFin(rs.getDate("fec_fin"));
                     c.setArchivo(rs.getString("archivo"));
                     c.setEstado(rs.getString("estado"));
                     c.setNotificarCorreo(rs.getBoolean("notificar_correo"));
@@ -58,8 +58,8 @@ public class ComunicadoDAO {
                     c.setContenido(rs.getString("contenido"));
                     c.setCategoria(rs.getString("categoria"));
                     c.setDestinatario(rs.getString("destinatario"));
-                    c.setFecInicio(rs.getString("fec_inicio"));
-                    c.setFecFin(rs.getString("fec_fin"));
+                    c.setFecInicio(rs.getDate("fec_inicio"));
+                    c.setFecFin(rs.getDate("fec_fin"));
                     c.setArchivo(rs.getString("archivo"));
                     c.setEstado(rs.getString("estado"));
                     c.setNotificarCorreo(rs.getBoolean("notificar_correo"));
@@ -85,8 +85,8 @@ public class ComunicadoDAO {
             cs.setString(4, c.getCategoria());
             cs.setString(5, c.getDestinatario());
             cs.setBoolean(6, c.isNotificarCorreo());
-            cs.setString(7, c.getFecInicio());
-            cs.setString(8, c.getFecFin());
+            cs.setDate(7, new java.sql.Date(c.getFecInicio().getTime()));
+            cs.setDate(8, new java.sql.Date(c.getFecFin().getTime()));
             cs.setString(9, c.getArchivo());
             cs.setInt(10, c.getIdAnioLectivo());
 
@@ -110,8 +110,8 @@ public class ComunicadoDAO {
             cs.setString(4, c.getCategoria());
             cs.setString(5, c.getDestinatario());
             cs.setBoolean(6, c.isNotificarCorreo());
-            cs.setString(7, c.getFecInicio());
-            cs.setString(8, c.getFecFin());
+            cs.setDate(7, new java.sql.Date(c.getFecInicio().getTime()));
+            cs.setDate(8, new java.sql.Date(c.getFecFin().getTime()));
             cs.setString(9, c.getArchivo());
 
             return cs.executeUpdate() > 0;

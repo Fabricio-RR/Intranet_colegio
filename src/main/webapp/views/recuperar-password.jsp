@@ -95,16 +95,36 @@
                                    title="El DNI debe contener 8 dígitos numéricos." autocomplete="off">
                         </div>
                     </div>
-                    
+                    <label for="email" class="custom-text">Correo electrónico</label>
+<div class="input-group">
+    <div class="input-group-prepend">
+        <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+    </div>
+    <input type="email" class="form-control" id="email" name="email"
+        required
+        placeholder="Ingrese su correo electrónico"
+        pattern="^[^<>\s]+$"
+        title="El correo electrónico no puede contener espacios ni los caracteres < o >."
+        autocomplete="off">
+</div>
+                    <!--
                     <div class="form-group">
                         <label for="email" class="custom-text">Correo electrónico</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fas fa-envelope"></i></span>
                             </div>
-                            <input type="email" class="form-control" id="email" name="email" required placeholder="Ingrese su correo electrónico" autocomplete="off">
+                            <input type="email" class="form-control" id="email" name="email"
+        required
+        placeholder="Ingrese su correo electrónico"
+        pattern="^[^<>\s]+$"
+        title="El correo electrónico no puede contener espacios ni los caracteres < o >."
+        autocomplete="off">
+                            <!--
+                            <input type="email" class="form-control" id="email" name="email" required placeholder="Ingrese su correo electrónico" oninput="this.value = this.value.replace(/\s/g, '')"  pattern="^[^<>]+$" autocomplete="off">
+                           
                         </div>
-                    </div>
+                    </div> -->
                     
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-danger w-100 mt-3" id="btnPaso1">
@@ -231,6 +251,14 @@
                     goToStep(1);
                 }
             });
+          
+        document.getElementById('email').addEventListener('input', function (e) {
+            let valor = this.value;
+            let limpio = valor.replace(/[<>\s]/g, ''); // quita < > y espacios
+            if (valor !== limpio) {
+                this.value = limpio;
+            }
+        });
         </script>
     </c:if>
 </body>

@@ -1,5 +1,7 @@
 package com.intranet_escolar.model.entity;
 
+import java.util.Date;
+
 public class Comunicado {
     private int id;
     private int idUsuario;
@@ -8,8 +10,8 @@ public class Comunicado {
     private String categoria; // 'general' o 'docente'
     private String destinatario; // 'todos', 'docentes', 'estudiantes', 'padres', 'seccion'
     private boolean notificarCorreo;
-    private String fecInicio;
-    private String fecFin;
+    private Date fecInicio;
+    private Date fecFin;
     private String archivo; // nombre del archivo o ruta
     private String estado; // 'programada', 'activa', 'expirada', 'archivada'
     private int idAnioLectivo;
@@ -17,7 +19,7 @@ public class Comunicado {
     public Comunicado() {
     }
 
-    public Comunicado(int id, int idUsuario, String titulo, String contenido, String categoria, String destinatario, boolean notificarCorreo, String fecInicio, String fecFin, String archivo, String estado, int idAnioLectivo) {
+    public Comunicado(int id, int idUsuario, String titulo, String contenido, String categoria, String destinatario, boolean notificarCorreo, Date fecInicio, Date fecFin, String archivo, String estado, int idAnioLectivo) {
         this.id = id;
         this.idUsuario = idUsuario;
         this.titulo = titulo;
@@ -88,19 +90,19 @@ public class Comunicado {
         this.notificarCorreo = notificarCorreo;
     }
 
-    public String getFecInicio() {
+    public Date getFecInicio() {
         return fecInicio;
     }
 
-    public void setFecInicio(String fecInicio) {
+    public void setFecInicio(Date fecInicio) {
         this.fecInicio = fecInicio;
     }
 
-    public String getFecFin() {
+    public Date getFecFin() {
         return fecFin;
     }
 
-    public void setFecFin(String fecFin) {
+    public void setFecFin(Date fecFin) {
         this.fecFin = fecFin;
     }
 

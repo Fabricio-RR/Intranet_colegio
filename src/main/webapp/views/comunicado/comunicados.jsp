@@ -25,12 +25,12 @@
             <div class="card">
                 <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-3">
                 <div class="d-flex align-items-center gap-2 ">
-                    <label for="anioLectivo" class="mb-0 fw-semibold" style="white-space: nowrap;">Año Lectivo:</label>
+                    <!--<label for="anioLectivo" class="mb-0 fw-semibold" style="white-space: nowrap;">Año Lectivo:</label>
                     <select id="anioLectivo" class="form-select form-select-sm" style="min-width: 120px;">
                         <c:forEach var="anio" items="${anios}">
                             <option value="${anio.idAnioLectivo}" ${anio.idAnioLectivo == anioActual ? 'selected' : ''}>${anio.nombre}</option>
                         </c:forEach>
-                    </select>
+                    </select>-->
                 </div>
                 <div class="d-flex gap-2">
                     <a href="${pageContext.request.contextPath}/comunicado?action=crear" class="btn btn-admin-primary btn-sm btn-uniform" title="Nuevo Comunicado">
@@ -60,10 +60,10 @@
                     <c:forEach var="c" items="${comunicados}">
                         <tr>
                             <td>${c.titulo}</td>
-                            <td><span class="badge bg-info text-dark">${c.tipo}</span></td>
-                            <td>${c.publico}</td>
-                            <td><fmt:formatDate value="${c.fechaInicio}" pattern="dd/MM/yyyy" /></td>
-                            <td><fmt:formatDate value="${c.fechaFin}" pattern="dd/MM/yyyy" /></td>
+                            <td><span class="badge bg-info text-dark">${c.categoria}</span></td>
+                            <td>${c.destinatario}</td>
+                            <td><fmt:formatDate value="${c.fecInicio}" pattern="dd/MM/yyyy" /></td>
+                            <td><fmt:formatDate value="${c.fecFin}" pattern="dd/MM/yyyy" /></td>
                             <td>
                                 <span class="badge bg-${c.estado eq 'VIGENTE' ? 'success' : c.estado eq 'BORRADOR' ? 'secondary' : 'danger'}">${c.estado}</span>
                             </td>

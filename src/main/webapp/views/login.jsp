@@ -47,8 +47,13 @@
                             <span class="input-group-text"><i class="fas fa-lock"></i></span>
                         </div>
                         <input type="password" class="form-control" id="password" name="password"
-                        placeholder="Ingrese su contraseña" required oninput="this.value = this.value.replace(/\s/g, '')"
-                        title="La contraseña no puede estar vacía." autocomplete="off">
+                               placeholder="Ingrese su contraseña" required oninput="this.value = this.value.replace(/\s/g, '')"    pattern="^[^<>]+$"
+                        title="La contraseña no puede estar vacía." autocomplete="off"><!--
+                        <input type="password" class="form-control" id="password" name="password"
+    placeholder="Ingrese su contraseña" required 
+    pattern="^[^<>\s]+$"
+    title="La contraseña no puede contener espacios ni los caracteres < o >." 
+    autocomplete="off">-->
                         <div class="input-group-append">
                             <button class="btn btn-outline-secondary" type="button" id="togglePassword" aria-label="Mostrar/Ocultar contraseña">
                                 <i class="fas fa-eye"></i>
@@ -88,5 +93,15 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="${pageContext.request.contextPath}/assets/js/login.js"></script>
+    <script>
+        document.getElementById('password').addEventListener('input', function (e) {
+        // Solo permite caracteres distintos de <, > y espacio
+        let valor = this.value;
+        let limpio = valor.replace(/[<>\s]/g, ''); // quita < > y espacios
+        if (valor !== limpio) {
+            this.value = limpio;
+        }
+    });
+    </script>
 </body>
 </html>
