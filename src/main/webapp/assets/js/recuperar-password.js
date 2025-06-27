@@ -39,12 +39,24 @@ document.addEventListener('DOMContentLoaded', function () {
     const codeInputs = document.querySelectorAll('.code-input');
     const newPasswordInput = document.getElementById('newPassword');
     const confirmPasswordInput = document.getElementById('confirmPassword');
-
     const passwordStrength = document.getElementById('passwordStrength');
     const passwordFeedback = document.getElementById('passwordFeedback');
-
     const errorAlerta = document.querySelector('.alert-danger');
     const successAlerta = document.querySelector('.alert-success');
+    // Validación en tiempo real: solo números, máximo 8 dígitos
+    dniInput?.addEventListener('input', () => {
+        dniInput.value = dniInput.value.replace(/\D/g, '').slice(0, 8);
+    });
+    // Limpieza en tiempo real: elimina < > / y espacios del correo
+    emailInput?.addEventListener('input', () => {
+        emailInput.value = emailInput.value.replace(/[<>\s\/]/g, '');
+    });
+    // Limpieza en tiempo real: elimina < > / y espacios en contraseñas
+    [newPasswordInput, confirmPasswordInput].forEach(input => {
+        input?.addEventListener('input', () => {
+            input.value = input.value.replace(/[<>\s\/]/g, '');
+        });
+    });
 
     // Ocultar alerta de éxito después de 4 segundos
     if (successAlerta) {

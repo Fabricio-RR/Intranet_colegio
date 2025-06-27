@@ -48,12 +48,7 @@
                         </div>
                         <input type="password" class="form-control" id="password" name="password"
                                placeholder="Ingrese su contraseña" required oninput="this.value = this.value.replace(/\s/g, '')"    pattern="^[^<>]+$"
-                        title="La contraseña no puede estar vacía." autocomplete="off"><!--
-                        <input type="password" class="form-control" id="password" name="password"
-    placeholder="Ingrese su contraseña" required 
-    pattern="^[^<>\s]+$"
-    title="La contraseña no puede contener espacios ni los caracteres < o >." 
-    autocomplete="off">-->
+                        title="La contraseña no puede estar vacía." autocomplete="off">
                         <div class="input-group-append">
                             <button class="btn btn-outline-secondary" type="button" id="togglePassword" aria-label="Mostrar/Ocultar contraseña">
                                 <i class="fas fa-eye"></i>

@@ -91,41 +91,24 @@
                                 <span class="input-group-text"><i class="fas fa-id-card"></i></span>
                             </div>
                             <input type="text" class="form-control" id="dni" name="dni"
-                                   placeholder="Ingrese su DNI" required pattern="[0-9]{8}" maxlength="8"
-                                   title="El DNI debe contener 8 dígitos numéricos." autocomplete="off">
+                            placeholder="Ingrese su DNI" 
+                            required pattern="[0-9]{8}" maxlength="8"
+                            inputmode="numeric"
+                            title="El DNI debe contener exactamente 8 dígitos numéricos." autocomplete="off">
                         </div>
                     </div>
                     <label for="email" class="custom-text">Correo electrónico</label>
-<div class="input-group">
-    <div class="input-group-prepend">
-        <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-    </div>
-    <input type="email" class="form-control" id="email" name="email"
-        required
-        placeholder="Ingrese su correo electrónico"
-        pattern="^[^<>\s]+$"
-        title="El correo electrónico no puede contener espacios ni los caracteres < o >."
-        autocomplete="off">
-</div>
-                    <!--
-                    <div class="form-group">
-                        <label for="email" class="custom-text">Correo electrónico</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                            </div>
-                            <input type="email" class="form-control" id="email" name="email"
-        required
-        placeholder="Ingrese su correo electrónico"
-        pattern="^[^<>\s]+$"
-        title="El correo electrónico no puede contener espacios ni los caracteres < o >."
-        autocomplete="off">
-                            <!--
-                            <input type="email" class="form-control" id="email" name="email" required placeholder="Ingrese su correo electrónico" oninput="this.value = this.value.replace(/\s/g, '')"  pattern="^[^<>]+$" autocomplete="off">
-                           
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
                         </div>
-                    </div> -->
-                    
+                        <input type="email" class="form-control" id="email" name="email"
+                        required
+                        placeholder="Ingrese su correo electrónico"
+                        pattern="^[^<>\s/]+$"
+                        title="No se permiten espacios ni los caracteres <, >, /"
+                        autocomplete="off">
+                    </div>                    
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-danger w-100 mt-3" id="btnPaso1">
                             <i class="fas fa-paper-plane mr-2"></i>Enviar código de verificación
@@ -184,7 +167,11 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fas fa-lock"></i></span>
                             </div>
-                            <input type="password" class="form-control" id="newPassword" name="newPassword" placeholder="Ingrese nueva contraseña" required>
+                            <input type="password" class="form-control" id="newPassword" name="newPassword"
+                            placeholder="Ingrese nueva contraseña" required
+                            pattern="^[^<>\s/]{8,}$"
+                            title="La contraseña debe tener al menos 8 caracteres.">
+
                             <div class="input-group-append">
                                 <button class="btn btn-outline-secondary" type="button" id="toggleNewPassword">
                                     <i class="fas fa-eye"></i>
@@ -198,8 +185,10 @@
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                            </div>
-                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Confirme nueva contraseña" required>
+                            </div><input type="password" class="form-control" id="confirmPassword" name="confirmPassword"
+                            placeholder="Confirme nueva contraseña" required
+                            pattern="^[^<>\s/]{8,}$"
+                            title="La contraseña debe tener al menos 8 caracteres.">
                             <div class="input-group-append">
                                 <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
                                     <i class="fas fa-eye"></i>
@@ -251,14 +240,6 @@
                     goToStep(1);
                 }
             });
-          
-        document.getElementById('email').addEventListener('input', function (e) {
-            let valor = this.value;
-            let limpio = valor.replace(/[<>\s]/g, ''); // quita < > y espacios
-            if (valor !== limpio) {
-                this.value = limpio;
-            }
-        });
         </script>
     </c:if>
 </body>

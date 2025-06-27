@@ -31,6 +31,18 @@ public class LoginServlet extends HttpServlet {
         String dni = request.getParameter("dni");
         String clave = request.getParameter("password");
 
+        if (dni == null || !dni.matches("\\d{8}")) {
+            request.setAttribute("error", "El DNI debe contener exactamente 8 dígitos numéricos.");
+            request.getRequestDispatcher("/views/login.jsp").forward(request, response);
+            return;
+        }
+
+        if (clave == null || clave.matches(".*[<>\\s].*")) {
+            request.setAttribute("error", "La contraseña no debe contener espacios ni los caracteres < o >.");
+            request.getRequestDispatcher("/views/login.jsp").forward(request, response);
+            return;
+        }
+
         try {
             UsuarioDAO usuarioDAO = new UsuarioDAO();
             Usuario usuario = usuarioDAO.login(dni, clave);
@@ -59,9 +71,7 @@ public class LoginServlet extends HttpServlet {
                     session.setAttribute("rolActivo", rol);
                     response.sendRedirect(request.getContextPath() + "/dashboard/" + rol);
                 } else {
-                    request.getRequestDispatcher("/views/selec-rol.jsp")
-                        .forward(request, response);
-                return;
+                    request.getRequestDispatcher("/views/selec-rol.jsp").forward(request, response);
                 }
 
             } else {
