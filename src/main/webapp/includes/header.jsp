@@ -51,8 +51,7 @@
                     <span class="d-none d-sm-inline">${sessionScope.usuario.nombres} ${sessionScope.usuario.apellidos}</span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
-                    <li><a class="dropdown-item" href="${pageContext.request.contextPath}/views/perfil.jsp"><i class="fas fa-user me-2"></i>Mi Perfil</a></li>
-                    <li><a class="dropdown-item" href="${pageContext.request.contextPath}/views/configuracion/.jsp"><i class="fas fa-cog me-2"></i>Configuración</a></li>
+                    <li><a class="dropdown-item" href="${pageContext.request.contextPath}/perfil"><i class="fas fa-user me-2"></i>Mi Perfil</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item" href="${pageContext.request.contextPath}/controller/auth?action=logout"><i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</a></li>
                 </ul>

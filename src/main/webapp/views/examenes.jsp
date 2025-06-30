@@ -16,16 +16,15 @@
     <link href="${pageContext.request.contextPath}/assets/css/styles.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/assets/css/examenes.css" rel="stylesheet">
 </head>
-<body>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <jsp:include page="/includes/sidebar.jsp" />
+<body class="admin-dashboard" data-context-path="${pageContext.request.contextPath}">
 
-            <!-- Main Content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                <!-- header -->
-                <jsp:include page="/includes/header.jsp" />
+<jsp:include page="/includes/sidebar.jsp" />
+<c:set var="tituloPaginaDesktop" value="Gestión de Examenes-rol" scope="request" />
+<c:set var="tituloPaginaMobile" value="Examnes" scope="request" />
+<c:set var="iconoPagina" value="fas fa-bullhorn" scope="request" />
+<jsp:include page="/includes/header.jsp" />
+
+<main class="main-content">
                 <!-- Filtros y Opciones -->
                 <div class="row mb-4">
                     <div class="col-md-8">

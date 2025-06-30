@@ -175,7 +175,6 @@
                         <c:set var="labelsTendencia" value="${labelsTendencia}${fn:escapeXml(entry.key)}${loop.last ? '' : ','}" />
                         <c:set var="valoresTendencia" value="${valoresTendencia}${entry.value}${loop.last ? '' : ','}" />
                     </c:forEach>
-
                     <!-- Gráfico de línea -->
                     <canvas id="tendenciaMatriculasChart"
                             data-labels="${labelsTendencia}"
@@ -225,7 +224,7 @@
             </div>
         </div>
 
-        <!-- Acciones Rápidas Mejoradas -->
+        <!-- Acciones Rápidas -->
         <div class="row mb-4">
             <div class="col-12">
                 <div class="quick-actions fade-in-up" style="animation-delay: 0.7s;">
@@ -235,7 +234,7 @@
                     </h5>
                     <div class="row">
                         <div class="col-lg-3 col-md-6 mb-3">
-                            <a href="${pageContext.request.contextPath}/views/usuario/crear.jsp" 
+                            <a href="${pageContext.request.contextPath}/usuarios?action=nuevo" 
                                class="quick-action">
                                 <i class="fas fa-user-plus"></i>
                                 <span>Nuevo Usuario</span>
@@ -249,7 +248,7 @@
                             </a>
                         </div>
                         <div class="col-lg-3 col-md-6 mb-3">
-                            <a href="${pageContext.request.contextPath}/views/matriculas/nueva.jsp" 
+                            <a href="${pageContext.request.contextPath}/matricula?action=crear" 
                                class="quick-action">
                                 <i class="fas fa-user-graduate"></i>
                                 <span>Nueva Matrícula</span>
