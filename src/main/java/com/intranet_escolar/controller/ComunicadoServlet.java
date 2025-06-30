@@ -6,57 +6,57 @@ import com.intranet_escolar.model.entity.AnioLectivo;
 import com.intranet_escolar.model.entity.Comunicado;
 import com.intranet_escolar.model.entity.Usuario;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.annotation.*;
+import jakarta.servlet.http.*;
+
+import java.io.File;
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.net.URLEncoder;
+import java.text.*;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-
+@MultipartConfig(
+    fileSizeThreshold = 1024 * 1024,  // 1MB
+    maxFileSize = 5 * 1024 * 1024,    // 5MB
+    maxRequestSize = 10 * 1024 * 1024 // 10MB
+)
 @WebServlet(name = "ComunicadoServlet", urlPatterns = {"/comunicado"})
 public class ComunicadoServlet extends HttpServlet {
     private final ComunicadoDAO comunicadoDAO = new ComunicadoDAO();
     private final AnioLectivoDAO anioLectivoDAO = new AnioLectivoDAO();
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-
+    private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
         String action = request.getParameter("action");
         String idAnioParam = request.getParameter("idAnioLectivo");
         Integer idAnioLectivo = (idAnioParam != null && !idAnioParam.isEmpty())
                 ? Integer.parseInt(idAnioParam)
-                : anioLectivoDAO.obtenerAnioActivo(); 
+                : anioLectivoDAO.obtenerAnioActivo();
 
         switch (action == null ? "listar" : action) {
             case "crear" -> {
                 request.setAttribute("idAnioLectivo", idAnioLectivo);
-                request.getRequestDispatcher("/views/comunicado/crear_comunicado.jsp").forward(request, response);
+                request.getRequestDispatcher("/views/comunicado/crear.jsp").forward(request, response);
             }
             case "editar" -> {
                 int id = Integer.parseInt(request.getParameter("id"));
                 Comunicado comunicado = comunicadoDAO.obtenerPorId(id);
                 request.setAttribute("comunicado", comunicado);
-                request.setAttribute("idAnioLectivo", comunicado.getIdAnioLectivo());
-                request.getRequestDispatcher("/views/comunicado/editar_comunicado.jsp").forward(request, response);
+                request.getRequestDispatcher("/views/comunicado/editar.jsp").forward(request, response);
             }
             case "ver" -> {
                 int id = Integer.parseInt(request.getParameter("id"));
                 Comunicado comunicado = comunicadoDAO.obtenerPorId(id);
                 request.setAttribute("comunicado", comunicado);
-                request.getRequestDispatcher("/views/comunicado/ver_comunicado.jsp").forward(request, response);
+                request.getRequestDispatcher("/views/comunicado/ver.jsp").forward(request, response);
             }
-            case "eliminar" -> {
+            case "desactivar" -> {
                 int id = Integer.parseInt(request.getParameter("id"));
-                comunicadoDAO.eliminar(id);
-                response.sendRedirect("comunicado?idAnioLectivo=" + idAnioLectivo + "&success=1&op=delete");
+                comunicadoDAO.desactivar(id);
+                response.sendRedirect("comunicado?idAnioLectivo=" + idAnioLectivo + "&success=1&op=deactivate");
             }
             default -> {
                 List<AnioLectivo> aniosLectivos = anioLectivoDAO.obtenerAniosDisponibles();
@@ -68,73 +68,122 @@ public class ComunicadoServlet extends HttpServlet {
             }
         }
     }
-
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
         String action = request.getParameter("action");
         HttpSession session = request.getSession();
         Usuario usuario = (Usuario) session.getAttribute("usuario");
 
-        if ("guardar".equals(action)) {
-            Comunicado comunicado = new Comunicado();
-            comunicado.setIdUsuario(usuario.getIdUsuario());
-            comunicado.setTitulo(request.getParameter("titulo"));
-            comunicado.setContenido(request.getParameter("contenido"));
-            comunicado.setCategoria(request.getParameter("categoria"));
-            comunicado.setDestinatario(request.getParameter("destinatario"));
-            try {
-                Date fechaInicio = sdf.parse(request.getParameter("fec_inicio"));
-                Date fechaFin = sdf.parse(request.getParameter("fec_fin"));
-                comunicado.setFecInicio(fechaInicio);
-                comunicado.setFecFin(fechaFin);
-            } catch (ParseException e) {
-                e.printStackTrace();
-                request.setAttribute("error", "Formato de fecha inválido");
-                request.getRequestDispatcher("/views/comunicado/crear_comunicado.jsp").forward(request, response);
-                return;
+        if ("guardar".equals(action) || "editarGuardar".equals(action)) {
+            Comunicado comunicado;
+            boolean esEdicion = "editarGuardar".equals(action);
+
+            if (esEdicion) {
+                int id = Integer.parseInt(request.getParameter("id"));
+                comunicado = comunicadoDAO.obtenerPorId(id);
+            } else {
+                comunicado = new Comunicado();
+                comunicado.setIdUsuario(usuario.getIdUsuario());
+                comunicado.setEstado("programada");
             }
-            comunicado.setArchivo(request.getParameter("archivo"));
-            comunicado.setEstado("programada");
-            comunicado.setNotificarCorreo("1".equals(request.getParameter("notificar_correo")));
-            comunicado.setIdAnioLectivo(Integer.parseInt(request.getParameter("idAnioLectivo")));
-
-            comunicadoDAO.guardar(comunicado);
-
-            response.sendRedirect("comunicado?idAnioLectivo=" + comunicado.getIdAnioLectivo() + "&success=1&op=add");
-        }
-
-        if ("actualizar".equals(action)) {
-            int id = Integer.parseInt(request.getParameter("id"));
-            Comunicado comunicado = comunicadoDAO.obtenerPorId(id);
 
             comunicado.setTitulo(request.getParameter("titulo"));
             comunicado.setContenido(request.getParameter("contenido"));
             comunicado.setCategoria(request.getParameter("categoria"));
             comunicado.setDestinatario(request.getParameter("destinatario"));
+            comunicado.setNotificarCorreo("1".equals(request.getParameter("notificar_correo")));
+
+            // Validación de fechas
             try {
                 Date fechaInicio = sdf.parse(request.getParameter("fec_inicio"));
                 Date fechaFin = sdf.parse(request.getParameter("fec_fin"));
+
+                if (fechaFin.before(fechaInicio)) {
+                    if (!esEdicion) {
+                        request.setAttribute("errorMsg", "La fecha de fin no puede ser anterior a la fecha de inicio.");
+                        request.setAttribute("idAnioLectivo", request.getParameter("idAnioLectivo"));
+                        request.setAttribute("comunicado", comunicado);
+                        request.getRequestDispatcher("/views/comunicado/crear.jsp").forward(request, response);
+                    } else {
+                        String msg = URLEncoder.encode("La fecha de fin no puede ser anterior a la fecha de inicio.", "UTF-8");
+                        response.sendRedirect("comunicado?idAnioLectivo=" + request.getParameter("idAnioLectivo") + "&error=" + msg);
+                    }
+                    return;
+                }
+
                 comunicado.setFecInicio(fechaInicio);
                 comunicado.setFecFin(fechaFin);
             } catch (ParseException e) {
-                e.printStackTrace();
-                request.setAttribute("error", "Formato de fecha inválido");
-                request.getRequestDispatcher("/views/comunicado/crear_comunicado.jsp").forward(request, response);
+                if (!esEdicion) {
+                    request.setAttribute("errorMsg", "Formato de fecha inválido.");
+                    request.setAttribute("idAnioLectivo", request.getParameter("idAnioLectivo"));
+                    request.setAttribute("comunicado", comunicado);
+                    request.getRequestDispatcher("/views/comunicado/crear.jsp").forward(request, response);
+                } else {
+                    String msg = URLEncoder.encode("Formato de fecha inválido", "UTF-8");
+                    response.sendRedirect("comunicado?idAnioLectivo=" + request.getParameter("idAnioLectivo") + "&error=" + msg);
+                }
                 return;
             }
-            comunicado.setArchivo(request.getParameter("archivo"));
-            comunicado.setNotificarCorreo("1".equals(request.getParameter("notificar_correo")));
 
-            comunicadoDAO.actualizar(comunicado);
-            response.sendRedirect("comunicado?idAnioLectivo=" + comunicado.getIdAnioLectivo() + "&success=1&op=edit");
+            // Manejo de archivo
+            Part archivoPart = request.getPart("archivo");
+            String nombreArchivo = archivoPart != null ? archivoPart.getSubmittedFileName() : null;
+            boolean eliminarArchivo = "1".equals(request.getParameter("eliminar_archivo"));
+
+            String rutaSubida = System.getProperty("user.home") + File.separator + "uploads";
+            File carpeta = new File(rutaSubida);
+            if (!carpeta.exists()) carpeta.mkdirs();
+
+            if (nombreArchivo != null && !nombreArchivo.isBlank()) {
+                String contentType = archivoPart.getContentType();
+                if (!contentType.equals("application/pdf") &&
+                    !contentType.equals("image/jpeg") &&
+                    !contentType.equals("image/png")) {
+
+                    if (!esEdicion) {
+                        request.setAttribute("errorMsg", "Formato de archivo no permitido. Solo PDF, JPG o PNG.");
+                        request.setAttribute("idAnioLectivo", request.getParameter("idAnioLectivo"));
+                        request.setAttribute("comunicado", comunicado);
+                        request.getRequestDispatcher("/views/comunicado/crear.jsp").forward(request, response);
+                    } else {
+                        String msg = URLEncoder.encode("Formato de archivo no permitido", "UTF-8");
+                        response.sendRedirect("comunicado?idAnioLectivo=" + request.getParameter("idAnioLectivo") + "&error=" + msg);
+                    }
+                    return;
+                }
+
+                if (esEdicion && comunicado.getArchivo() != null) {
+                    File anterior = new File(rutaSubida + File.separator + comunicado.getArchivo());
+                    if (anterior.exists()) anterior.delete();
+                }
+
+                archivoPart.write(rutaSubida + File.separator + nombreArchivo);
+                comunicado.setArchivo(nombreArchivo);
+            } else if (eliminarArchivo) {
+                if (comunicado.getArchivo() != null) {
+                    File anterior = new File(rutaSubida + File.separator + comunicado.getArchivo());
+                    if (anterior.exists()) anterior.delete();
+                }
+                comunicado.setArchivo(null);
+            }
+
+            // Guardar o actualizar en base de datos
+            if (!esEdicion) {
+                comunicado.setIdAnioLectivo(Integer.parseInt(request.getParameter("idAnioLectivo")));
+                comunicadoDAO.guardar(comunicado);
+                response.sendRedirect("comunicado?idAnioLectivo=" + comunicado.getIdAnioLectivo() + "&success=1&op=add");
+            } else {
+                comunicado.setEstado(request.getParameter("estado"));
+                comunicadoDAO.actualizar(comunicado);
+                response.sendRedirect("comunicado?idAnioLectivo=" + comunicado.getIdAnioLectivo() + "&success=1&op=edit");
+            }
         }
     }
-
     @Override
     public String getServletInfo() {
-        return "Short description";
+        return "Gestión de comunicados escolares";
     }
-
 }
-

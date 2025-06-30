@@ -99,7 +99,7 @@ public class ComunicadoDAO {
     }
 
     public boolean actualizar(Comunicado c) {
-        String sql = "{CALL sp_actualizar_comunicado(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+        String sql = "{CALL sp_actualizar_comunicado(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
 
         try (Connection conn = DatabaseConfig.getConnection();
              CallableStatement cs = conn.prepareCall(sql)) {
@@ -112,7 +112,15 @@ public class ComunicadoDAO {
             cs.setBoolean(6, c.isNotificarCorreo());
             cs.setDate(7, new java.sql.Date(c.getFecInicio().getTime()));
             cs.setDate(8, new java.sql.Date(c.getFecFin().getTime()));
-            cs.setString(9, c.getArchivo());
+
+            // ✅ Enviar NULL si no hay archivo
+            if (c.getArchivo() != null) {
+                cs.setString(9, c.getArchivo());
+            } else {
+                cs.setNull(9, java.sql.Types.VARCHAR);
+            }
+
+            cs.setString(10, c.getEstado());
 
             return cs.executeUpdate() > 0;
 
@@ -136,4 +144,15 @@ public class ComunicadoDAO {
         }
         return false;
     }
+    public void desactivar(int idPublicacion) {
+        String sql = "{CALL sp_desactivar_comunicado(?)}";
+        try (Connection conn = DatabaseConfig.getConnection();
+             CallableStatement cs = conn.prepareCall(sql)) {
+            cs.setInt(1, idPublicacion);
+            cs.execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }
