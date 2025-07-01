@@ -33,12 +33,37 @@
 
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Destinatario</label>
-                    <select name="destinatario" class="form-select" required>
+                    <select name="destinatario" id="destinatarioEditar" class="form-select" required onchange="mostrarOpcionesEditar(this.value)">
                         <option value="todos" ${comunicado.destinatario == 'todos' ? 'selected' : ''}>Todos</option>
                         <option value="docentes" ${comunicado.destinatario == 'docentes' ? 'selected' : ''}>Docentes</option>
                         <option value="estudiantes" ${comunicado.destinatario == 'estudiantes' ? 'selected' : ''}>Estudiantes</option>
                         <option value="padres" ${comunicado.destinatario == 'padres' ? 'selected' : ''}>Padres</option>
                         <option value="seccion" ${comunicado.destinatario == 'seccion' ? 'selected' : ''}>Sección específica</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row" id="grupoSeccionEditar" style="display: none;">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Sección</label>
+                    <select name="idAperturaSeccion" class="form-select" id="selectSeccionEditar">
+                        <option value="">-- Seleccione --</option>
+                        <c:forEach items="${seccionesActivas}" var="sec">
+                            <option value="${sec.idAperturaSeccion}"
+                                ${comunicado.idAperturaSeccion == sec.idAperturaSeccion ? 'selected' : ''}>
+                                ${sec.nivel} ${sec.grado} "${sec.seccion}"
+                            </option>
+                        </c:forEach>
+                    </select>
+                </div>
+
+                <div class="col-md-6 mb-3" id="grupoDestinatarioSeccionEditar" style="display: none;">
+                    <label class="form-label">Dirigido a</label>
+                    <select name="destinatario_seccion" class="form-select" id="selectDestinatarioSeccionEditar">
+                        <option value="">-- Seleccione --</option>
+                        <option value="Padres" ${comunicado.destinatarioSeccion == 'Padres' ? 'selected' : ''}>Apoderados</option>
+                        <option value="Estudiantes" ${comunicado.destinatarioSeccion == 'Estudiantes' ? 'selected' : ''}>Alumnos</option>
+                        <option value="ambos" ${comunicado.destinatarioSeccion == 'ambos' ? 'selected' : ''}>Apoderado y Alumno</option>
                     </select>
                 </div>
             </div>
@@ -102,6 +127,29 @@
 </div>
 
 <script>
+    function mostrarOpcionesEditar(valor) {
+        const seccionBox = document.getElementById('grupoSeccionEditar');
+        const destinatarioSeccionBox = document.getElementById('grupoDestinatarioSeccionEditar');
+        const selectSeccion = document.getElementById('selectSeccionEditar');
+        const selectDestinatario = document.getElementById('selectDestinatarioSeccionEditar');
+
+        if (valor === 'seccion') {
+            seccionBox.style.display = 'flex';
+            destinatarioSeccionBox.style.display = 'block';
+            selectSeccion.setAttribute('required', 'required');
+            selectDestinatario.setAttribute('required', 'required');
+        } else {
+            seccionBox.style.display = 'none';
+            destinatarioSeccionBox.style.display = 'none';
+            selectSeccion.removeAttribute('required');
+            selectDestinatario.removeAttribute('required');
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        mostrarOpcionesEditar(document.getElementById("destinatarioEditar").value);
+    });
+
     document.getElementById("btnEliminarArchivo")?.addEventListener("click", function () {
         document.getElementById("archivoActualBox").style.display = "none";
         document.getElementById("eliminar_archivo").value = "1";

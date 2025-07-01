@@ -1,7 +1,9 @@
 package com.intranet_escolar.controller;
 
 import com.intranet_escolar.dao.AnioLectivoDAO;
+import com.intranet_escolar.dao.AperturaSeccionDAO;
 import com.intranet_escolar.dao.ComunicadoDAO;
+import com.intranet_escolar.model.DTO.AperturaSeccionDTO;
 import com.intranet_escolar.model.entity.AnioLectivo;
 import com.intranet_escolar.model.entity.Comunicado;
 import com.intranet_escolar.model.entity.Usuario;
@@ -24,6 +26,7 @@ import java.util.*;
 public class ComunicadoServlet extends HttpServlet {
     private final ComunicadoDAO comunicadoDAO = new ComunicadoDAO();
     private final AnioLectivoDAO anioLectivoDAO = new AnioLectivoDAO();
+    private final AperturaSeccionDAO aperturaSeccionDAO = new AperturaSeccionDAO();
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     @Override
@@ -38,13 +41,17 @@ public class ComunicadoServlet extends HttpServlet {
 
         switch (action == null ? "listar" : action) {
             case "crear" -> {
+                List<AperturaSeccionDTO> seccionesActivas = aperturaSeccionDAO.obtenerAperturasSeccionPorAnio(idAnioLectivo);
                 request.setAttribute("idAnioLectivo", idAnioLectivo);
+                request.setAttribute("seccionesActivas", seccionesActivas);
                 request.getRequestDispatcher("/views/comunicado/crear.jsp").forward(request, response);
             }
             case "editar" -> {
                 int id = Integer.parseInt(request.getParameter("id"));
                 Comunicado comunicado = comunicadoDAO.obtenerPorId(id);
+                List<AperturaSeccionDTO> seccionesActivas = aperturaSeccionDAO.obtenerAperturasSeccionPorAnio(comunicado.getIdAnioLectivo());
                 request.setAttribute("comunicado", comunicado);
+                request.setAttribute("seccionesActivas", seccionesActivas);
                 request.getRequestDispatcher("/views/comunicado/editar.jsp").forward(request, response);
             }
             case "ver" -> {
@@ -68,6 +75,7 @@ public class ComunicadoServlet extends HttpServlet {
             }
         }
     }
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -95,35 +103,49 @@ public class ComunicadoServlet extends HttpServlet {
             comunicado.setDestinatario(request.getParameter("destinatario"));
             comunicado.setNotificarCorreo("1".equals(request.getParameter("notificar_correo")));
 
+            // NUEVO: capturar sección y tipo de destinatario si aplica
+            if ("Seccion".equalsIgnoreCase(comunicado.getDestinatario())) {
+                comunicado.setDestinatarioSeccion(request.getParameter("destinatario_seccion"));
+                String apertura = request.getParameter("id_apertura_seccion");
+                if (apertura != null && !apertura.isBlank()) {
+                    comunicado.setIdAperturaSeccion(Integer.parseInt(apertura));
+                }
+            } else {
+                comunicado.setDestinatarioSeccion(null);
+                comunicado.setIdAperturaSeccion(null);
+            }
+
             // Validación de fechas
             try {
                 Date fechaInicio = sdf.parse(request.getParameter("fec_inicio"));
                 Date fechaFin = sdf.parse(request.getParameter("fec_fin"));
-
                 if (fechaFin.before(fechaInicio)) {
+                    String mensaje = URLEncoder.encode("La fecha de fin no puede ser anterior a la de inicio.", "UTF-8");
                     if (!esEdicion) {
-                        request.setAttribute("errorMsg", "La fecha de fin no puede ser anterior a la fecha de inicio.");
-                        request.setAttribute("idAnioLectivo", request.getParameter("idAnioLectivo"));
+                        request.setAttribute("errorMsg", mensaje);
                         request.setAttribute("comunicado", comunicado);
+                        request.setAttribute("idAnioLectivo", request.getParameter("idAnioLectivo"));
+                        request.setAttribute("seccionesActivas", aperturaSeccionDAO.obtenerAperturasSeccionPorAnio(
+                                Integer.parseInt(request.getParameter("idAnioLectivo"))));
                         request.getRequestDispatcher("/views/comunicado/crear.jsp").forward(request, response);
                     } else {
-                        String msg = URLEncoder.encode("La fecha de fin no puede ser anterior a la fecha de inicio.", "UTF-8");
-                        response.sendRedirect("comunicado?idAnioLectivo=" + request.getParameter("idAnioLectivo") + "&error=" + msg);
+                        response.sendRedirect("comunicado?idAnioLectivo=" + request.getParameter("idAnioLectivo") + "&error=" + mensaje);
                     }
                     return;
                 }
-
                 comunicado.setFecInicio(fechaInicio);
                 comunicado.setFecFin(fechaFin);
             } catch (ParseException e) {
+                String mensaje = URLEncoder.encode("Formato de fecha inválido", "UTF-8");
                 if (!esEdicion) {
-                    request.setAttribute("errorMsg", "Formato de fecha inválido.");
-                    request.setAttribute("idAnioLectivo", request.getParameter("idAnioLectivo"));
+                    request.setAttribute("errorMsg", mensaje);
                     request.setAttribute("comunicado", comunicado);
+                    request.setAttribute("idAnioLectivo", request.getParameter("idAnioLectivo"));
+                    request.setAttribute("seccionesActivas", aperturaSeccionDAO.obtenerAperturasSeccionPorAnio(
+                            Integer.parseInt(request.getParameter("idAnioLectivo"))));
                     request.getRequestDispatcher("/views/comunicado/crear.jsp").forward(request, response);
                 } else {
-                    String msg = URLEncoder.encode("Formato de fecha inválido", "UTF-8");
-                    response.sendRedirect("comunicado?idAnioLectivo=" + request.getParameter("idAnioLectivo") + "&error=" + msg);
+                    response.sendRedirect("comunicado?idAnioLectivo=" + request.getParameter("idAnioLectivo") + "&error=" + mensaje);
                 }
                 return;
             }
@@ -132,25 +154,23 @@ public class ComunicadoServlet extends HttpServlet {
             Part archivoPart = request.getPart("archivo");
             String nombreArchivo = archivoPart != null ? archivoPart.getSubmittedFileName() : null;
             boolean eliminarArchivo = "1".equals(request.getParameter("eliminar_archivo"));
-
             String rutaSubida = System.getProperty("user.home") + File.separator + "uploads";
             File carpeta = new File(rutaSubida);
             if (!carpeta.exists()) carpeta.mkdirs();
 
             if (nombreArchivo != null && !nombreArchivo.isBlank()) {
-                String contentType = archivoPart.getContentType();
-                if (!contentType.equals("application/pdf") &&
-                    !contentType.equals("image/jpeg") &&
-                    !contentType.equals("image/png")) {
-
+                String tipo = archivoPart.getContentType();
+                if (!tipo.equals("application/pdf") && !tipo.equals("image/jpeg") && !tipo.equals("image/png")) {
+                    String mensaje = URLEncoder.encode("Formato no permitido. Solo PDF, JPG, PNG.", "UTF-8");
                     if (!esEdicion) {
-                        request.setAttribute("errorMsg", "Formato de archivo no permitido. Solo PDF, JPG o PNG.");
-                        request.setAttribute("idAnioLectivo", request.getParameter("idAnioLectivo"));
+                        request.setAttribute("errorMsg", mensaje);
                         request.setAttribute("comunicado", comunicado);
+                        request.setAttribute("idAnioLectivo", request.getParameter("idAnioLectivo"));
+                        request.setAttribute("seccionesActivas", aperturaSeccionDAO.obtenerAperturasSeccionPorAnio(
+                                Integer.parseInt(request.getParameter("idAnioLectivo"))));
                         request.getRequestDispatcher("/views/comunicado/crear.jsp").forward(request, response);
                     } else {
-                        String msg = URLEncoder.encode("Formato de archivo no permitido", "UTF-8");
-                        response.sendRedirect("comunicado?idAnioLectivo=" + request.getParameter("idAnioLectivo") + "&error=" + msg);
+                        response.sendRedirect("comunicado?idAnioLectivo=" + request.getParameter("idAnioLectivo") + "&error=" + mensaje);
                     }
                     return;
                 }
@@ -162,15 +182,13 @@ public class ComunicadoServlet extends HttpServlet {
 
                 archivoPart.write(rutaSubida + File.separator + nombreArchivo);
                 comunicado.setArchivo(nombreArchivo);
-            } else if (eliminarArchivo) {
-                if (comunicado.getArchivo() != null) {
-                    File anterior = new File(rutaSubida + File.separator + comunicado.getArchivo());
-                    if (anterior.exists()) anterior.delete();
-                }
+            } else if (eliminarArchivo && comunicado.getArchivo() != null) {
+                File anterior = new File(rutaSubida + File.separator + comunicado.getArchivo());
+                if (anterior.exists()) anterior.delete();
                 comunicado.setArchivo(null);
             }
 
-            // Guardar o actualizar en base de datos
+            // Guardar o actualizar
             if (!esEdicion) {
                 comunicado.setIdAnioLectivo(Integer.parseInt(request.getParameter("idAnioLectivo")));
                 comunicadoDAO.guardar(comunicado);
@@ -182,6 +200,7 @@ public class ComunicadoServlet extends HttpServlet {
             }
         }
     }
+
     @Override
     public String getServletInfo() {
         return "Gestión de comunicados escolares";

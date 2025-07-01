@@ -64,7 +64,7 @@
 
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Destinatario</label>
-                                <select name="destinatario" id="destinatario" class="form-select" required onchange="mostrarSecciones(this.value)">
+                                <select name="destinatario" id="destinatario" class="form-select" required onchange="mostrarOpcionesDestinatario(this.value)">
                                     <option value="todos">Todos</option>
                                     <option value="docentes">Docentes</option>
                                     <option value="estudiantes">Estudiantes</option>
@@ -72,8 +72,10 @@
                                     <option value="seccion">Sección específica</option>
                                 </select>
                             </div>
+                        </div>
 
-                            <div class="col-md-6 mb-3" id="grupoSeccion" style="display: none;">
+                        <div class="row" id="grupoSeccion" style="display: none;">
+                            <div class="col-md-6 mb-3">
                                 <label class="form-label">Sección</label>
                                 <select name="idAperturaSeccion" class="form-select" id="selectSeccion">
                                     <option value="">-- Seleccione --</option>
@@ -82,6 +84,16 @@
                                             ${sec.nivel} ${sec.grado} "${sec.seccion}"
                                         </option>
                                     </c:forEach>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3" id="grupoDestinatarioSeccion" style="display: none;">
+                                <label class="form-label">Dirigido a</label>
+                                <select name="destinatario_seccion" class="form-select" id="selectDestinatarioSeccion">
+                                    <option value="">-- Seleccione --</option>
+                                    <option value="Padres">Apoderados</option>
+                                    <option value="Estudiantes">Alumnos</option>
+                                    <option value="ambos">Apoderado y Alumno</option>
                                 </select>
                             </div>
                         </div>
@@ -133,31 +145,28 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="${pageContext.request.contextPath}/assets/js/common.js"></script>
 <script>
-    document.querySelector('select[name="destinatario"]').addEventListener('change', function () {
+    function mostrarOpcionesDestinatario(valor) {
         const seccionBox = document.getElementById('grupoSeccion');
-        if (this.value === 'seccion') {
-            seccionBox.style.display = 'block';
-            document.getElementById('selectSeccion').setAttribute('required', 'required');
+        const destinatarioSeccionBox = document.getElementById('grupoDestinatarioSeccion');
+        const selectSeccion = document.getElementById('selectSeccion');
+        const selectDestinatarioSeccion = document.getElementById('selectDestinatarioSeccion');
+
+        if (valor === 'seccion') {
+            seccionBox.style.display = 'flex';
+            destinatarioSeccionBox.style.display = 'block';
+            selectSeccion.setAttribute('required', 'required');
+            selectDestinatarioSeccion.setAttribute('required', 'required');
         } else {
             seccionBox.style.display = 'none';
-            document.getElementById('selectSeccion').removeAttribute('required');
+            destinatarioSeccionBox.style.display = 'none';
+            selectSeccion.removeAttribute('required');
+            selectDestinatarioSeccion.removeAttribute('required');
         }
-    });
+    }
 
-    <c:if test="${not empty errorMsg}">
-        Swal.fire({
-            icon: "error",
-            title: "Error al crear el comunicado",
-            text: "${fn:escapeXml(errorMsg)}",
-            confirmButtonColor: "#d33"
-        });
-    </c:if>
-
-    document.addEventListener("DOMContentLoaded", function () {
-        const destinatario = document.getElementById('destinatario');
-        if (destinatario && destinatario.value === 'seccion') {
-            mostrarSecciones('seccion');
-        }
+    document.addEventListener("DOMContentLoaded", () => {
+        const valor = document.getElementById("destinatario").value;
+        mostrarOpcionesDestinatario(valor);
     });
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -222,6 +231,15 @@
             btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Enviando...';
         });
     });
+
+    <c:if test="${not empty errorMsg}">
+        Swal.fire({
+            icon: "error",
+            title: "Error al crear el comunicado",
+            text: "${fn:escapeXml(errorMsg)}",
+            confirmButtonColor: "#d33"
+        });
+    </c:if>
 </script>
 </body>
 </html>

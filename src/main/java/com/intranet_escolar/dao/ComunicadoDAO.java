@@ -2,13 +2,12 @@ package com.intranet_escolar.dao;
 
 import com.intranet_escolar.config.DatabaseConfig;
 import com.intranet_escolar.model.entity.Comunicado;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ComunicadoDAO {
+
     public List<Comunicado> listarPorAnio(int idAnioLectivo) {
         List<Comunicado> lista = new ArrayList<>();
         String sql = "{CALL sp_listar_comunicados_por_anio(?)}";
@@ -26,12 +25,14 @@ public class ComunicadoDAO {
                     c.setContenido(rs.getString("contenido"));
                     c.setCategoria(rs.getString("categoria"));
                     c.setDestinatario(rs.getString("destinatario"));
+                    c.setDestinatarioSeccion(rs.getString("destinatario_seccion"));
+                    c.setIdAperturaSeccion(rs.getObject("id_apertura_seccion") != null ? rs.getInt("id_apertura_seccion") : null);
+                    c.setNotificarCorreo(rs.getBoolean("notificar_correo"));
                     c.setFecInicio(rs.getDate("fec_inicio"));
                     c.setFecFin(rs.getDate("fec_fin"));
                     c.setArchivo(rs.getString("archivo"));
                     c.setEstado(rs.getString("estado"));
-                    c.setNotificarCorreo(rs.getBoolean("notificar_correo"));
-                    c.setIdAnioLectivo(idAnioLectivo);
+                    c.setIdAnioLectivo(rs.getInt("id_anio_lectivo"));
                     lista.add(c);
                 }
             }
@@ -58,11 +59,13 @@ public class ComunicadoDAO {
                     c.setContenido(rs.getString("contenido"));
                     c.setCategoria(rs.getString("categoria"));
                     c.setDestinatario(rs.getString("destinatario"));
+                    c.setDestinatarioSeccion(rs.getString("destinatario_seccion"));
+                    c.setIdAperturaSeccion(rs.getObject("id_apertura_seccion") != null ? rs.getInt("id_apertura_seccion") : null);
+                    c.setNotificarCorreo(rs.getBoolean("notificar_correo"));
                     c.setFecInicio(rs.getDate("fec_inicio"));
                     c.setFecFin(rs.getDate("fec_fin"));
                     c.setArchivo(rs.getString("archivo"));
                     c.setEstado(rs.getString("estado"));
-                    c.setNotificarCorreo(rs.getBoolean("notificar_correo"));
                     c.setIdAnioLectivo(rs.getInt("id_anio_lectivo"));
                 }
             }
@@ -74,7 +77,7 @@ public class ComunicadoDAO {
     }
 
     public boolean guardar(Comunicado c) {
-        String sql = "{CALL sp_guardar_comunicado(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+        String sql = "{CALL sp_guardar_comunicado(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
 
         try (Connection conn = DatabaseConfig.getConnection();
              CallableStatement cs = conn.prepareCall(sql)) {
@@ -84,11 +87,26 @@ public class ComunicadoDAO {
             cs.setString(3, c.getContenido());
             cs.setString(4, c.getCategoria());
             cs.setString(5, c.getDestinatario());
-            cs.setBoolean(6, c.isNotificarCorreo());
-            cs.setDate(7, new java.sql.Date(c.getFecInicio().getTime()));
-            cs.setDate(8, new java.sql.Date(c.getFecFin().getTime()));
-            cs.setString(9, c.getArchivo());
-            cs.setInt(10, c.getIdAnioLectivo());
+
+            // destinatario_seccion
+            if (c.getDestinatarioSeccion() != null) {
+                cs.setString(6, c.getDestinatarioSeccion());
+            } else {
+                cs.setNull(6, Types.VARCHAR);
+            }
+
+            // id_apertura_seccion
+            if (c.getIdAperturaSeccion() != null) {
+                cs.setInt(7, c.getIdAperturaSeccion());
+            } else {
+                cs.setNull(7, Types.INTEGER);
+            }
+
+            cs.setBoolean(8, c.isNotificarCorreo());
+            cs.setDate(9, new java.sql.Date(c.getFecInicio().getTime()));
+            cs.setDate(10, new java.sql.Date(c.getFecFin().getTime()));
+            cs.setString(11, c.getArchivo());
+            cs.setInt(12, c.getIdAnioLectivo());
 
             return cs.executeUpdate() > 0;
 
@@ -99,7 +117,7 @@ public class ComunicadoDAO {
     }
 
     public boolean actualizar(Comunicado c) {
-        String sql = "{CALL sp_actualizar_comunicado(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+        String sql = "{CALL sp_actualizar_comunicado(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
 
         try (Connection conn = DatabaseConfig.getConnection();
              CallableStatement cs = conn.prepareCall(sql)) {
@@ -109,18 +127,31 @@ public class ComunicadoDAO {
             cs.setString(3, c.getContenido());
             cs.setString(4, c.getCategoria());
             cs.setString(5, c.getDestinatario());
-            cs.setBoolean(6, c.isNotificarCorreo());
-            cs.setDate(7, new java.sql.Date(c.getFecInicio().getTime()));
-            cs.setDate(8, new java.sql.Date(c.getFecFin().getTime()));
+
+            if (c.getDestinatarioSeccion() != null) {
+                cs.setString(6, c.getDestinatarioSeccion());
+            } else {
+                cs.setNull(6, Types.VARCHAR);
+            }
+
+            if (c.getIdAperturaSeccion() != null) {
+                cs.setInt(7, c.getIdAperturaSeccion());
+            } else {
+                cs.setNull(7, Types.INTEGER);
+            }
+
+            cs.setBoolean(8, c.isNotificarCorreo());
+            cs.setDate(9, new java.sql.Date(c.getFecInicio().getTime()));
+            cs.setDate(10, new java.sql.Date(c.getFecFin().getTime()));
 
             // ✅ Enviar NULL si no hay archivo
             if (c.getArchivo() != null) {
-                cs.setString(9, c.getArchivo());
+                cs.setString(11, c.getArchivo());
             } else {
-                cs.setNull(9, java.sql.Types.VARCHAR);
+                cs.setNull(11, Types.VARCHAR);
             }
 
-            cs.setString(10, c.getEstado());
+            cs.setString(12, c.getEstado());
 
             return cs.executeUpdate() > 0;
 
@@ -130,20 +161,6 @@ public class ComunicadoDAO {
         return false;
     }
 
-    public boolean eliminar(int id) {
-        String sql = "{CALL sp_eliminar_comunicado(?)}";
-
-        try (Connection conn = DatabaseConfig.getConnection();
-             CallableStatement cs = conn.prepareCall(sql)) {
-
-            cs.setInt(1, id);
-            return cs.executeUpdate() > 0;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
     public void desactivar(int idPublicacion) {
         String sql = "{CALL sp_desactivar_comunicado(?)}";
         try (Connection conn = DatabaseConfig.getConnection();
@@ -155,4 +172,23 @@ public class ComunicadoDAO {
         }
     }
 
+    // ✅ Nuevo método: obtener correos según destinatario
+    public List<String> obtenerCorreosDestinatarios(int idPublicacion) {
+        List<String> correos = new ArrayList<>();
+        String sql = "{CALL sp_obtener_correos_por_comunicado(?)}";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             CallableStatement cs = conn.prepareCall(sql)) {
+
+            cs.setInt(1, idPublicacion);
+            try (ResultSet rs = cs.executeQuery()) {
+                while (rs.next()) {
+                    correos.add(rs.getString("correo"));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return correos;
+    }
 }

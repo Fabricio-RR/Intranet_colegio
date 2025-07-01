@@ -9,6 +9,8 @@ public class Comunicado {
     private String contenido;
     private String categoria; // 'general' o 'docente'
     private String destinatario; // 'todos', 'docentes', 'estudiantes', 'padres', 'seccion'
+    private String destinatarioSeccion; // 'Padres', 'Estudiantes' — si aplica
+    private Integer idAperturaSeccion; // si aplica
     private boolean notificarCorreo;
     private Date fecInicio;
     private Date fecFin;
@@ -19,13 +21,15 @@ public class Comunicado {
     public Comunicado() {
     }
 
-    public Comunicado(int id, int idUsuario, String titulo, String contenido, String categoria, String destinatario, boolean notificarCorreo, Date fecInicio, Date fecFin, String archivo, String estado, int idAnioLectivo) {
+    public Comunicado(int id, int idUsuario, String titulo, String contenido, String categoria, String destinatario, String destinatarioSeccion, Integer idAperturaSeccion, boolean notificarCorreo, Date fecInicio, Date fecFin, String archivo, String estado, int idAnioLectivo) {
         this.id = id;
         this.idUsuario = idUsuario;
         this.titulo = titulo;
         this.contenido = contenido;
         this.categoria = categoria;
         this.destinatario = destinatario;
+        this.destinatarioSeccion = destinatarioSeccion;
+        this.idAperturaSeccion = idAperturaSeccion;
         this.notificarCorreo = notificarCorreo;
         this.fecInicio = fecInicio;
         this.fecFin = fecFin;
@@ -80,6 +84,22 @@ public class Comunicado {
 
     public void setDestinatario(String destinatario) {
         this.destinatario = destinatario;
+    }
+
+    public String getDestinatarioSeccion() {
+        return destinatarioSeccion;
+    }
+
+    public void setDestinatarioSeccion(String destinatarioSeccion) {
+        this.destinatarioSeccion = destinatarioSeccion;
+    }
+
+    public Integer getIdAperturaSeccion() {
+        return idAperturaSeccion;
+    }
+
+    public void setIdAperturaSeccion(Integer idAperturaSeccion) {
+        this.idAperturaSeccion = idAperturaSeccion;
     }
 
     public boolean isNotificarCorreo() {
