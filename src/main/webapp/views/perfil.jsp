@@ -55,49 +55,49 @@
         .form-control:disabled, .form-control[readonly] {
             background-color: #f6f8fa;
         }
-        /* --- Foto de perfil input moderno --- */
         .foto-perfil-container {
             position: relative;
             width: 140px;
             height: 140px;
-            margin: 0 auto;
+            margin: 0 auto 1rem auto;
             cursor: pointer;
+            border-radius: 50%;
+            overflow: hidden;
+            background: #f3f3f3;
+            border: none;
         }
         .foto-perfil {
             width: 100%;
             height: 100%;
             object-fit: cover;
             border-radius: 50%;
-            border: 3px solid #e0e4ea;
-            background: #fafbfc;
             display: block;
-            transition: box-shadow 0.2s;
         }
-        .foto-overlay {
+        .foto-overlay-full {
             position: absolute;
-            bottom: 0;
-            left: 0; right: 0;
-            height: 38%;
-            background: rgba(10,10,61,0.73);
+            top: 0; left: 0; right: 0; bottom: 0;
+            width: 100%; height: 100%;
+            background: rgba(35, 36, 98, 0.85);
             color: #fff;
-            border-radius: 0 0 50% 50%;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             opacity: 0;
             pointer-events: none;
+            font-size: 1.1rem;
             transition: opacity 0.2s;
-            font-size: 1rem;
+            border-radius: 50%;
+            text-align: center;
         }
-        .foto-perfil-container:hover .foto-overlay,
-        .foto-perfil-container:focus .foto-overlay {
+        .foto-perfil-container:hover .foto-overlay-full,
+        .foto-perfil-container:focus .foto-overlay-full {
             opacity: 1;
             pointer-events: all;
         }
-        .foto-overlay i {
-            font-size: 1.3rem;
-            margin-bottom: 3px;
+        .foto-overlay-full i {
+            font-size: 2.2rem;
+            margin-bottom: 6px;
         }
         @media (max-width: 767.98px) {
             .profile-header { flex-direction: column !important; text-align:center; }
@@ -117,12 +117,7 @@
     <div class="container-fluid">
         <div class="row justify-content-center">
             <div class="col-12 col-lg-10 px-md-4">
-
-                <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2 mb-0"><i class="fas fa-user-circle me-2"></i> Mi Perfil</h1>
-                </div>
-
-                <!-- Perfil de usuario arriba -->
+                <!-- Perfil de usuario card -->
                 <div class="profile-header d-flex flex-column flex-md-row align-items-center p-4">
                     <div class="profile-avatar me-md-4 mb-3 mb-md-0">
                         <c:choose>
@@ -133,10 +128,14 @@
                                     style="width:100%;height:100%;object-fit:cover;">
                             </c:when>
                             <c:otherwise>
+                                <img id="previewFoto" 
+                                    src="${pageContext.request.contextPath}/uploads/default.png?height=150&width=150" 
+                                            alt="Foto de perfil" class="foto-perfil">
+                                <!--
                                 <img id="fotoHeaderPreview"
                                     src="${pageContext.request.contextPath}/uploads/default.png"
                                     alt="Avatar"
-                                    style="width:80px;height:80px;object-fit:cover;opacity:.7;">
+                                    style="width:100%;height:100%;object-fit:cover;opacity:.7;">-->
                             </c:otherwise>
                         </c:choose>
                     </div>
@@ -175,7 +174,7 @@
                                 <div class="profile-section-title">Información Personal</div>
                                 <form id="formInfoPersonal" autocomplete="off" method="post" action="${pageContext.request.contextPath}/perfil" enctype="multipart/form-data">
                                     <input type="hidden" name="action" value="actualizarInfo">
-                                    <!-- Foto de perfil moderna -->
+                                    <!-- Foto de perfil uniforme -->
                                     <div class="mb-3 text-center">
                                         <label for="inputFoto" class="form-label fw-semibold mb-2">Foto de perfil</label>
                                         <div class="foto-perfil-container" tabindex="0" onclick="document.getElementById('inputFoto').click();">
@@ -189,13 +188,13 @@
                                                         </c:otherwise>
                                                     </c:choose>"
                                                 alt="Foto de perfil" class="foto-perfil">
-                                            <div class="foto-overlay">
+                                            <div class="foto-overlay-full">
                                                 <i class="fas fa-camera"></i>
                                                 <span>Cambiar foto</span>
                                             </div>
                                             <input type="file" id="inputFoto" name="foto_perfil" accept="image/jpeg, image/png" style="display: none;">
                                         </div>
-                                        <small class="text-muted d-block mt-2">Máximo 2MB - JPG, PNG</small>
+                                        <small class="text-muted d-block mt-2">Máximo 300 KB - JPG, PNG</small>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">Nombres</label>
@@ -212,12 +211,14 @@
                                     <div class="mb-3">
                                         <label for="correo" class="form-label">Correo electrónico</label>
                                         <input type="email" class="form-control" id="correo" name="correo"
-                                               value="${sessionScope.usuario.correo}" required pattern="^[^<>]+$">
+                                               value="${sessionScope.usuario.correo}" required pattern="^[^<>]+$" maxlength="80"
+                                               autocomplete="off" oninput="this.value = this.value.replace(/[<>\s]/g,'')">
                                     </div>
                                     <div class="mb-3">
                                         <label for="telefono" class="form-label">Teléfono</label>
                                         <input type="text" class="form-control" id="telefono" name="telefono"
-                                               value="${sessionScope.usuario.telefono}" maxlength="9" pattern="[0-9]{9}">
+                                               value="${sessionScope.usuario.telefono}" maxlength="9" pattern="[0-9]{9}"
+                                               autocomplete="off" oninput="this.value = this.value.replace(/[^0-9]/g,'')">
                                     </div>
                                     <button type="submit" class="btn btn-admin-primary btn-sm btn-uniform">
                                         <i class="fas fa-save me-2"></i>Actualizar Información
@@ -231,19 +232,26 @@
                         <div class="card border-0 shadow-sm profile-section">
                             <div class="card-body">
                                 <div class="profile-section-title">Cambiar Contraseña</div>
-                                <form id="formCambioPassword" autocomplete="off">
+                                <form id="formCambioPassword" autocomplete="off" method="post" action="${pageContext.request.contextPath}/perfil">
+                                    <input type="hidden" name="action" value="cambiarPassword">
                                     <div class="mb-3">
                                         <label for="passwordActual" class="form-label">Contraseña Actual</label>
-                                        <input type="password" class="form-control" id="passwordActual" required pattern="^[^<>]+$">
+                                        <input type="password" class="form-control" id="passwordActual" name="passwordActual"
+                                               required pattern="^[^<>]+$" minlength="8" maxlength="50"
+                                               oninput="this.value = this.value.replace(/[<>\s]/g,'')" autocomplete="off">
                                     </div>
                                     <div class="mb-3">
                                         <label for="passwordNueva" class="form-label">Nueva Contraseña</label>
-                                        <input type="password" class="form-control" id="passwordNueva" required minlength="6" pattern="^[^<>]+$">
-                                        <div class="form-text">La contraseña debe tener al menos 6 caracteres.</div>
+                                        <input type="password" class="form-control" id="passwordNueva" name="passwordNueva"
+                                               required pattern="^[^<>]+$" minlength="6" maxlength="50"
+                                               oninput="this.value = this.value.replace(/[<>\s]/g,'')" autocomplete="off">
+                                        <div class="form-text">La contraseña debe tener al menos 8 caracteres.</div>
                                     </div>
                                     <div class="mb-3">
                                         <label for="passwordConfirmar" class="form-label">Confirmar Contraseña</label>
-                                        <input type="password" class="form-control" id="passwordConfirmar" required pattern="^[^<>]+$">
+                                        <input type="password" class="form-control" id="passwordConfirmar" name="passwordConfirmar"
+                                               required pattern="^[^<>]+$" minlength="8" maxlength="50"
+                                               oninput="this.value = this.value.replace(/[<>\s]/g,'')" autocomplete="off">
                                     </div>
                                     <button type="submit" class="btn btn-admin-primary btn-sm btn-uniform">
                                         <i class="fas fa-key me-2"></i>Cambiar Contraseña
@@ -272,8 +280,8 @@
                 e.target.value = '';
                 return;
             }
-            if (file.size > 2 * 1024 * 1024) {
-                Swal.fire('Archivo muy grande', 'La foto debe pesar máximo 2MB.', 'warning');
+            if (file.size > 300 * 1024) {
+                Swal.fire('Archivo muy grande', 'La foto debe pesar máximo 300 KB.', 'warning');
                 e.target.value = '';
                 return;
             }
@@ -285,24 +293,40 @@
         }
     });
 
-    // Cambiar contraseña
+    // Cambio de contraseña: validación y envío con SweetAlert (AJAX opcional, aquí solo frontend)
     document.getElementById('formCambioPassword').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const passActual = document.getElementById('passwordActual').value;
-        const passNueva = document.getElementById('passwordNueva').value;
-        const passConfirmar = document.getElementById('passwordConfirmar').value;
-        if (passNueva.length < 6) {
-            Swal.fire('Error', 'La nueva contraseña debe tener al menos 6 caracteres.', 'error');
+        const passActual = document.getElementById('passwordActual').value.trim();
+        const passNueva = document.getElementById('passwordNueva').value.trim();
+        const passConfirmar = document.getElementById('passwordConfirmar').value.trim();
+
+        if (passNueva.length < 8) {
+            Swal.fire('Error', 'La nueva contraseña debe tener al menos 8 caracteres.', 'error');
+            e.preventDefault();
             return;
         }
         if (passNueva !== passConfirmar) {
             Swal.fire('Error', 'Las contraseñas no coinciden.', 'error');
+            e.preventDefault();
             return;
         }
-        Swal.fire('¡Contraseña actualizada!', 'Su contraseña ha sido cambiada con éxito.', 'success');
-        document.getElementById('passwordActual').value = '';
-        document.getElementById('passwordNueva').value = '';
-        document.getElementById('passwordConfirmar').value = '';
+        // Aquí puedes mostrar "Procesando..." o dejar que el backend gestione el mensaje
+    });
+
+    // Actualización de datos personales: feedback con SweetAlert (puedes hacerlo por AJAX si quieres)
+    document.getElementById('formInfoPersonal').addEventListener('submit', function(e) {
+        const correo = document.getElementById('correo').value;
+        if (!/^[^<>]+$/.test(correo)) {
+            Swal.fire('Correo inválido', 'El correo no puede contener caracteres especiales como < o >', 'error');
+            e.preventDefault();
+            return;
+        }
+        const telefono = document.getElementById('telefono').value;
+        if (telefono && !/^[0-9]{9}$/.test(telefono)) {
+            Swal.fire('Teléfono inválido', 'El número de teléfono debe tener 9 dígitos numéricos.', 'error');
+            e.preventDefault();
+            return;
+        }
+        // Puedes agregar aquí feedback visual después del submit si lo manejas por AJAX
     });
 </script>
 </body>

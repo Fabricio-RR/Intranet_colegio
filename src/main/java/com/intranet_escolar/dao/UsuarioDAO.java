@@ -638,6 +638,28 @@ public class UsuarioDAO {
     }
     return lista;
 }
+    public void actualizarDatosPerfil(Usuario usuario) {
+        try (Connection conn = DatabaseConfig.getConnection();
+             CallableStatement stmt = conn.prepareCall("{CALL sp_actualizar_perfil_usuario(?, ?, ?, ?)}")) {
+            stmt.setInt(1, usuario.getIdUsuario());
+            stmt.setString(2, usuario.getCorreo());
+            stmt.setString(3, usuario.getTelefono());
+            stmt.setString(4, usuario.getFotoPerfil());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    public void actualizarClavePerfil(int idUsuario, String nuevaClave) {
+        try (Connection conn = DatabaseConfig.getConnection();
+             CallableStatement stmt = conn.prepareCall("{CALL sp_actualizar_clave_usuario_por_id(?, ?)}")) {
+            stmt.setInt(1, idUsuario);
+            stmt.setString(2, nuevaClave);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
 }
 

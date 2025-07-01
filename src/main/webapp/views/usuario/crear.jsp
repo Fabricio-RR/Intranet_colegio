@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
@@ -7,15 +7,58 @@
 <head>
     <jsp:include page="/includes/meta.jsp" />
     <title>Crear Usuario - Intranet Escolar</title>
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- Custom CSS 
-    <link href="${pageContext.request.contextPath}/assets/css/styles.css" rel="stylesheet">-->
     <link href="${pageContext.request.contextPath}/assets/css/formularios.css" rel="stylesheet">
+    <style>
+        .foto-perfil-container {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            margin: 0 auto 1rem auto;
+            cursor: pointer;
+            border-radius: 50%;
+            overflow: hidden;
+            background: #f3f3f3;
+            border: none;
+            box-shadow: 0 0 0 2px #e0e0e0;
+        }
+        .foto-perfil {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            display: block;
+        }
+        .foto-overlay-full {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            width: 100%; height: 100%;
+            background: rgba(35, 36, 98, 0.85);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            font-size: 1.1rem;
+            transition: opacity 0.2s;
+            border-radius: 50%;
+            text-align: center;
+        }
+        .foto-perfil-container:hover .foto-overlay-full,
+        .foto-perfil-container:focus .foto-overlay-full {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .foto-overlay-full i {
+            font-size: 2.2rem;
+            margin-bottom: 6px;
+        }
+    </style>
 </head>
-<body class="admin-dashboard"data-context-path="${pageContext.request.contextPath}">
+<body class="admin-dashboard" data-context-path="${pageContext.request.contextPath}">
 
     <!-- Sidebar -->
     <jsp:include page="/includes/sidebar.jsp" />
@@ -24,7 +67,6 @@
     <c:set var="iconoPagina" value="fas fa-user-plus" scope="request" />
     <jsp:include page="/includes/header.jsp" />
    
-    <!-- Main Content -->
     <main class="main-content">
         <!-- Breadcrumb -->
         <nav aria-label="breadcrumb" class="mb-4">
@@ -38,10 +80,11 @@
             </ol>
         </nav>
 
-        <!-- Formulario de Creación -->
         <div class="row justify-content-center">
             <div class="col-lg-10">
-                <form id="formCrearUsuario" class="needs-validation" novalidate>
+                <!-- IMPORTANTE: Debe ser multipart/form-data -->
+                <form id="formCrearUsuario" class="needs-validation" enctype="multipart/form-data" method="post" action="${pageContext.request.contextPath}/usuarios" novalidate>
+                    <input type="hidden" name="action" value="crear">
                     <!-- Información Personal -->
                     <div class="card mb-4">
                         <div class="card-header">
@@ -54,16 +97,16 @@
                             <div class="row">
                                 <!-- Foto de perfil -->
                                 <div class="col-md-3 text-center mb-4 d-flex flex-column align-items-center justify-content-center">
-                                    <div class="foto-perfil-container">
-                                        <img id="previewFoto" src="${pageContext.request.contextPath}/uploads/default.png?height=150&width=150" 
+                                    <div class="foto-perfil-container" tabindex="0" onclick="document.getElementById('inputFoto').click();">
+                                        <img id="previewFoto" src="${pageContext.request.contextPath}/uploads/default.png"
                                              alt="Foto de perfil" class="foto-perfil">
-                                        <div class="foto-overlay">
+                                        <div class="foto-overlay-full">
                                             <i class="fas fa-camera"></i>
                                             <span>Cambiar foto</span>
                                         </div>
-                                        <input type="file" id="inputFoto" name="foto_perfil" accept="image/*" style="display: none;">
+                                        <input type="file" id="inputFoto" name="foto_perfil" accept="image/jpeg, image/png" style="display: none;">
                                     </div>
-                                    <small class="text-muted d-block mt-2">Máximo 2MB - JPG, PNG</small>
+                                    <small class="text-muted d-block mt-2">Máximo 300 KB - JPG, PNG</small>
                                 </div>
                                 
                                 <div class="col-md-9">
@@ -250,15 +293,44 @@
             </div>
         </div>
 
-        <!-- Footer -->
         <jsp:include page="/includes/footer.jsp" />
     </main>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- Custom JS -->
+    <script>
+    // Foto de perfil: previsualización y validación
+    document.getElementById('inputFoto').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            if (!['image/jpeg', 'image/png'].includes(file.type)) {
+                Swal.fire('Formato no permitido', 'Solo se permiten imágenes JPG o PNG.', 'warning');
+                e.target.value = '';
+                return;
+            }
+            if (file.size > 300 * 1024) { // 300 KB
+                Swal.fire('Archivo muy grande', 'La foto debe pesar máximo 300 KB.', 'warning');
+                e.target.value = '';
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('previewFoto').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Mostrar/ocultar contraseña
+    function togglePassword(id) {
+        const input = document.getElementById(id);
+        if (input.type === "password") {
+            input.type = "text";
+        } else {
+            input.type = "password";
+        }
+    }
+    </script>
     <script src="${pageContext.request.contextPath}/assets/js/common.js"></script>
     <script src="${pageContext.request.contextPath}/assets/js/crear-usuario.js"></script>
 </body>

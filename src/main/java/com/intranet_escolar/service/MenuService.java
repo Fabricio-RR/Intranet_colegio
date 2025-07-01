@@ -25,7 +25,7 @@ public class MenuService {
         }
 
         if (permisosGenerales.contains("docente")) {
-            menu.add(new MenuItem("Notas", "/views/notas.jsp", "fas fa-clipboard-check"));
+            menu.add(new MenuItem("Notas", "/notas", "fas fa-clipboard-list me-2"));
             menu.add(new MenuItem("Asistencia", "/views/asistencia.jsp", "fas fa-calendar-check"));
             menu.add(new MenuItem("Publicaciones", "/views/publicaciones.jsp", "fas fa-bullhorn"));
             menu.add(new MenuItem("Mi horario", "/views/horario.jsp", "fas fa-clock"));

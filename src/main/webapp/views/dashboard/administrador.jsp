@@ -274,7 +274,7 @@
                             <i class="fas fa-users-cog me-2"></i>
                             Resumen de Usuarios por Rol
                         </h5>
-                        <a href="${pageContext.request.contextPath}/usuario/usuarios" 
+                        <a href="${pageContext.request.contextPath}/usuarios" 
                            class="btn btn-admin-primary btn-sm">
                             <i class="fas fa-eye me-1"></i>
                             Ver Todos
