@@ -194,28 +194,28 @@
                     </h5>
                     <div class="row">
                         <div class="col-lg-3 col-md-6 mb-3">
-                            <a href="${pageContext.request.contextPath}/views/calificaciones/registrar.jsp" 
+                            <a href="${pageContext.request.contextPath}/notas" 
                                class="quick-action">
                                 <i class="fas fa-edit"></i>
                                 <span>Registrar Notas</span>
                             </a>
                         </div>
                         <div class="col-lg-3 col-md-6 mb-3">
-                            <a href="${pageContext.request.contextPath}/views/asistencia/registrar.jsp" 
+                            <a href="${pageContext.request.contextPath}/asistencia" 
                                class="quick-action">
                                 <i class="fas fa-user-check"></i>
                                 <span>Tomar Asistencia</span>
                             </a>
                         </div>
                         <div class="col-lg-3 col-md-6 mb-3">
-                            <a href="${pageContext.request.contextPath}/views/conducta/registrar.jsp" 
+                            <a href="${pageContext.request.contextPath}/conducta" 
                                class="quick-action">
                                 <i class="fas fa-star"></i>
                                 <span>Registrar Conducta</span>
                             </a>
                         </div>
                         <div class="col-lg-3 col-md-6 mb-3">
-                            <a href="${pageContext.request.contextPath}/views/comunicados/crear.jsp" 
+                            <a href="${pageContext.request.contextPath}/comunicados" 
                                class="quick-action">
                                 <i class="fas fa-bullhorn"></i>
                                 <span>Crear Comunicado</span>
