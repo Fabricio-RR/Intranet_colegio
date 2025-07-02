@@ -391,6 +391,7 @@ public class DashboardDAO {
     }
 
     // 3. Total de evaluaciones pendientes (por corregir/calificar)
+    /*
     public int contarEvaluacionesPendientesDocente(int idDocente) throws SQLException {
         String sql = "{CALL sp_dashboard_docente_evaluaciones_pendientes(?)}";
         try (CallableStatement stmt = conn.prepareCall(sql)) {
@@ -400,7 +401,25 @@ public class DashboardDAO {
             }
         }
         return 0;
+    obtenerEvaluacionesPendientesDocente
+    }*/
+    public int contarEvaluacionesPendientesDocente(int idDocente, int idAnioLectivo) {
+    String sql = "{CALL sp_dashboard_docente_evaluaciones_pendientes(?, ?)}";
+    try (Connection con = DatabaseConfig.getConnection();
+         CallableStatement cs = con.prepareCall(sql)) {
+        cs.setInt(1, idDocente);
+        cs.setInt(2, idAnioLectivo);
+        try (ResultSet rs = cs.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("evaluaciones_pendientes");
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
+    return 0;
+}
+
 
     // 4. Total de clases programadas para hoy
     public int contarClasesHoyDocente(int idDocente) throws SQLException {
@@ -438,11 +457,12 @@ public class DashboardDAO {
     }
 
     // 6. Próximos exámenes programados por el docente
-    public List<ExamenDTO> obtenerProximosExamenesDocente(int idDocente) throws SQLException {
+    public List<ExamenDTO> obtenerProximosExamenesDocente(int idDocente, int idAnioLectivo) throws SQLException {
         List<ExamenDTO> lista = new ArrayList<>();
-        String sql = "{CALL sp_dashboard_docente_proximos_examenes(?)}";
+        String sql = "{CALL sp_dashboard_docente_proximos_examenes(?, ?)}";
         try (CallableStatement stmt = conn.prepareCall(sql)) {
             stmt.setInt(1, idDocente);
+            stmt.setInt(2, idAnioLectivo);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     ExamenDTO ex = new ExamenDTO();
@@ -458,18 +478,19 @@ public class DashboardDAO {
     }
 
     // 7. Cursos asignados al docente con detalle (para la tabla “Mis Cursos”)
-    public List<CursoDTO> obtenerMisCursosDocente(int idDocente) throws SQLException {
+    public List<CursoDTO> obtenerMisCursosDocente(int idDocente, int idAnioLectivo) throws SQLException {
         List<CursoDTO> lista = new ArrayList<>();
-        String sql = "{CALL sp_dashboard_docente_mis_cursos(?)}";
+        String sql = "{CALL sp_dashboard_docente_mis_cursos(?, ?)}";
         try (CallableStatement stmt = conn.prepareCall(sql)) {
             stmt.setInt(1, idDocente);
+            stmt.setInt(2, idAnioLectivo);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     CursoDTO curso = new CursoDTO();
                     curso.setId(rs.getInt("id_curso"));
                     curso.setNombre(rs.getString("nombre_curso"));
-                    curso.setNivel(rs.getNString("Nivel"));
-                    curso.setGrado(rs.getString("Grado"));
+                    curso.setNivel(rs.getString("nivel"));
+                    curso.setGrado(rs.getString("grado"));
                     curso.setSeccion(rs.getString("seccion"));
                     curso.setTotalEstudiantes(rs.getInt("total_estudiantes"));
                     curso.setPromedio(rs.getDouble("promedio"));

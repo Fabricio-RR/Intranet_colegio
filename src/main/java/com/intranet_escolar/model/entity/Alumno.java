@@ -14,11 +14,12 @@ public class Alumno {
     private String nombreApoderado;
     private String parentescoApoderado;
     private Usuario usuario;
+    private String estadoMatricula;
     
     public Alumno() {
     }
 
-    public Alumno(int idAlumno, String codigoMatricula, String grado, String seccion, String nivel, String anio, String nombres, String apellidos, String nombreApoderado, String parentescoApoderado, Usuario usuario) {
+    public Alumno(int idAlumno, String codigoMatricula, String grado, String seccion, String nivel, String anio, String nombres, String apellidos, String nombreApoderado, String parentescoApoderado, Usuario usuario, String estadoMatricula) {
         this.idAlumno = idAlumno;
         this.codigoMatricula = codigoMatricula;
         this.grado = grado;
@@ -30,6 +31,7 @@ public class Alumno {
         this.nombreApoderado = nombreApoderado;
         this.parentescoApoderado = parentescoApoderado;
         this.usuario = usuario;
+        this.estadoMatricula = estadoMatricula;
     }
 
     public int getIdAlumno() {
@@ -118,6 +120,14 @@ public class Alumno {
 
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
+    }
+
+    public String getEstadoMatricula() {
+        return estadoMatricula;
+    }
+
+    public void setEstadoMatricula(String estadoMatricula) {
+        this.estadoMatricula = estadoMatricula;
     }
     
 }

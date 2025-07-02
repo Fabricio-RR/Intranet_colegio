@@ -6,20 +6,22 @@ public class MallaCriterio {
     private int idPeriodo;
     private int idCriterio;
     private String criterioNombre; 
+    private String criterioDescripcion;
     private double base;           
     private String tipo;           
     private String formula;        
     private boolean activo;
-
+        
     public MallaCriterio() {
     }
 
-    public MallaCriterio(int idMallaCriterio, int idMallaCurricular, int idPeriodo, int idCriterio, String criterioNombre, double base, String tipo, String formula, boolean activo) {
+    public MallaCriterio(int idMallaCriterio, int idMallaCurricular, int idPeriodo, int idCriterio, String criterioNombre, String criterioDescripcion, double base, String tipo, String formula, boolean activo) {
         this.idMallaCriterio = idMallaCriterio;
         this.idMallaCurricular = idMallaCurricular;
         this.idPeriodo = idPeriodo;
         this.idCriterio = idCriterio;
         this.criterioNombre = criterioNombre;
+        this.criterioDescripcion = criterioDescripcion;
         this.base = base;
         this.tipo = tipo;
         this.formula = formula;
@@ -66,6 +68,14 @@ public class MallaCriterio {
         this.criterioNombre = criterioNombre;
     }
 
+    public String getCriterioDescripcion() {
+        return criterioDescripcion;
+    }
+
+    public void setCriterioDescripcion(String criterioDescripcion) {
+        this.criterioDescripcion = criterioDescripcion;
+    }
+
     public double getBase() {
         return base;
     }
@@ -97,4 +107,5 @@ public class MallaCriterio {
     public void setActivo(boolean activo) {
         this.activo = activo;
     }
+    
 }

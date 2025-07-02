@@ -54,7 +54,7 @@
                 <label class="fw-semibold mb-1">Nivel</label>
                 <select name="nivel" class="form-select">
                     <c:forEach items="${niveles}" var="nivel">
-                        <option value="${nivel.id}" ${nivel.id == selectedNivel ? 'selected' : ''}>${nivel.nombre}</option>
+                        <option value="${nivel.idNivel}" ${nivel.idNivel == selectedNivel ? 'selected' : ''}>${nivel.nombre}</option>
                     </c:forEach>
                 </select>
             </div>
@@ -80,7 +80,7 @@
                 <label class="fw-semibold mb-1">Curso</label>
                 <select name="curso" class="form-select">
                     <c:forEach items="${cursos}" var="curso">
-                        <option value="${curso.id}" ${curso.id == selectedCurso ? 'selected' : ''}>${curso.nombre}</option>
+                        <option value="${curso.idCurso}" ${curso.idCurso == selectedCurso ? 'selected' : ''}>${curso.nombreCurso}</option>
                     </c:forEach>
                 </select>
             </div>

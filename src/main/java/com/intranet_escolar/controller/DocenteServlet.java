@@ -1,9 +1,6 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package com.intranet_escolar.controller;
 
+import com.intranet_escolar.dao.AnioLectivoDAO;
 import com.intranet_escolar.model.DTO.ClaseDTO;
 import com.intranet_escolar.model.DTO.CursoDTO;
 import com.intranet_escolar.model.DTO.ExamenDTO;
@@ -20,6 +17,7 @@ import java.util.List;
 @WebServlet(name = "DocenteServlet", urlPatterns = {"/dashboard/docente"})
 public class DocenteServlet extends HttpServlet {
     private DocenteService service;
+    AnioLectivoDAO anioLectivoDAO = new AnioLectivoDAO();
 
     @Override
     public void init() throws ServletException {
@@ -31,11 +29,12 @@ public class DocenteServlet extends HttpServlet {
         // Usuario autenticado
         Usuario usuario = (Usuario) request.getSession().getAttribute("usuario");
         int idDocente = usuario.getIdUsuario();
+        int idAnioLectivo = anioLectivoDAO.obtenerAnioActivo();
 
         // 1. Estadísticas
         request.setAttribute("totalCursos",           service.obtenerTotalCursos(idDocente));
         request.setAttribute("totalEstudiantes",      service.obtenerTotalEstudiantes(idDocente));
-        request.setAttribute("evaluacionesPendientes",service.obtenerEvaluacionesPendientes(idDocente));
+        request.setAttribute("evaluacionesPendientes",service.obtenerEvaluacionesPendientes(idDocente,idAnioLectivo));
         request.setAttribute("clasesHoy",             service.obtenerClasesHoy(idDocente));
 
         // 2. Horario de hoy (lista)
@@ -43,11 +42,11 @@ public class DocenteServlet extends HttpServlet {
         request.setAttribute("horarioHoy", horarioHoy);
 
         // 3. Próximos exámenes (lista)
-        List<ExamenDTO> proximosExamenes = service.obtenerProximosExamenes(idDocente);
+        List<ExamenDTO> proximosExamenes = service.obtenerProximosExamenes(idDocente, idAnioLectivo);
         request.setAttribute("proximosExamenes", proximosExamenes);
 
         // 4. Mis cursos (lista)
-        List<CursoDTO> misCursos = service.obtenerMisCursos(idDocente);
+        List<CursoDTO> misCursos = service.obtenerMisCursos(idDocente, idAnioLectivo);
         request.setAttribute("misCursos", misCursos);
 
         // 5. Fecha actual para bienvenida

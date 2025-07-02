@@ -39,14 +39,10 @@ public class DocenteService {
         }
     }
 
-    public int obtenerEvaluacionesPendientes(int idDocente) {
-        try {
-            return dao.contarEvaluacionesPendientesDocente(idDocente);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return 0;
-        }
+    public int obtenerEvaluacionesPendientes(int idDocente, int idAnioLectivo) {
+        return dao.contarEvaluacionesPendientesDocente(idDocente, idAnioLectivo);
     }
+
 
     public int obtenerClasesHoy(int idDocente) {
         try {
@@ -66,21 +62,22 @@ public class DocenteService {
         }
     }
 
-    public List<ExamenDTO> obtenerProximosExamenes(int idDocente) {
+    public List<ExamenDTO> obtenerProximosExamenes(int idDocente, int idAnioLectivo) {
         try {
-            return dao.obtenerProximosExamenesDocente(idDocente);
+            return dao.obtenerProximosExamenesDocente(idDocente, idAnioLectivo);
         } catch (SQLException e) {
             e.printStackTrace();
             return new ArrayList<>();
         }
     }
 
-    public List<CursoDTO> obtenerMisCursos(int idDocente) {
+    public List<CursoDTO> obtenerMisCursos(int idDocente, int idAnioLectivo) {
         try {
-            return dao.obtenerMisCursosDocente(idDocente);
+            return dao.obtenerMisCursosDocente(idDocente, idAnioLectivo);
         } catch (SQLException e) {
             e.printStackTrace();
             return new ArrayList<>();
         }
     }
+
 }
