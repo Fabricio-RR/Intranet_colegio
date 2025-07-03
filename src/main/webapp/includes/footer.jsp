@@ -13,8 +13,11 @@
             <div class="col-md-6 text-md-end">
                 <span class="text-muted">
                     Versión 1.0 | 
-                    <a href="${pageContext.request.contextPath}/views/soporte/index.jsp" class="text-decoration-none">
-                        Soporte Técnico
+                    <a href="https://www.acepdiezdeoctubre.edu.pe/nuestras-sedes/sede-chiclayo/"
+                       class="text-decoration-none"
+                       target="_blank" 
+                       rel="noopener noreferrer">
+                        COLEGIO PERUANO CHINO DIEZ DE OCTUBRE
                     </a>
                 </span>
             </div>

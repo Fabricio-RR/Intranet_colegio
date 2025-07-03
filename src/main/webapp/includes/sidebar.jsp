@@ -43,13 +43,15 @@
 
             <!-- Opción fija: Ayuda -->
             <li class="nav-item">
-                <a class="nav-link${fn:toLowerCase(paginaActiva) == 'ayuda' ? ' active' : ''}"
-                   href="${pageContext.request.contextPath}/views/ayuda.jsp">
-                    <i class="fas fa-question-circle me-2"></i>
-                    Ayuda
+                <a href="mailto:cdo10.soporte@gmail.com?subject=Ayuda%20Soporte%20Intranet%20Escolar"
+                    class="nav-link"
+                    data-bs-toggle="tooltip"
+                    data-bs-html="true"
+                    data-bs-placement="right"
+                    title='<i class="fas fa-envelope"></i> cdo10.soporte@gmail.com'>
+                    <i class="fas fa-question-circle"></i> Ayuda
                 </a>
             </li>
-
         </ul>
     </div>
 </nav>

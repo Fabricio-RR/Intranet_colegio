@@ -151,7 +151,6 @@
             </form>
         </div>
     </div>
-
     <jsp:include page="/includes/footer.jsp" />
 </main>
 
