@@ -1,5 +1,7 @@
 package com.intranet_escolar.util;
 
+import com.intranet_escolar.model.entity.Comunicado;
+import java.util.List;
 import org.apache.commons.mail.*;
 
 
@@ -106,6 +108,69 @@ public class EmailUtil {
         email.setHtmlMsg(htmlMessage);
         email.setTextMsg("Tu nueva contraseña es: " + nuevaClave + "\nPor seguridad, cámbiala al iniciar sesión.");
         email.addTo(destinatario);
+        email.send();
+    }
+    public static void enviarNotificacionComunicadoPersonal(
+        String destinatario, // correo individual
+        String nombreDestinatario, // nombre individual (o correo si no tienes el nombre)
+        Comunicado comunicado,
+        String nombreRemitente) throws EmailException {
+
+        HtmlEmail email = new HtmlEmail();
+        email.setHostName(HOST);
+        email.setSmtpPort(PORT);
+        email.setAuthentication(AUTH_EMAIL, AUTH_PASSWORD);
+        email.setStartTLSRequired(true);
+        email.setFrom(FROM_EMAIL, FROM_NAME);
+        email.setSubject("Nuevo Comunicado - Intranet Escolar");
+
+        email.addTo(destinatario);
+
+        String saludo = "Estimado(a), <b>" + nombreDestinatario + "</b>";
+
+        String htmlMessage =
+            "<!DOCTYPE html>" +
+            "<html lang='es'>" +
+            "<head>" +
+            "  <meta charset='UTF-8'>" +
+            "  <meta name='viewport' content='width=device-width, initial-scale=1.0'>" +
+            "  <title>Nuevo Comunicado</title>" +
+            "</head>" +
+            "<body style='margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;'>" +
+            "  <table align='center' cellpadding='0' cellspacing='0' width='100%' style='padding: 20px; background-color: #f4f4f4;'>" +
+            "    <tr>" +
+            "      <td align='center'>" +
+            "        <table cellpadding='0' cellspacing='0' width='100%' style='max-width: 600px; background-color: #ffffff; padding: 20px; border-radius: 8px;'>" +
+            "          <tr>" +
+            "            <td style='text-align: center; padding-bottom: 20px;'>" +
+            "              <h2 style='color: #0A0A3D; margin-bottom: 5px;'>Intranet Escolar</h2>" +
+            "              <p style='color: #555; font-size: 14px;'>Colegio Peruano Chino Diez de Octubre</p>" +
+            "            </td>" +
+            "          </tr>" +
+            "          <tr>" +
+            "            <td style='padding: 10px 0; font-size: 16px; color: #333;'>" + saludo + "</td>" +
+            "          </tr>" +
+            "          <tr>" +
+            "            <td style='padding: 10px 0; font-size: 17px; color: #0A0A3D;'><strong>" + comunicado.getTitulo() + "</strong></td>" +
+            "          </tr>" +
+            "          <tr>" +
+            "            <td style='font-size: 15px; color: #333;'>" + comunicado.getContenido() + "</td>" +
+            "          </tr>" + 
+            "          <tr>" +
+            "            <td style='font-size: 13px; color: #555; padding-top:10px;'>Revise más detalles en la Intranet Escolar.</td>" +
+            "          </tr>" +
+            "          <tr>" +
+            "            <td style='padding-top: 30px; border-top: 1px solid #ddd; font-size: 12px; color: #999; text-align: center;'>© 2025 Intranet Escolar</td>" +
+            "          </tr>" +
+            "        </table>" +
+            "      </td>" +
+            "    </tr>" +
+            "  </table>" +
+            "</body>" +
+            "</html>";
+
+        email.setHtmlMsg(htmlMessage);
+        email.setTextMsg("Nuevo Comunicado: " + comunicado.getTitulo() + "\n" + comunicado.getContenido());
         email.send();
     }
 }

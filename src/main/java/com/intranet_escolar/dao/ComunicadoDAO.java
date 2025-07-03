@@ -2,6 +2,7 @@ package com.intranet_escolar.dao;
 
 import com.intranet_escolar.config.DatabaseConfig;
 import com.intranet_escolar.model.entity.Comunicado;
+import com.intranet_escolar.model.entity.Usuario;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -190,5 +191,40 @@ public class ComunicadoDAO {
             e.printStackTrace();
         }
         return correos;
+    }
+    public int obtenerIdUltimoComunicadoPorUsuario(int idUsuario) {
+        int id = 0;
+        String sql = "SELECT id_publicacion FROM publicacion WHERE id_usuario = ? ORDER BY id_publicacion DESC LIMIT 1";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, idUsuario);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    id = rs.getInt("id_publicacion");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return id;
+    }
+    public Usuario obtenerUsuarioPorCorreo(String correo) {
+        Usuario usuario = null;
+        String sql = "SELECT nombres, apellidos FROM usuario WHERE correo = ? LIMIT 1";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, correo);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    usuario = new Usuario();
+                    usuario.setNombres(rs.getString("nombres"));
+                    usuario.setApellidos(rs.getString("apellidos"));
+                    usuario.setCorreo(correo);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return usuario;
     }
 }

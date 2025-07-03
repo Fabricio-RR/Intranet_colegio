@@ -7,6 +7,7 @@ import com.intranet_escolar.model.DTO.AperturaSeccionDTO;
 import com.intranet_escolar.model.entity.AnioLectivo;
 import com.intranet_escolar.model.entity.Comunicado;
 import com.intranet_escolar.model.entity.Usuario;
+import com.intranet_escolar.util.EmailUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.*;
 import jakarta.servlet.http.*;
@@ -103,10 +104,10 @@ public class ComunicadoServlet extends HttpServlet {
             comunicado.setDestinatario(request.getParameter("destinatario"));
             comunicado.setNotificarCorreo("1".equals(request.getParameter("notificar_correo")));
 
-            // NUEVO: capturar sección y tipo de destinatario si aplica
+            // Sección y destinatario si aplica
             if ("Seccion".equalsIgnoreCase(comunicado.getDestinatario())) {
                 comunicado.setDestinatarioSeccion(request.getParameter("destinatario_seccion"));
-                String apertura = request.getParameter("id_apertura_seccion");
+                String apertura = request.getParameter("idAperturaSeccion");
                 if (apertura != null && !apertura.isBlank()) {
                     comunicado.setIdAperturaSeccion(Integer.parseInt(apertura));
                 }
@@ -191,13 +192,37 @@ public class ComunicadoServlet extends HttpServlet {
             // Guardar o actualizar
             if (!esEdicion) {
                 comunicado.setIdAnioLectivo(Integer.parseInt(request.getParameter("idAnioLectivo")));
-                comunicadoDAO.guardar(comunicado);
+                boolean guardado = comunicadoDAO.guardar(comunicado);
+
+                int idComunicado = 0;
+                if (guardado) {
+                    idComunicado = comunicadoDAO.obtenerIdUltimoComunicadoPorUsuario(comunicado.getIdUsuario());
+                }
+
+                if (comunicado.isNotificarCorreo() && idComunicado > 0) {
+                    List<String> correos = comunicadoDAO.obtenerCorreosDestinatarios(idComunicado);
+                    String nombreRemitente = usuario.getNombres() + " " + usuario.getApellidos();
+                    for (String correo : correos) {
+                        Usuario usuarioDest = comunicadoDAO.obtenerUsuarioPorCorreo(correo); // implementa este método
+                        String nombreDest = (usuarioDest != null)
+                            ? usuarioDest.getNombres() + " " + usuarioDest.getApellidos()
+                            : correo;
+                        try {
+                            EmailUtil.enviarNotificacionComunicadoPersonal(
+                                correo, nombreDest, comunicado, nombreRemitente
+                            );
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
                 response.sendRedirect("comunicado?idAnioLectivo=" + comunicado.getIdAnioLectivo() + "&success=1&op=add");
             } else {
                 comunicado.setEstado(request.getParameter("estado"));
                 comunicadoDAO.actualizar(comunicado);
                 response.sendRedirect("comunicado?idAnioLectivo=" + comunicado.getIdAnioLectivo() + "&success=1&op=edit");
             }
+
         }
     }
 
