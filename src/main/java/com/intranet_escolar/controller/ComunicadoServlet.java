@@ -68,7 +68,7 @@ public class ComunicadoServlet extends HttpServlet {
             }
             default -> {
                 List<AnioLectivo> aniosLectivos = anioLectivoDAO.obtenerAniosDisponibles();
-                List<Comunicado> comunicados = comunicadoDAO.listarPorAnio(idAnioLectivo);
+                List<Comunicado> comunicados = comunicadoDAO.listarPorAnio(idAnioLectivo, true);
                 request.setAttribute("comunicados", comunicados);
                 request.setAttribute("aniosLectivos", aniosLectivos);
                 request.setAttribute("idAnioLectivo", idAnioLectivo);
@@ -225,7 +225,6 @@ public class ComunicadoServlet extends HttpServlet {
 
         }
     }
-
     @Override
     public String getServletInfo() {
         return "Gestión de comunicados escolares";

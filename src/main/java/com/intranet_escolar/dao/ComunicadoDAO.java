@@ -6,12 +6,14 @@ import com.intranet_escolar.model.entity.Usuario;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Date;
 
 public class ComunicadoDAO {
 
-    public List<Comunicado> listarPorAnio(int idAnioLectivo) {
+    public List<Comunicado> listarPorAnio(int idAnioLectivo, boolean esAdmin) {
         List<Comunicado> lista = new ArrayList<>();
         String sql = "{CALL sp_listar_comunicados_por_anio(?)}";
+        Date hoy = new Date();
 
         try (Connection conn = DatabaseConfig.getConnection();
              CallableStatement cs = conn.prepareCall(sql)) {
@@ -29,12 +31,30 @@ public class ComunicadoDAO {
                     c.setDestinatarioSeccion(rs.getString("destinatario_seccion"));
                     c.setIdAperturaSeccion(rs.getObject("id_apertura_seccion") != null ? rs.getInt("id_apertura_seccion") : null);
                     c.setNotificarCorreo(rs.getBoolean("notificar_correo"));
-                    c.setFecInicio(rs.getDate("fec_inicio"));
-                    c.setFecFin(rs.getDate("fec_fin"));
+                    Date fecInicio = rs.getDate("fec_inicio");
+                    Date fecFin = rs.getDate("fec_fin");
+                    c.setFecInicio(fecInicio);
+                    c.setFecFin(fecFin);
                     c.setArchivo(rs.getString("archivo"));
-                    c.setEstado(rs.getString("estado"));
+                    String estadoBD = rs.getString("estado");
                     c.setIdAnioLectivo(rs.getInt("id_anio_lectivo"));
-                    lista.add(c);
+
+                    // Estado dinámico según fechas, menos cuando es archivada
+                    if (!"archivada".equals(estadoBD)) {
+                        if (hoy.before(fecInicio)) {
+                            c.setEstado("programada");
+                        } else if ((esMismoDia(hoy, fecInicio) || hoy.after(fecInicio)) && (hoy.before(fecFin) || esMismoDia(hoy, fecFin))) {
+                            c.setEstado("activa");
+                        } else if (hoy.after(fecFin)) {
+                            c.setEstado("expirada");
+                        }
+                    } else {
+                        c.setEstado("archivada");
+                    }
+                    // Aquí decides si mostrar o no los archivados
+                    if (esAdmin || !"archivada".equals(c.getEstado())) {
+                        lista.add(c);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -42,6 +62,15 @@ public class ComunicadoDAO {
         }
         return lista;
     }
+        private boolean esMismoDia(Date d1, Date d2) {
+            if (d1 == null || d2 == null) return false;
+            java.util.Calendar c1 = java.util.Calendar.getInstance();
+            java.util.Calendar c2 = java.util.Calendar.getInstance();
+            c1.setTime(d1);
+            c2.setTime(d2);
+            return c1.get(java.util.Calendar.YEAR) == c2.get(java.util.Calendar.YEAR)
+                && c1.get(java.util.Calendar.DAY_OF_YEAR) == c2.get(java.util.Calendar.DAY_OF_YEAR);
+        }
 
     public Comunicado obtenerPorId(int id) {
         Comunicado c = null;
