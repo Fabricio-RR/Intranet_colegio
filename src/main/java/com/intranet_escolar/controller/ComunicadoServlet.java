@@ -95,7 +95,7 @@ public class ComunicadoServlet extends HttpServlet {
             } else {
                 comunicado = new Comunicado();
                 comunicado.setIdUsuario(usuario.getIdUsuario());
-                comunicado.setEstado("programada");
+                comunicado.setEstado("activa");
             }
 
             comunicado.setTitulo(request.getParameter("titulo"));
@@ -105,7 +105,7 @@ public class ComunicadoServlet extends HttpServlet {
             comunicado.setNotificarCorreo("1".equals(request.getParameter("notificar_correo")));
 
             // Sección y destinatario si aplica
-            if ("Seccion".equalsIgnoreCase(comunicado.getDestinatario())) {
+            if ("seccion".equalsIgnoreCase(comunicado.getDestinatario())) {
                 comunicado.setDestinatarioSeccion(request.getParameter("destinatario_seccion"));
                 String apertura = request.getParameter("idAperturaSeccion");
                 if (apertura != null && !apertura.isBlank()) {
@@ -199,7 +199,8 @@ public class ComunicadoServlet extends HttpServlet {
                     idComunicado = comunicadoDAO.obtenerIdUltimoComunicadoPorUsuario(comunicado.getIdUsuario());
                 }
 
-                if (comunicado.isNotificarCorreo() && idComunicado > 0) {
+                // Notificar solo si el estado es ACTIVA
+                if (comunicado.isNotificarCorreo() && idComunicado > 0 && "activa".equalsIgnoreCase(comunicado.getEstado())) {
                     List<String> correos = comunicadoDAO.obtenerCorreosDestinatarios(idComunicado);
                     String nombreRemitente = usuario.getNombres() + " " + usuario.getApellidos();
                     for (String correo : correos) {
@@ -219,10 +220,29 @@ public class ComunicadoServlet extends HttpServlet {
                 response.sendRedirect("comunicado?idAnioLectivo=" + comunicado.getIdAnioLectivo() + "&success=1&op=add");
             } else {
                 comunicado.setEstado(request.getParameter("estado"));
-                comunicadoDAO.actualizar(comunicado);
+                comunicado.setNotificarCorreo("1".equals(request.getParameter("notificar_correo")));
+                boolean actualizado = comunicadoDAO.actualizar(comunicado);
+
+                // Solo reenviar si estado es ACTIVA
+                if (actualizado && comunicado.isNotificarCorreo() && "activa".equalsIgnoreCase(comunicado.getEstado())) {
+                    List<String> correos = comunicadoDAO.obtenerCorreosDestinatarios(comunicado.getId());
+                    String nombreRemitente = usuario.getNombres() + " " + usuario.getApellidos();
+                    for (String correo : correos) {
+                        Usuario usuarioDest = comunicadoDAO.obtenerUsuarioPorCorreo(correo);
+                        String nombreDest = (usuarioDest != null)
+                            ? usuarioDest.getNombres() + " " + usuarioDest.getApellidos()
+                            : correo;
+                        try {
+                            EmailUtil.enviarNotificacionComunicadoPersonal(
+                                correo, nombreDest, comunicado, nombreRemitente
+                            );
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
                 response.sendRedirect("comunicado?idAnioLectivo=" + comunicado.getIdAnioLectivo() + "&success=1&op=edit");
             }
-
         }
     }
     @Override

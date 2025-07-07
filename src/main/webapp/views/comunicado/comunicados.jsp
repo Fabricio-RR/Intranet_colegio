@@ -123,6 +123,7 @@
     $(document).ready(function () {
         // DataTable
         $('#tablaComunicados').DataTable({
+            ordering: false,
             language: {
                 url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
             },
@@ -241,6 +242,24 @@
                 showConfirmButton: false
             });
         </c:if>
+    });
+    // Delegación para el submit del formulario de editar comunicado (modal)
+    $(document).on("submit", "#formEditarComunicado", function (e) {
+        const form = this;
+        const btnSubmit = form.querySelector("button[type='submit']");
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Guardando...';
+
+        Swal.fire({
+            title: "Guardando...",
+            html: "<p class='mt-2'>Por favor espere</p>",
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
     });
 </script>
 </body>

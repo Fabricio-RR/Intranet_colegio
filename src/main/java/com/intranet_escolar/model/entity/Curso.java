@@ -7,17 +7,23 @@ public class Curso {
     private String seccion;
     private String nivel;
     private String anio;
+    private String area;
+    private int orden;
+    private boolean activo;
 
     public Curso() {
     }
 
-    public Curso(int idCurso, String nombreCurso, String grado, String seccion, String nivel, String anio) {
+    public Curso(int idCurso, String nombreCurso, String grado, String seccion, String nivel, String anio, String area, int orden, boolean activo) {
         this.idCurso = idCurso;
         this.nombreCurso = nombreCurso;
         this.grado = grado;
         this.seccion = seccion;
         this.nivel = nivel;
         this.anio = anio;
+        this.area = area;
+        this.orden = orden;
+        this.activo = activo;
     }
 
     public int getIdCurso() {
@@ -66,6 +72,30 @@ public class Curso {
 
     public void setAnio(String anio) {
         this.anio = anio;
+    }
+
+    public String getArea() {
+        return area;
+    }
+
+    public void setArea(String area) {
+        this.area = area;
+    }
+
+    public int getOrden() {
+        return orden;
+    }
+
+    public void setOrden(int orden) {
+        this.orden = orden;
+    }
+
+    public boolean isActivo() {
+        return activo;
+    }
+
+    public void setActivo(boolean activo) {
+        this.activo = activo;
     }
     
 }

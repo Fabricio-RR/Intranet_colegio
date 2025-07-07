@@ -38,6 +38,30 @@
             <p class="mb-0 text-capitalize">${comunicado.destinatario}</p>
         </div>
     </div>
+    
+    <c:if test="${comunicado.destinatario == 'seccion'}">
+        <div class="row mt-2">
+            <div class="col-md-6">
+                <label class="fw-semibold">Sección:</label>
+                <c:forEach items="${seccionesActivas}" var="sec">
+                    <c:if test="${sec.idAperturaSeccion == comunicado.idAperturaSeccion}">
+                        <p class="mb-0">${sec.nivel} ${sec.grado} "${sec.seccion}"</p>
+                    </c:if>
+                </c:forEach>
+            </div>
+            <div class="col-md-6">
+                <label class="fw-semibold">Dirigido a:</label>
+                <p class="mb-0">
+                    <c:choose>
+                        <c:when test="${comunicado.destinatarioSeccion == 'Padres'}">Apoderados</c:when>
+                        <c:when test="${comunicado.destinatarioSeccion == 'Estudiantes'}">Alumnos</c:when>
+                        <c:when test="${comunicado.destinatarioSeccion == 'ambos'}">Apoderado y Alumno</c:when>
+                        <c:otherwise>No especificado</c:otherwise>
+                    </c:choose>
+                </p>
+            </div>
+        </div>
+    </c:if>
 
     <div class="row mt-2">
         <div class="col-md-6">

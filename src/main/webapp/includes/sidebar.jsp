@@ -29,16 +29,41 @@
             <!-- Menú dinámico según permisos del rol activo -->
             <c:if test="${not empty sessionScope.menuItems}">
                 <c:forEach items="${sessionScope.menuItems}" var="menu">
-                    <li class="nav-item">
-                        <a class="nav-link${fn:toLowerCase(menu.titulo) == fn:toLowerCase(paginaActiva) ? ' active' : ''}"
-                           href="${pageContext.request.contextPath}${menu.url}">
-                            <i class="${menu.icono} me-2"></i>
-                            ${menu.titulo}
-                        </a>
-                    </li>
+                    <c:choose>
+                        <c:when test="${not empty menu.subMenu}">
+                            <li class="nav-item">
+                                <a class="nav-link collapsed${fn:toLowerCase(menu.titulo) == fn:toLowerCase(paginaActiva) ? ' active' : ''}"
+                                   href="#${menu.id}Submenu" data-bs-toggle="collapse" role="button"
+                                   aria-expanded="false" aria-controls="${menu.id}Submenu">
+                                    <i class="${menu.icono} me-2"></i>
+                                    ${menu.titulo}
+                                    <i class="fas fa-chevron-down float-end"></i>
+                                </a>
+                                <ul class="collapse list-unstyled ps-3" id="${menu.id}Submenu">
+                                    <c:forEach items="${menu.subMenu}" var="subitem">
+                                        <li>
+                                            <a class="nav-link${fn:toLowerCase(subitem.titulo) == fn:toLowerCase(paginaActiva) ? ' active' : ''}"
+                                               href="${pageContext.request.contextPath}${subitem.url}">
+                                                <i class="${subitem.icono} me-1"></i>
+                                                ${subitem.titulo}
+                                            </a>
+                                        </li>
+                                    </c:forEach>
+                                </ul>
+                            </li>
+                        </c:when>
+                        <c:otherwise>
+                            <li class="nav-item">
+                                <a class="nav-link${fn:toLowerCase(menu.titulo) == fn:toLowerCase(paginaActiva) ? ' active' : ''}"
+                                   href="${pageContext.request.contextPath}${menu.url}">
+                                    <i class="${menu.icono} me-2"></i>
+                                    ${menu.titulo}
+                                </a>
+                            </li>
+                        </c:otherwise>
+                    </c:choose>
                 </c:forEach>
             </c:if>
-
             <hr class="my-3">
 
             <!-- Opción fija: Ayuda -->

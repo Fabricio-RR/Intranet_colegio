@@ -21,7 +21,6 @@
     <c:set var="tituloPaginaMobile" value="Malla" scope="request" />
     <c:set var="iconoPagina" value="fas fa-layer-group me-2" scope="request" />
     <jsp:include page="/includes/header.jsp" />
-    </div>
 <main class="main-content">
     <!-- Card de filtros y acciones -->
      <div class="row mb-4">

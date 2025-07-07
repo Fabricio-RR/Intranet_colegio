@@ -1,10 +1,13 @@
 package com.intranet_escolar.model.entity;
 
+import java.util.List;
+
 public class MenuItem {
     private String id;
     private String titulo;
     private String url;
     private String icono;
+    private List<MenuItem> subMenu;
 
     public MenuItem() {
     }
@@ -15,7 +18,16 @@ public class MenuItem {
         this.url = url;
         this.icono = icono;
     }
+    
+    public MenuItem(String titulo, String url, String icono, List<MenuItem> subMenu) {
+        this.id = generarIdDesdeTitulo(titulo);
+        this.titulo = titulo;
+        this.url = url;
+        this.icono = icono;
+        this.subMenu = subMenu;
+    }
 
+    
     private String generarIdDesdeTitulo(String titulo) {
         return titulo.toLowerCase().replace(" ", "_");
     }
@@ -52,5 +64,12 @@ public class MenuItem {
     public void setIcono(String icono) {
         this.icono = icono;
     }
-    
+
+    public List<MenuItem> getSubMenu() {
+        return subMenu;
+    }
+
+    public void setSubMenu(List<MenuItem> subMenu) {
+        this.subMenu = subMenu;
+    }
 }

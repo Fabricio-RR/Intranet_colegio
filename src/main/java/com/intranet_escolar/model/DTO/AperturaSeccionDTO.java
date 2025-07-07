@@ -7,16 +7,18 @@ public class AperturaSeccionDTO {
     private String grado;
     private String seccion;
     private String anioLectivo;
+    private boolean activo;
 
     public AperturaSeccionDTO() {
     }
 
-    public AperturaSeccionDTO(int idAperturaSeccion, String nivel, String grado, String seccion, String anioLectivo) {
+    public AperturaSeccionDTO(int idAperturaSeccion, String nivel, String grado, String seccion, String anioLectivo, boolean activo) {
         this.idAperturaSeccion = idAperturaSeccion;
         this.nivel = nivel;
         this.grado = grado;
         this.seccion = seccion;
         this.anioLectivo = anioLectivo;
+        this.activo = activo;
     }
 
     public int getIdAperturaSeccion() {
@@ -58,6 +60,13 @@ public class AperturaSeccionDTO {
     public void setAnioLectivo(String anioLectivo) {
         this.anioLectivo = anioLectivo;
     }
-    
+
+    public boolean isActivo() {
+        return activo;
+    }
+
+    public void setActivo(boolean activo) {
+        this.activo = activo;
+    }
     
 }

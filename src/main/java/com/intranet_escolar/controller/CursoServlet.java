@@ -1,85 +1,84 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package com.intranet_escolar.controller;
 
+import com.intranet_escolar.dao.CursoDAO;
+import com.intranet_escolar.model.entity.Curso;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.List;
 
 
-/**
- *
- * @author Hp
- */
-@WebServlet(name = "CursoServlet", urlPatterns = {"/CursoServlet"})
+@WebServlet(name = "CursoServlet", urlPatterns = {"/cursos"})
 public class CursoServlet extends HttpServlet {
+    private final CursoDAO cursoDAO = new CursoDAO();
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet CursoServlet</title>");            
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet CursoServlet at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
+        String action = req.getParameter("action");
+        if ("desactivar".equals(action)) {
+            int id = Integer.parseInt(req.getParameter("id"));
+            cursoDAO.desactivarCurso(id);
+            resp.sendRedirect("cursos?success=1&op=deactivate");
+            return;
         }
+        List<Curso> cursos = cursoDAO.listarCursosActivos();
+        req.setAttribute("cursos", cursos);
+        req.getRequestDispatcher("/views/academico/curso.jsp").forward(req, resp);
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        processRequest(request, response);
+        req.setCharacterEncoding("UTF-8");
+        String action = req.getParameter("action");
+
+        if ("crear".equals(action)) {
+            Curso c = new Curso();
+            c.setNombreCurso(req.getParameter("nombre"));
+            c.setArea(req.getParameter("area"));
+            c.setOrden(Integer.parseInt(req.getParameter("orden")));
+            boolean ok = new CursoDAO().crearCurso(c);
+            if (ok) {
+                resp.sendRedirect("cursos?success=1&op=add");
+            } else {
+                resp.sendRedirect("cursos?error=No se pudo crear el curso.");
+            }
+            return;
+        }
+
+        if ("editar".equals(action)) {
+            Curso c = new Curso();
+            c.setIdCurso(Integer.parseInt(req.getParameter("idCurso")));
+            c.setNombreCurso(req.getParameter("nombre"));
+            c.setArea(req.getParameter("area"));
+            c.setOrden(Integer.parseInt(req.getParameter("orden")));
+            boolean ok = new CursoDAO().editarCurso(c);
+            if (ok) {
+                resp.sendRedirect("cursos?success=1&op=edit");
+            } else {
+                resp.sendRedirect("cursos?error=No se pudo actualizar el curso.");
+            }
+            return;
+        }
+
+        if ("desactivar".equals(action)) {
+            int idCurso = Integer.parseInt(req.getParameter("id"));
+            boolean ok = new CursoDAO().desactivarCurso(idCurso);
+            if (ok) {
+                resp.sendRedirect("cursos?success=1&op=deactivate");
+            } else {
+                resp.sendRedirect("cursos?error=No se pudo desactivar el curso.");
+            }
+            return;
+        }
+
+        resp.sendRedirect("cursos");
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
-    }
-
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
     @Override
     public String getServletInfo() {
         return "Short description";

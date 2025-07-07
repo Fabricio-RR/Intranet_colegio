@@ -6,9 +6,9 @@ import java.sql.*;
 import java.util.*;
 
 public class CursoDAO {
-    public List<Curso> listarTodos() {
+    public List<Curso> listarCursosActivos() {
         List<Curso> lista = new ArrayList<>();
-        String sql = "SELECT id_curso, nombre FROM curso WHERE activo=1 ORDER BY nombre";
+        String sql = "SELECT id_curso, nombre, area, orden, activo FROM curso WHERE activo=1 ORDER BY orden ASC, nombre ASC";
         try (Connection con = DatabaseConfig.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
@@ -16,13 +16,57 @@ public class CursoDAO {
                 Curso c = new Curso();
                 c.setIdCurso(rs.getInt("id_curso"));
                 c.setNombreCurso(rs.getString("nombre"));
+                c.setArea(rs.getString("area"));
+                c.setOrden(rs.getInt("orden"));
+                c.setActivo(rs.getBoolean("activo")); 
                 lista.add(c);
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
         return lista;
-    }   
+    }
+
+    public boolean crearCurso(Curso c) {
+        String sql = "INSERT INTO curso(nombre, area, orden, activo) VALUES (?, ?, ?, 1)";
+        try (Connection con = DatabaseConfig.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, c.getNombreCurso());
+            ps.setString(2, c.getArea());
+            ps.setInt(3, c.getOrden());
+            return ps.executeUpdate() > 0;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean editarCurso(Curso c) {
+        String sql = "UPDATE curso SET nombre=?, area=?, orden=? WHERE id_curso=?";
+        try (Connection con = DatabaseConfig.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, c.getNombreCurso());
+            ps.setString(2, c.getArea());
+            ps.setInt(3, c.getOrden());
+            ps.setInt(4, c.getIdCurso());
+            return ps.executeUpdate() > 0;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean desactivarCurso(int idCurso) {
+        String sql = "UPDATE curso SET activo=0 WHERE id_curso=?";
+        try (Connection con = DatabaseConfig.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idCurso);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return false;
+        }
+    }
 
     // Lista cursos asignados al usuario (docente o admin) en el año lectivo
     public List<Curso> listarCursosPorUsuarioYAnio(int idUsuario, int idAnioLectivo, String rol) {
