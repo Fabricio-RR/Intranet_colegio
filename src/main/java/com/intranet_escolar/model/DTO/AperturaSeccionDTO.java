@@ -3,17 +3,21 @@ package com.intranet_escolar.model.DTO;
 
 public class AperturaSeccionDTO {
     private int idAperturaSeccion;
+    private int idGrado;
+    private int idSeccion;
     private String nivel;
     private String grado;
     private String seccion;
     private String anioLectivo;
     private boolean activo;
-
+  
     public AperturaSeccionDTO() {
     }
 
-    public AperturaSeccionDTO(int idAperturaSeccion, String nivel, String grado, String seccion, String anioLectivo, boolean activo) {
+    public AperturaSeccionDTO(int idAperturaSeccion, int idGrado, int idSeccion, String nivel, String grado, String seccion, String anioLectivo, boolean activo) {
         this.idAperturaSeccion = idAperturaSeccion;
+        this.idGrado = idGrado;
+        this.idSeccion = idSeccion;
         this.nivel = nivel;
         this.grado = grado;
         this.seccion = seccion;
@@ -27,6 +31,22 @@ public class AperturaSeccionDTO {
 
     public void setIdAperturaSeccion(int idAperturaSeccion) {
         this.idAperturaSeccion = idAperturaSeccion;
+    }
+
+    public int getIdGrado() {
+        return idGrado;
+    }
+
+    public void setIdGrado(int idGrado) {
+        this.idGrado = idGrado;
+    }
+
+    public int getIdSeccion() {
+        return idSeccion;
+    }
+
+    public void setIdSeccion(int idSeccion) {
+        this.idSeccion = idSeccion;
     }
 
     public String getNivel() {

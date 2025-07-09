@@ -19,7 +19,7 @@ import java.util.List;
 @WebServlet(name = "AperturaSeccionServlet", urlPatterns = {"/apertura-seccion"})
 public class AperturaSeccionServlet extends HttpServlet {
 
-   private final AperturaSeccionDAO aperturaSeccionDAO = new AperturaSeccionDAO();
+    private final AperturaSeccionDAO aperturaSeccionDAO = new AperturaSeccionDAO();
     private final AcademicoDAO academicoDAO = new AcademicoDAO();
     private final AnioLectivoDAO anioLectivoDAO = new AnioLectivoDAO();
 
@@ -29,7 +29,6 @@ public class AperturaSeccionServlet extends HttpServlet {
         String idAnioLectivoParam = req.getParameter("idAnioLectivo");
         int idAnioLectivo;
 
-        // Usar solo métodos de tu DAO real
         List<AnioLectivo> anios = anioLectivoDAO.obtenerAniosDisponibles();
         int anioActual = anioLectivoDAO.obtenerAnioActivo();
         if (idAnioLectivoParam != null && !idAnioLectivoParam.isEmpty()) {
@@ -38,10 +37,26 @@ public class AperturaSeccionServlet extends HttpServlet {
             idAnioLectivo = anioActual;
         }
 
+        // Desactivar apertura
         if ("desactivar".equals(action)) {
             int idApertura = Integer.parseInt(req.getParameter("id"));
             boolean ok = aperturaSeccionDAO.desactivarAperturaSeccion(idApertura);
-            resp.sendRedirect("apertura-seccion?success=1&idAnioLectivo=" + idAnioLectivo);
+            if (ok) {
+                resp.sendRedirect("apertura-seccion?success=1&op=deactivate&idAnioLectivo=" + idAnioLectivo);
+            } else {
+                resp.sendRedirect("apertura-seccion?error=No se pudo desactivar la apertura.&idAnioLectivo=" + idAnioLectivo);
+            }
+            return;
+        }
+        // Reactivar apertura
+        if ("reactivar".equals(action)) {
+            int idApertura = Integer.parseInt(req.getParameter("id"));
+            boolean ok = aperturaSeccionDAO.reactivarAperturaSeccion(idApertura);
+            if (ok) {
+                resp.sendRedirect("apertura-seccion?success=1&op=reactivate&idAnioLectivo=" + idAnioLectivo);
+            } else {
+                resp.sendRedirect("apertura-seccion?error=No se pudo reactivar la apertura.&idAnioLectivo=" + idAnioLectivo);
+            }
             return;
         }
 
@@ -73,30 +88,31 @@ public class AperturaSeccionServlet extends HttpServlet {
                 ? Integer.parseInt(idAnioLectivoParam)
                 : 0;
 
+        // Crear apertura
         if ("crear".equals(action)) {
             int idGrado = Integer.parseInt(req.getParameter("idGrado"));
             int idSeccion = Integer.parseInt(req.getParameter("idSeccion"));
-            // Validar duplicados
             if (aperturaSeccionDAO.existeAperturaSeccion(idAnioLectivo, idGrado, idSeccion)) {
                 resp.sendRedirect("apertura-seccion?error=Ya existe una apertura activa para ese año, grado y sección.&idAnioLectivo=" + idAnioLectivo);
                 return;
             }
             boolean ok = aperturaSeccionDAO.crearAperturaSeccion(idAnioLectivo, idGrado, idSeccion);
             if (ok) {
-                resp.sendRedirect("apertura-seccion?success=1&idAnioLectivo=" + idAnioLectivo);
+                resp.sendRedirect("apertura-seccion?success=1&op=add&idAnioLectivo=" + idAnioLectivo);
             } else {
                 resp.sendRedirect("apertura-seccion?error=No se pudo crear la apertura.&idAnioLectivo=" + idAnioLectivo);
             }
             return;
         }
 
+        // Editar apertura
         if ("editar".equals(action)) {
             int idApertura = Integer.parseInt(req.getParameter("idApertura"));
             int idGrado = Integer.parseInt(req.getParameter("idGrado"));
             int idSeccion = Integer.parseInt(req.getParameter("idSeccion"));
             boolean ok = aperturaSeccionDAO.editarAperturaSeccion(idApertura, idGrado, idSeccion);
             if (ok) {
-                resp.sendRedirect("apertura-seccion?success=1&idAnioLectivo=" + idAnioLectivo);
+                resp.sendRedirect("apertura-seccion?success=1&op=edit&idAnioLectivo=" + idAnioLectivo);
             } else {
                 resp.sendRedirect("apertura-seccion?error=No se pudo editar la apertura.&idAnioLectivo=" + idAnioLectivo);
             }
@@ -105,9 +121,9 @@ public class AperturaSeccionServlet extends HttpServlet {
 
         resp.sendRedirect("apertura-seccion?idAnioLectivo=" + idAnioLectivo);
     }
+
     @Override
     public String getServletInfo() {
         return "Short description";
-    }// </editor-fold>
-
+    }
 }
