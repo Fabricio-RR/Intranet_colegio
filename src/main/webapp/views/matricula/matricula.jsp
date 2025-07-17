@@ -52,7 +52,7 @@
         <div class="card">
             <div class="card-body">
                 <div class="table-responsive">
-                    <table id="tablaMatriculas" class="table table-striped table-hover align-middle">
+                    <table id="tablaMatriculas" class="table table-hover align-middle">
                         <thead class="table-dark text-center">
                             <tr>
                                 <th>#</th>

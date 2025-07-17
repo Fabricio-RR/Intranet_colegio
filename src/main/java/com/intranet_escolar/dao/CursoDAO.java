@@ -6,9 +6,9 @@ import java.sql.*;
 import java.util.*;
 
 public class CursoDAO {
-    public List<Curso> listarCursosActivos() {
+    public List<Curso> listarCursos() {
         List<Curso> lista = new ArrayList<>();
-        String sql = "SELECT id_curso, nombre, area, orden, activo FROM curso WHERE activo=1 ORDER BY orden ASC, nombre ASC";
+        String sql = "SELECT id_curso, nombre, area, orden, activo FROM curso ORDER BY orden ASC, nombre ASC";
         try (Connection con = DatabaseConfig.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
@@ -56,14 +56,15 @@ public class CursoDAO {
         }
     }
 
-    public boolean desactivarCurso(int idCurso) {
-        String sql = "UPDATE curso SET activo=0 WHERE id_curso=?";
-        try (Connection con = DatabaseConfig.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, idCurso);
+    public boolean cambiarEstado(int idCurso, boolean activo) {
+        String sql = "UPDATE curso SET activo = ? WHERE id_curso = ?";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setBoolean(1, activo);
+            ps.setInt(2, idCurso);
             return ps.executeUpdate() > 0;
-        } catch (SQLException ex) {
-            ex.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
             return false;
         }
     }
@@ -109,5 +110,18 @@ public class CursoDAO {
             ex.printStackTrace();
         }
         return lista;
+    }
+    public int obtenerIdPorNombre(String nombreCurso) throws SQLException {
+        String sql = "SELECT id_curso FROM curso WHERE nombre = ?";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, nombreCurso);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("id_curso");
+                }
+            }
+        }
+        return -1;
     }
 }

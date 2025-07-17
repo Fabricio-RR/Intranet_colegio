@@ -79,7 +79,7 @@
             </form>
 
             <div class="text-center mt-3">
-                <a href="${pageContext.request.contextPath}/views/recuperar-password.jsp" class="small text-decoration-none custom-text">¿Olvidaste tu contraseña?</a>
+                <a href="${pageContext.request.contextPath}/recuperar-password" class="small text-decoration-none custom-text">¿Olvidaste tu contraseña?</a>
             </div>
         </div>
     </div>

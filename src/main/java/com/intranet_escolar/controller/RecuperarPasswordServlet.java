@@ -20,7 +20,13 @@ public class RecuperarPasswordServlet extends HttpServlet {
     private static final int TOKEN_EXPIRATION_MINUTES = 5;
     private static final int MAX_INTENTOS = 3;
     private static final int BLOQUEO_MINUTOS = 30;
-        
+    
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        request.getRequestDispatcher("/views/recuperar-password.jsp").forward(request, response);
+    }
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -132,7 +138,7 @@ public class RecuperarPasswordServlet extends HttpServlet {
             if (actualizado) {
                 session.invalidate();
                 String mensaje = URLEncoder.encode("Contraseña actualizada correctamente", StandardCharsets.UTF_8);
-                response.sendRedirect(request.getContextPath() + "/views/login.jsp?mensaje=" + mensaje);
+                response.sendRedirect(request.getContextPath() + "/login?mensaje=" + mensaje);
             } else {
                 request.setAttribute("error", "Hubo un error al actualizar la contraseña.");
                 request.setAttribute("pasoActual", "3");

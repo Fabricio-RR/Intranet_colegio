@@ -6,7 +6,7 @@ import jakarta.servlet.http.*;
 
 import java.io.IOException;
 
-@WebFilter(urlPatterns = {"/views/dashboard/*"})
+@WebFilter(urlPatterns = {"/dashboard/*"})
 public class AccessFilter implements Filter {
 
     @Override
@@ -21,7 +21,7 @@ public class AccessFilter implements Filter {
         String uri = req.getRequestURI(); // Ej: /Intranet_colegio/views/dashboard/administrador.jsp
 
         if (rolActivo == null || !uri.contains("/" + rolActivo)) {
-            res.sendRedirect(req.getContextPath() + "/error/404.jsp"); // Página de acceso denegado
+            res.sendRedirect(req.getContextPath() + "/error/403"); // Página de acceso denegado
         } else {
             chain.doFilter(request, response); // Rol válido, continuar
         }

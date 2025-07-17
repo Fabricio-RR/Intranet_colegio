@@ -36,10 +36,7 @@
                 </select>
             </div>
             <div class="d-flex gap-2">
-                <button type="button" class="btn btn-outline-success btn-sm btn-uniform" onclick="exportarUsuarios()" title="Exportar a Excel">
-                    <i class="fas fa-file-excel me-1"></i><span>Exportar</span>
-                </button>
-                <a href="${pageContext.request.contextPath}/malla?action=nuevo" class="btn btn-admin-primary btn-sm btn-uniform" title="Nueva malla curricular">
+                <a href="${pageContext.request.contextPath}/malla-curricular?action=nuevo" class="btn btn-admin-primary btn-sm btn-uniform" title="Nueva malla curricular">
                     <i class="fas fa-plus me-1"></i><span class="d-none d-sm-inline">Crear</span> Malla
                 </a>
             </div>
@@ -170,6 +167,16 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="${pageContext.request.contextPath}/assets/js/common.js"></script>
     <script src="${pageContext.request.contextPath}/assets/js/malla.js"></script>
+    <c:if test="${param.success == '1' && param.op == 'add'}">
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: '¡Malla curricular creada!',
+                text: 'La malla curricular se registró correctamente.',
+                confirmButtonText: 'Aceptar'
+            });
+        </script>
+    </c:if>
 
 </body>
 </html>

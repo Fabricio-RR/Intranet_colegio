@@ -2,6 +2,7 @@ package com.intranet_escolar.dao;
 
 import com.intranet_escolar.config.DatabaseConfig;
 import com.intranet_escolar.model.DTO.AperturaSeccionDTO;
+import com.intranet_escolar.model.entity.Seccion;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -154,5 +155,77 @@ public class AperturaSeccionDAO {
             e.printStackTrace();
         }
         return false;
+    }
+    
+    public  int getIdAperturaSeccion(int anio, int grado, int seccion) {
+        if (anio <= 0 || grado <= 0 || seccion <= 0) return 0;
+        String sql = "SELECT id_apertura_seccion " +
+                        "FROM apertura_seccion " +
+                        "WHERE id_anio_lectivo = ? " +
+                        "  AND id_grado        = ? " +
+                        "  AND id_seccion      = ? " +
+                        "  AND activo = 1"+
+                        "  AND al.estado IN ('activo','cerrado')";
+        try (Connection con = DatabaseConfig.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, anio);
+            ps.setInt(2, grado);
+            ps.setInt(3, seccion);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
+    
+    public List<Seccion> listarSeccionesActivasPorGradoYAnio(int idGrado, int idAnioLectivo) {
+        List<Seccion> lista = new ArrayList<>();
+        String sql = "SELECT DISTINCT s.id_seccion, s.nombre " +
+                    "FROM apertura_seccion aps " +
+                    "  JOIN seccion s      ON aps.id_seccion = s.id_seccion " +
+                    "  JOIN anio_lectivo al ON aps.id_anio_lectivo = al.id_anio_lectivo " +
+                    "WHERE aps.id_grado = ? " +
+                    "  AND aps.id_anio_lectivo = ? " +
+                    "  AND aps.activo = 1 " +
+                    "  AND al.estado IN ('activo','cerrado') " +
+                    "ORDER BY s.nombre";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, idGrado);
+            ps.setInt(2, idAnioLectivo);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Seccion s = new Seccion();
+                    s.setIdSeccion(rs.getInt("id_seccion"));
+                    s.setNombre(rs.getString("nombre"));
+                    lista.add(s);
+                }
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return lista;
+    }
+    public List<Seccion> listarSeccionesActivasPorAnio(int idAnioLectivo) {
+        List<Seccion> lista = new ArrayList<>();
+        String sql = "SELECT DISTINCT s.id_seccion, s.nombre " +
+                        "FROM apertura_seccion aps " +
+                        "  JOIN seccion s      ON aps.id_seccion = s.id_seccion " +
+                        "  JOIN anio_lectivo al ON aps.id_anio_lectivo = al.id_anio_lectivo " +
+                        "WHERE aps.id_anio_lectivo = ? " +
+                        "  AND aps.activo = 1 " +
+                        "  AND al.estado IN ('activo','cerrado') " +
+                        "ORDER BY s.nombre";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, idAnioLectivo);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Seccion s = new Seccion();
+                    s.setIdSeccion(rs.getInt("id_seccion"));
+                    s.setNombre(rs.getString("nombre"));
+                    lista.add(s);
+                }
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return lista;
     }
 }

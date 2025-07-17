@@ -113,7 +113,7 @@
                         <button type="submit" class="btn btn-danger w-100 mt-3" id="btnPaso1">
                             <i class="fas fa-paper-plane mr-2"></i>Enviar código de verificación
                         </button>
-                        <a href="${pageContext.request.contextPath}/views/login.jsp" class="btn btn-outline-secondary w-100 mt-2">
+                        <a href="${pageContext.request.contextPath}/login" class="btn btn-outline-secondary w-100 mt-2">
                             <i class="fas fa-arrow-left mr-2"></i>Volver al inicio de sesión
                         </a>
                     </div>

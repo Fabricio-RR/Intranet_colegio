@@ -33,17 +33,20 @@ public class AnioLectivoDAO {
              CallableStatement stmt = conn.prepareCall(sql);
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
-                anios.add(new AnioLectivo(
-                    rs.getInt("id_anio_lectivo"),
-                    rs.getString("nombre")
-                ));
+                AnioLectivo anio = new AnioLectivo();
+                anio.setIdAnioLectivo(rs.getInt("id_anio_lectivo"));
+                anio.setNombre(rs.getString("nombre"));
+                anio.setFecInicio(rs.getDate("fec_inicio"));
+                anio.setFecFin(rs.getDate("fec_fin"));
+                anio.setEstado(rs.getString("estado"));
+                anios.add(anio);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return anios;
     }
-    
+
     public int obtenerAnioActivo() {
         int idAnio = 0;
         String sql = "{CALL sp_obtener_anio_activo()}";
@@ -59,23 +62,30 @@ public class AnioLectivoDAO {
         return idAnio;
     }
 
-    public List<AnioLectivo> obtenerAniosParaMatricula() {
+    public List<AnioLectivo> listarTodos() {
         List<AnioLectivo> anios = new ArrayList<>();
-        String sql = "SELECT id_anio_lectivo, nombre FROM anio_lectivo WHERE estado IN ('activo', 'preparacion') ORDER BY nombre DESC";
+        String sql = "SELECT id_anio_lectivo, nombre, fec_inicio, fec_fin, estado " +
+                     "FROM anio_lectivo " +
+                     "WHERE LOWER(estado) IN ('activo', 'preparacion') " +
+                     "ORDER BY nombre DESC";
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
-                anios.add(new AnioLectivo(
-                    rs.getInt("id_anio_lectivo"),
-                    rs.getString("nombre")
-                ));
+                AnioLectivo anio = new AnioLectivo();
+                anio.setIdAnioLectivo(rs.getInt("id_anio_lectivo"));
+                anio.setNombre(rs.getString("nombre"));
+                anio.setFecInicio(rs.getDate("fec_inicio"));
+                anio.setFecFin(rs.getDate("fec_fin"));
+                anio.setEstado(rs.getString("estado"));
+                anios.add(anio);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return anios;
-    } 
+    }
+
     public String obtenerNombrePorId(int idAnioLectivo) {
         String nombre = "";
         String sql = "SELECT nombre FROM anio_lectivo WHERE id_anio_lectivo = ?";
@@ -92,4 +102,48 @@ public class AnioLectivoDAO {
         }
         return nombre;
     }
+    public boolean crear(AnioLectivo a) {
+        String sql = "INSERT INTO anio_lectivo(nombre, fec_inicio, fec_fin, estado) VALUES (?, ?, ?, ?)";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, a.getNombre());
+            stmt.setDate(2, new java.sql.Date(a.getFecInicio().getTime()));
+            stmt.setDate(3, new java.sql.Date(a.getFecFin().getTime()));
+            stmt.setString(4, a.getEstado());
+            return stmt.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+        
+    public boolean editar(AnioLectivo a) {
+        String sql = "UPDATE anio_lectivo SET nombre=?, fec_inicio=?, fec_fin=?, estado=? WHERE id_anio_lectivo=?";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, a.getNombre());
+            stmt.setDate(2, new java.sql.Date(a.getFecInicio().getTime()));
+            stmt.setDate(3, new java.sql.Date(a.getFecFin().getTime()));
+            stmt.setString(4, a.getEstado());
+            stmt.setInt(5, a.getIdAnioLectivo());
+            return stmt.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    public boolean cambiarEstado(int id, String estado) {
+        String sql = "UPDATE anio_lectivo SET estado=? WHERE id_anio_lectivo=?";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, estado);
+            stmt.setInt(2, id);
+            return stmt.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }   
+
 }

@@ -129,10 +129,11 @@ public class MallaCurricularDAO {
              CallableStatement stmt = conn.prepareCall(sql);
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
-                anios.add(new AnioLectivo(
-                    rs.getInt("id_anio_lectivo"),
-                    rs.getString("nombre")
-                ));
+                AnioLectivo anio = new AnioLectivo();
+                anio.setIdAnioLectivo(rs.getInt("id_anio_lectivo"));
+                anio.setNombre(rs.getString("nombre"));
+                anio.setEstado(rs.getString("estado"));
+                anios.add(anio);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -341,4 +342,136 @@ public class MallaCurricularDAO {
         }
         return lista;
     }
+    // Obtiene el id_apertura_seccion dado año, grado y sección
+    public int obtenerIdAperturaSeccion(int idAnioLectivo, int idGrado, int idSeccion) {
+        int id = 0;
+        String sql = "SELECT id_apertura_seccion FROM apertura_seccion " +
+                     "WHERE id_anio_lectivo=? AND id_grado=? AND id_seccion=? LIMIT 1";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, idAnioLectivo);
+            stmt.setInt(2, idGrado);
+            stmt.setInt(3, idSeccion);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    id = rs.getInt("id_apertura_seccion");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return id;
+    }
+    public boolean crearMalla(int idDocente, int idAperturaSeccion, int idCurso, int orden, boolean activo) {
+        String sql = "{CALL sp_crear_malla(?, ?, ?, ?, ?)}";
+        try (Connection conn = DatabaseConfig.getConnection();
+             CallableStatement stmt = conn.prepareCall(sql)) {
+            stmt.setInt(1, idDocente);
+            stmt.setInt(2, idAperturaSeccion);
+            stmt.setInt(3, idCurso);
+            stmt.setInt(4, orden);
+            stmt.setBoolean(5, activo);
+            return stmt.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    public boolean crearMallaMasiva(int idAperturaSeccion, String[] idCursos, String[] idDocentes, String[] ordenes, String[] activos) {
+        boolean ok = true;
+        String sql = "{CALL sp_crear_malla(?, ?, ?, ?, ?)}";
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            for (int i = 0; i < idCursos.length; i++) {
+                try (CallableStatement stmt = conn.prepareCall(sql)) {
+                    stmt.setInt(1, Integer.parseInt(idDocentes[i]));
+                    stmt.setInt(2, idAperturaSeccion);
+                    stmt.setInt(3, Integer.parseInt(idCursos[i]));
+                    stmt.setInt(4, Integer.parseInt(ordenes[i]));
+                    stmt.setBoolean(5, "1".equals(activos[i]));
+                    int res = stmt.executeUpdate();
+                    if (res <= 0) ok = false;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return ok;
+    }
+    public boolean copiarMalla(int anioOrigen, int anioDestino, int idGrado, int idSeccion) {
+        boolean ok = true;
+        // Obtener apertura origen y destino
+        int idAperturaOrigen = obtenerIdAperturaSeccion(anioOrigen, idGrado, idSeccion);
+        int idAperturaDestino = obtenerIdAperturaSeccion(anioDestino, idGrado, idSeccion);
+
+        if (idAperturaOrigen == 0 || idAperturaDestino == 0) return false;
+
+        // Obtener todos los cursos/docentes de la malla origen
+        String sqlOrigen = "SELECT id_docente, id_curso, orden, activo FROM malla_curricular WHERE id_apertura_seccion=?";
+        String sqlCrear = "{CALL sp_crear_malla(?, ?, ?, ?, ?)}";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sqlOrigen)) {
+            ps.setInt(1, idAperturaOrigen);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    try (CallableStatement cs = conn.prepareCall(sqlCrear)) {
+                        cs.setInt(1, rs.getInt("id_docente"));
+                        cs.setInt(2, idAperturaDestino);
+                        cs.setInt(3, rs.getInt("id_curso"));
+                        cs.setInt(4, rs.getInt("orden"));
+                        cs.setBoolean(5, rs.getBoolean("activo"));
+                        int res = cs.executeUpdate();
+                        if (res <= 0) ok = false;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return ok;
+    }
+    // Listar NIVELES 
+    public List<MallaCurricular> listarNivelesPorAnio(int idAnioLectivo) {
+        List<MallaCurricular> lista = new ArrayList<>();
+        String sql = "SELECT DISTINCT n.id_nivel, n.nombre " +
+                     "FROM apertura_seccion aps " +
+                     "INNER JOIN nivel n ON aps.id_nivel = n.id_nivel " +
+                     "WHERE aps.id_anio_lectivo = ?";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, idAnioLectivo);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                MallaCurricular m = new MallaCurricular();
+                m.setIdNivel(rs.getInt("id_nivel"));
+                m.setNombreNivel(rs.getString("nombre"));
+                lista.add(m);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return lista;
+    }
+
+    // Listar CURSOS (devuelve id y nombre)
+    public List<MallaCurricular> listarCursos() {
+        List<MallaCurricular> lista = new ArrayList<>();
+        String sql = "SELECT id_curso, nombre FROM curso WHERE activo = 1";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                MallaCurricular m = new MallaCurricular();
+                m.setIdCurso(rs.getInt("id_curso"));
+                m.setNombreCurso(rs.getString("nombre"));
+                lista.add(m);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return lista;
+    }
+
 }

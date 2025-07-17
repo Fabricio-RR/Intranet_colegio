@@ -69,15 +69,25 @@
                                     <td>
                                         <div class="btn-group" role="group">
                                             <button class="btn btn-sm btn-outline-warning btn-editar"
-                                                    data-id="${c.idCurso}"
-                                                    data-nombre="${fn:escapeXml(c.nombreCurso)}"
-                                                    data-area="${fn:escapeXml(c.area)}"
-                                                    data-orden="${c.orden}">
+                                                data-id="${c.idCurso}"
+                                                data-nombre="${fn:escapeXml(c.nombreCurso)}"
+                                                data-area="${fn:escapeXml(c.area)}"
+                                                data-orden="${c.orden}"
+                                                data-bs-toggle="tooltip" data-bs-placement="top"
+                                                title="Editar curso">
                                                 <i class="fas fa-edit"></i>
                                             </button>
                                             <button class="btn btn-sm btn-outline-danger btn-desactivar"
-                                                    data-id="${c.idCurso}" ${!c.activo ? 'disabled' : ''}>
+                                                data-id="${c.idCurso}" ${!c.activo ? 'disabled' : ''}
+                                                data-bs-toggle="tooltip" data-bs-placement="top"
+                                                title="Desactivar curso">
                                                 <i class="fas fa-ban"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-success btn-reactivar"
+                                                data-id="${c.idCurso}" ${c.activo ? 'disabled' : ''}
+                                                data-bs-toggle="tooltip" data-bs-placement="top"
+                                                title="Reactivar curso">
+                                                <i class="fas fa-undo"></i>
                                             </button>
                                         </div>
                                     </td>
@@ -177,6 +187,12 @@
             responsive: true
         });
 
+        // Inicializar tooltips de Bootstrap 5
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+
         // Modal Editar Curso
         $('.btn-editar').click(function () {
             const btn = $(this);
@@ -201,7 +217,26 @@
                 cancelButtonText: 'Cancelar'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = '${pageContext.request.contextPath}/cursos?action=desactivar&id=' + id;
+                    window.location.href = '${pageContext.request.contextPath}/cursos?action=desactivar&id=' + id + '&op=deactivate';
+                }
+            });
+        });
+
+        // Reactivar curso
+        $('.btn-reactivar').click(function () {
+            const id = $(this).data('id');
+            Swal.fire({
+                title: '¿Reactivar curso?',
+                text: "El curso volverá a estar disponible para asignación.",
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonColor: '#198754',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, reactivar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '${pageContext.request.contextPath}/cursos?action=reactivar&id=' + id + '&op=reactivate';
                 }
             });
         });
@@ -236,14 +271,15 @@
                         showConfirmButton: false
                     });
                 </c:when>
-                <c:otherwise>
+                <c:when test="${param.success == '1' && param.op == 'reactivate'}">
                     Swal.fire({
                         icon: 'success',
-                        title: 'Operación exitosa',
+                        title: 'Curso reactivado',
+                        text: 'El curso fue habilitado nuevamente para su uso.',
                         timer: 2200,
                         showConfirmButton: false
                     });
-                </c:otherwise>
+                </c:when>
             </c:choose>
         </c:if>
 

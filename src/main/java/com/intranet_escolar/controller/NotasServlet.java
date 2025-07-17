@@ -71,7 +71,8 @@ public class NotasServlet extends HttpServlet {
 
         // Alumnos matriculados
         AlumnoDAO alumnoDAO = new AlumnoDAO();
-        List<Alumno> alumnos = alumnoDAO.obtenerMatriculadosPorSeccion(selectedSeccion, idAnioLectivo);
+        int idAperturaSeccion = 0;
+        List<Alumno> alumnos = alumnoDAO.obtenerMatriculadosPorAperturaSeccion(idAperturaSeccion);
 
         // Calificaciones (mapa para acceso rápido por idAlumno_idMallaCriterio)
         CalificacionDAO calificacionDAO = new CalificacionDAO();

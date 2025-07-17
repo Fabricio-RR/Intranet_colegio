@@ -1,7 +1,10 @@
 package com.intranet_escolar.controller;
 
+import com.intranet_escolar.dao.AnioLectivoDAO;
+import com.intranet_escolar.dao.AperturaSeccionDAO;
 import com.intranet_escolar.dao.DocenteDAO;
 import com.intranet_escolar.dao.MallaCurricularDAO;
+import com.intranet_escolar.model.DTO.AperturaSeccionDTO;
 import com.intranet_escolar.model.entity.AnioLectivo;
 import com.intranet_escolar.model.entity.MallaCurricular;
 import com.intranet_escolar.model.entity.Usuario;
@@ -10,199 +13,312 @@ import com.intranet_escolar.util.SesionUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+/**
+ * Servlet de Malla Curricular – flujo idéntico a Matrícula
+ *  ▸ el combo de años envía el NOMBRE del año (ej. “2026”)
+ *  ▸ el servlet lo convierte a id antes de llamar al DAO
+ *  ▸ creación exclusivamente MASIVA
+ */
 @WebServlet(name = "MallaCurricularServlet", urlPatterns = {"/malla-curricular"})
 public class MallaCurricularServlet extends HttpServlet {
 
-    private final MallaCurricularDAO mallaDAO = new MallaCurricularDAO();
-    private final DocenteDAO docenteDAO = new DocenteDAO();
+    /* ───────────── DAOs ───────────── */
+    private final MallaCurricularDAO mallaDAO  = new MallaCurricularDAO();
+    private final DocenteDAO         docenteDAO = new DocenteDAO();
+    private final AperturaSeccionDAO aperturaDAO = new AperturaSeccionDAO();
+    private final AnioLectivoDAO anioDAO = new AnioLectivoDAO();
 
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    /*──────────────────────────────── GET ───────────────────────────────*/
+    @Override protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        String action = request.getParameter("action");
+
+        String action = req.getParameter("action");
         if (action == null) action = "ver";
 
         switch (action) {
-            case "ver":
-                mostrarResumenPorNivel(request, response);
-                break;
-            case "detallePorNivel":
-                verDetallePorNivel(request, response);
-                break;
-            case "detallePorNivelInactivas": 
-                verDetallePorNivelInactivas(request, response);
-                break;
-            case "editar":
-                mostrarFormularioEdicion(request, response);
-                break;
-            case "reactivarPorNivel":    
-                reactivarPorNivel(request, response);
-                break;
-            default:
-                response.sendRedirect(request.getContextPath() + "/dashboard");
+            case "ver"                     -> resumenPorNivel(req, resp);
+            case "nuevo"                   -> formularioCreacion(req, resp);
+            case "detallePorNivel"         -> detallePorNivel(req, resp, false);
+            case "detallePorNivelInactivas"-> detallePorNivel(req, resp, true);
+            case "editar"                  -> formularioEdicion(req, resp);
+            case "desactivarPorNivel"      -> desactivarPorNivel(req, resp);
+            case "reactivarPorNivel"       -> reactivarPorNivel(req, resp);
+            default                        -> resp.sendRedirect(req.getContextPath() + "/dashboard");
         }
     }
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
-        String action = request.getParameter("action");
-        if ("actualizarPorNivel".equals(action)) {
-            procesarEdicionPorNivel(request, response);
-        } else if ("desactivarPorNivel".equals(action)) {
-            desactivarPorNivel(request, response);
-        } else {
-            doGet(request, response);
+    /*──────────────────────────────── POST ──────────────────────────────*/
+    @Override protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+
+        String action = req.getParameter("action");
+
+        switch (action == null ? "" : action) {
+            case "masiva"             -> crearMallaMasiva(req, resp);
+            case "actualizarPorNivel" -> actualizarPorNivel(req, resp);
+            case "desactivarPorNivel" -> desactivarPorNivel(req, resp);
+            case "reactivarPorNivel"  -> reactivarPorNivel(req, resp);
+            default                   -> doGet(req, resp);
         }
     }
 
-    private void mostrarResumenPorNivel(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
-        String anioParam = request.getParameter("anio");
-        int idAnio = (anioParam != null && !anioParam.isEmpty())
-                ? Integer.parseInt(anioParam)
+    /* ==============================================================
+                          VISTAS (GET)
+       ==============================================================*/
+
+    /** Resumen de mallas por nivel */
+    private void resumenPorNivel(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+
+        String p = req.getParameter("anio");                   // llega id
+        int idAnio = (p != null && !p.isEmpty())
+                ? Integer.parseInt(p)
                 : mallaDAO.obtenerAnioActivo();
 
-        List<AnioLectivo> anios = mallaDAO.obtenerAniosDisponibles();
-        List<MallaCurricular> resumen = mallaDAO.listarResumenPorNivel(idAnio);
+        List<AnioLectivo> anios   = mallaDAO.obtenerAniosDisponibles();
+        List<MallaCurricular> res = mallaDAO.listarResumenPorNivel(idAnio);
 
-        // === Aquí separas activos e inactivos ===
-        List<MallaCurricular> nivelesActivos = new ArrayList<>();
-        List<MallaCurricular> nivelesInactivos = new ArrayList<>();
-        for (MallaCurricular nivel : resumen) {
-            // Si todos los cursos del nivel están inactivos, va a inactivos
-            if (nivel.getTotalCursos() > 0 && nivel.getTotalCursos() == nivel.getTotalInactivos()) {
-                nivelesInactivos.add(nivel);
-            } else {
-                nivelesActivos.add(nivel);
+        List<MallaCurricular> activos   = new ArrayList<>();
+        List<MallaCurricular> inactivos = new ArrayList<>();
+        for (MallaCurricular r : res) {
+            boolean todoInactivo = r.getTotalCursos() > 0 && r.getTotalCursos() == r.getTotalInactivos();
+            (todoInactivo ? inactivos : activos).add(r);
+        }
+
+        req.setAttribute("anioActual", idAnio);
+        req.setAttribute("anios", anios);
+        req.setAttribute("nivelesActivos", activos);
+        req.setAttribute("nivelesInactivos", inactivos);
+
+        req.getRequestDispatcher("/views/malla/malla.jsp").forward(req, resp);
+    }
+
+    /** Formulario “Crear Malla” (flujo como Matrícula) */
+    private void formularioCreacion(HttpServletRequest req, HttpServletResponse resp)
+        throws ServletException, IOException {
+
+        // Filtra solo años activos o en preparación
+        List<AnioLectivo> aniosTodos = anioDAO.listarTodos();
+        List<AnioLectivo> anios = new ArrayList<>();
+        for (AnioLectivo a : aniosTodos) {
+            if ("activo".equalsIgnoreCase(a.getEstado()) || "preparacion".equalsIgnoreCase(a.getEstado())) {
+                anios.add(a);
             }
         }
 
-        // === Enviar a la vista ===
-        request.setAttribute("anioActual", idAnio);
-        request.setAttribute("anios", anios);
-        request.setAttribute("nivelesActivos", nivelesActivos);
-        request.setAttribute("nivelesInactivos", nivelesInactivos);
+        String param = req.getParameter("anio");
+        final String anioNombreSel = (param != null && !param.isEmpty())
+                ? param
+                : elegirNombreAnioPorDefecto(anios);
 
-        request.getRequestDispatcher("/views/malla/malla.jsp").forward(request, response);
+        int idAnioSel = anios.stream()
+                .filter(a -> a.getNombre().equals(anioNombreSel))
+                .map(AnioLectivo::getIdAnioLectivo)
+                .findFirst()
+                .orElse(0);
+
+        // === Cambia solo esta línea: ===
+        //List<AperturaSeccionDTO> aperturas = aperturaDAO.obtenerAperturasSeccionPorAnio(idAnioSel);
+        List<AperturaSeccionDTO> aperturas = new ArrayList<>();
+        for (AnioLectivo anio : anios) {
+            aperturas.addAll(aperturaDAO.obtenerAperturasSeccionPorAnio(anio.getIdAnioLectivo()));
+        }
+
+        req.setAttribute("aniosLectivos",   anios);
+        req.setAttribute("anioLectivoSel",  anioNombreSel);
+        req.setAttribute("idAnioSel",       idAnioSel);
+        req.setAttribute("aperturasSeccion",aperturas);
+        req.setAttribute("cursos",          mallaDAO.listarCursos());
+        req.setAttribute("docentes",        docenteDAO.listarTodos());
+
+        req.getRequestDispatcher("/views/malla/crear-malla.jsp").forward(req, resp);
     }
 
-    private void verDetallePorNivel(HttpServletRequest request, HttpServletResponse response)
+    /** Selecciona año: Preparación > Activo > primero */
+    private String elegirNombreAnioPorDefecto(List<AnioLectivo> anios) {
+        Optional<AnioLectivo> prep = anios.stream()
+                .filter(a -> "PREPARACION".equalsIgnoreCase(a.getEstado()))
+                .findFirst();
+        if (prep.isPresent()) return prep.get().getNombre();
+
+        Optional<AnioLectivo> act = anios.stream()
+                .filter(a -> "ACTIVO".equalsIgnoreCase(a.getEstado()))
+                .findFirst();
+        if (act.isPresent()) return act.get().getNombre();
+
+        return anios.isEmpty() ? "" : anios.get(0).getNombre();
+    }
+
+    /** Detalle de nivel (activos o inactivos) */
+    private void detallePorNivel(HttpServletRequest req, HttpServletResponse resp, boolean inactivas)
             throws ServletException, IOException {
-        int idNivel = Integer.parseInt(request.getParameter("idNivel"));
-        int idAnio = Integer.parseInt(request.getParameter("anio"));
-        List<MallaCurricular> detalle = mallaDAO.listarDetallePorNivel(idNivel, idAnio);
-        request.setAttribute("detalleMalla", detalle);
-        request.getRequestDispatcher("/views/malla/detalle.jsp").forward(request, response);
+
+        int idNivel = Integer.parseInt(req.getParameter("idNivel"));
+        int idAnio  = Integer.parseInt(req.getParameter("anio"));
+
+        List<MallaCurricular> detalle = inactivas
+                ? mallaDAO.listarDetallePorNivelInactivas(idNivel, idAnio)
+                : mallaDAO.listarDetallePorNivel(idNivel, idAnio);
+
+        req.setAttribute("detalleMalla", detalle);
+        req.getRequestDispatcher("/views/malla/detalle.jsp").forward(req, resp);
     }
 
-    private void mostrarFormularioEdicion(HttpServletRequest request, HttpServletResponse response)
+    /** Formulario edición */
+    private void formularioEdicion(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        int idNivel = Integer.parseInt(request.getParameter("idNivel"));
-        int idAnio  = Integer.parseInt(request.getParameter("anio"));
-        List<MallaCurricular> detalle = mallaDAO.listarDetallePorNivel(idNivel, idAnio);
-        List<Usuario> docentes = docenteDAO.listarTodos();
 
-        request.setAttribute("detalleMalla", detalle);
-        request.setAttribute("docentes", docentes);
-        request.getRequestDispatcher("/views/malla/editar-malla.jsp").forward(request, response);
+        int idNivel = Integer.parseInt(req.getParameter("idNivel"));
+        int idAnio  = Integer.parseInt(req.getParameter("anio"));
+
+        req.setAttribute("detalleMalla",
+                mallaDAO.listarDetallePorNivel(idNivel, idAnio));
+        req.setAttribute("docentes", docenteDAO.listarTodos());
+
+        req.getRequestDispatcher("/views/malla/editar-malla.jsp").forward(req, resp);
     }
 
-    private void procesarEdicionPorNivel(HttpServletRequest request, HttpServletResponse response)
-        throws IOException {
-        String[] ids = request.getParameterValues("idMalla[]");
-        boolean exito = true;
+    /* ==============================================================
+                      OPERACIONES (POST / AJAX)
+       ==============================================================*/
 
-        Usuario usuarioSesion = SesionUtil.getUsuarioLogueado(request);
+    /** Crear malla MASIVA */
+    private void crearMallaMasiva(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException {
+
+        try {
+            int idApertura   = Integer.parseInt(req.getParameter("idAperturaSeccion"));
+            int idAnioLectivo= Integer.parseInt(req.getParameter("idAnioLectivo"));
+
+            String[] idCursos   = req.getParameterValues("idCurso[]");
+            String[] idDocentes = req.getParameterValues("idDocente[]");
+            String[] ordenes    = req.getParameterValues("orden[]");
+            String[] activos    = req.getParameterValues("activo[]");
+
+            boolean ok = true;
+            for (int i = 0; i < idCursos.length; i++) {
+                MallaCurricular m = new MallaCurricular();
+                m.setIdAperturaSeccion(idApertura);
+                m.setIdCurso   (Integer.parseInt(idCursos[i]));
+                m.setIdDocente(Integer.parseInt(idDocentes[i]));
+                m.setOrden     (Integer.parseInt(ordenes[i]));
+                m.setActivo    ("1".equals(activos[i]));
+                ok &= mallaDAO.crear(m);
+            }
+
+            Usuario u = SesionUtil.getUsuarioLogueado(req);
+            if (ok && u != null) {
+                BitacoraUtil.registrar(u.getIdUsuario(), "MallaCurricular",
+                        String.format("Creó malla MASIVA (apertura=%d, año=%d)", idApertura, idAnioLectivo));
+            }
+
+            String base = req.getContextPath() + "/malla-curricular?success=1&op=add";
+            resp.sendRedirect(ok ? base : base.replace("success=1", "error=1"));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            resp.sendRedirect(req.getContextPath()
+                    + "/malla?error=Error al crear la malla masiva");
+        }
+    }
+
+    /** Actualizar por nivel (desde formulario edición) */
+    private void actualizarPorNivel(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException {
+
+        String[] ids = req.getParameterValues("idMalla[]");
+        boolean  ok  = true;
+        Usuario  usr = SesionUtil.getUsuarioLogueado(req);
 
         if (ids != null) {
             for (String s : ids) {
-                int idM = Integer.parseInt(s);
-                String dp = request.getParameter("idDocente_" + idM);
-                int idDoc = (dp != null && !dp.isEmpty()) ? Integer.parseInt(dp) : 0;
-                int orden  = Integer.parseInt(request.getParameter("orden_" + idM));
-                boolean act= request.getParameter("activo_" + idM) != null;
+                int idMalla = Integer.parseInt(s);
+
+                int idDocente = Integer.parseInt(
+                        req.getParameter("idDocente_" + idMalla));
+                int orden     = Integer.parseInt(
+                        req.getParameter("orden_"    + idMalla));
+                boolean activo= "1".equals(req.getParameter("activo_" + idMalla));
 
                 MallaCurricular m = new MallaCurricular();
-                m.setIdMalla(idM);
-                m.setIdDocente(idDoc);
-                m.setOrden(orden);
-                m.setActivo(act);
-                exito = exito && mallaDAO.actualizar(m);
+                m.setIdMalla  (idMalla);
+                m.setIdDocente(idDocente);
+                m.setOrden    (orden);
+                m.setActivo   (activo);
 
-                // Registrar en bitácora por cada cambio (o solo uno al final si prefieres)
-                if (usuarioSesion != null) {
-                    String mensaje = String.format(
-                        "Actualizó curso (id_malla=%d), asignó docente %d, orden %d, estado %s",
-                        idM, idDoc, orden, act ? "activo" : "inactivo"
-                    );
-                    BitacoraUtil.registrar(
-                        usuarioSesion.getIdUsuario(),
-                        "MallaCurricular",
-                        mensaje
-                    );
+                ok &= mallaDAO.actualizar(m);
+
+                if (usr != null) {
+                    BitacoraUtil.registrar(usr.getIdUsuario(), "MallaCurricular",
+                            String.format("Editó id_malla=%d, docente=%d, orden=%d, activo=%s",
+                                    idMalla, idDocente, orden, activo ? "1" : "0"));
                 }
             }
         }
-        if (exito) {
-            response.setContentType("application/json");
-            response.getWriter().write("{\"mensaje\":\"La malla curricular fue actualizada correctamente.\"}");
-        } else {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,"Ocurrió un error al actualizar la malla.");
-        }
-    }
 
-    private void desactivarPorNivel(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        int idNivel = Integer.parseInt(request.getParameter("idNivel"));
-        int anio = Integer.parseInt(request.getParameter("anio"));
-        boolean ok = mallaDAO.desactivarPorNivel(idNivel, anio);
-        Usuario usuarioSesion = SesionUtil.getUsuarioLogueado(request);
-        if (usuarioSesion != null && ok) {
-            String mensaje = String.format("Desactivó la malla curricular del nivel %d, año %d", idNivel, anio);
-            BitacoraUtil.registrar(usuarioSesion.getIdUsuario(), "MallaCurricular", mensaje);
-        }
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
+        resp.setContentType("application/json");
         if (ok) {
-            response.getWriter().write("{\"mensaje\":\"Malla curricular desactivada correctamente para el nivel.\"}");
+            resp.getWriter().write("{\"mensaje\":\"Actualizado correctamente\"}");
         } else {
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"mensaje\":\"No se pudo desactivar la malla del nivel.\"}");
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().write("{\"mensaje\":\"Error al actualizar\"}");
         }
     }
-    private void verDetallePorNivelInactivas(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
-        int idNivel = Integer.parseInt(request.getParameter("idNivel"));
-        int idAnio = Integer.parseInt(request.getParameter("anio"));
-        List<MallaCurricular> detalle = mallaDAO.listarDetallePorNivelInactivas(idNivel, idAnio);
-        request.setAttribute("detalleMalla", detalle);
-        request.getRequestDispatcher("/views/malla/detalle.jsp").forward(request, response);
-    }
-    private void reactivarPorNivel(HttpServletRequest request, HttpServletResponse response)
-        throws IOException {
-    int idNivel = Integer.parseInt(request.getParameter("idNivel"));
-    int idAnio = Integer.parseInt(request.getParameter("anio"));
-    boolean exito = mallaDAO.reactivarPorNivel(idNivel, idAnio);
-    
-    Usuario usuarioSesion = SesionUtil.getUsuarioLogueado(request);
-    if (usuarioSesion != null && exito) {
-        String mensaje = String.format("Reactivó la malla curricular del nivel %d, año %d", idNivel, idAnio);
-        BitacoraUtil.registrar(usuarioSesion.getIdUsuario(), "MallaCurricular", mensaje);
-    }
-    
-    response.setContentType("application/json");
-    response.getWriter().write("{\"mensaje\":\""
-            + (exito ? "Nivel reactivado correctamente." : "No se pudo reactivar el nivel.")
-            + "\"}");
-}
 
+    /** Desactivar por nivel */
+    private void desactivarPorNivel(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException {
 
-    @Override
-    public String getServletInfo() {
-        return "Servlet para gestión de Malla Curricular";
+        int idNivel = Integer.parseInt(req.getParameter("idNivel"));
+        int idAnio  = Integer.parseInt(req.getParameter("anio"));
+
+        boolean ok = mallaDAO.desactivarPorNivel(idNivel, idAnio);
+
+        if (ok) registrarBit(req, "Desactivó", idNivel, idAnio);
+        responderJson(resp, ok, "Malla desactivada.");
+    }
+
+    /** Reactivar por nivel */
+    private void reactivarPorNivel(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException {
+
+        int idNivel = Integer.parseInt(req.getParameter("idNivel"));
+        int idAnio  = Integer.parseInt(req.getParameter("anio"));
+
+        boolean ok = mallaDAO.reactivarPorNivel(idNivel, idAnio);
+
+        if (ok) registrarBit(req, "Reactivó", idNivel, idAnio);
+        responderJson(resp, ok, "Malla reactivada.");
+    }
+
+    /* ---- util bitácora + respuesta JSON ---- */
+    private void registrarBit(HttpServletRequest req, String acc, int nivel, int anio) {
+        Usuario u = SesionUtil.getUsuarioLogueado(req);
+        if (u != null) {
+            BitacoraUtil.registrar(u.getIdUsuario(), "MallaCurricular",
+                    String.format("%s malla nivel %d, año %d", acc, nivel, anio));
+        }
+    }
+    private void responderJson(HttpServletResponse resp, boolean ok, String msg)
+            throws IOException {
+
+        resp.setContentType("application/json");
+        if (ok) {
+            resp.getWriter().write("{\"mensaje\":\"" + msg + "\"}");
+        } else {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().write("{\"mensaje\":\"No se pudo completar la operación\"}");
+        }
+    }
+
+    /*--------------------------------------------------------*/
+    @Override public String getServletInfo() {
+        return "Servlet de Malla Curricular – año por nombre, creación masiva";
     }
 }

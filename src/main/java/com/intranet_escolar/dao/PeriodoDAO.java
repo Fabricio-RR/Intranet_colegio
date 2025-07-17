@@ -150,4 +150,77 @@ public class PeriodoDAO {
         }
         return bloqueado;
     }
+    public List<Map<String, Object>> listarMesesPorPeriodo(int idAnio, int idPeriodo) {
+        List<Map<String, Object>> meses = new ArrayList<>();
+        String sql = "SELECT DISTINCT mes FROM periodo WHERE id_anio_lectivo = ? AND id_periodo = ?";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, idAnio);
+            ps.setInt(2, idPeriodo);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                String codMes = rs.getString("mes");
+                Map<String, Object> m = new HashMap<>();
+                m.put("codigo", codMes);
+                m.put("nombre", "Mes " + codMes);
+                meses.add(m);
+            }
+        } catch (Exception ex) { ex.printStackTrace(); }
+        return meses;
+    }
+
+    // Crear nuevo periodo académico
+    public boolean crear(Periodo p) {
+        String sql = "{CALL sp_crear_periodo(?,?,?,?,?,?,?,?)}";
+        try (Connection con = DatabaseConfig.getConnection();
+             CallableStatement cs = con.prepareCall(sql)) {
+            cs.setInt(1, p.getIdAnioLectivo());
+            cs.setString(2, p.getBimestre());
+            cs.setString(3, p.getMes());
+            cs.setString(4, p.getTipo());
+            cs.setDate(5, new java.sql.Date(p.getFecInicio().getTime()));
+            cs.setDate(6, new java.sql.Date(p.getFecFin().getTime()));
+            cs.setDate(7, new java.sql.Date(p.getFecCierre().getTime()));
+            cs.setString(8, p.getEstado());
+            return cs.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Editar periodo académico
+    public boolean editar(Periodo p) {
+        String sql = "{CALL sp_editar_periodo(?,?,?,?,?,?,?,?,?)}";
+        try (Connection con = DatabaseConfig.getConnection();
+             CallableStatement cs = con.prepareCall(sql)) {
+            cs.setInt(1, p.getIdPeriodo());
+            cs.setInt(2, p.getIdAnioLectivo());
+            cs.setString(3, p.getBimestre());
+            cs.setString(4, p.getMes());
+            cs.setString(5, p.getTipo());
+            cs.setDate(6, new java.sql.Date(p.getFecInicio().getTime()));
+            cs.setDate(7, new java.sql.Date(p.getFecFin().getTime()));
+            cs.setDate(8, new java.sql.Date(p.getFecCierre().getTime()));
+            cs.setString(9, p.getEstado());
+            return cs.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Cambiar estado (cerrar/habilitar/borrador)
+    public boolean cambiarEstado(int idPeriodo, String nuevoEstado) {
+        String sql = "{CALL sp_cambiar_estado_periodo(?,?)}";
+        try (Connection con = DatabaseConfig.getConnection();
+             CallableStatement cs = con.prepareCall(sql)) {
+            cs.setInt(1, idPeriodo);
+            cs.setString(2, nuevoEstado);
+            return cs.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

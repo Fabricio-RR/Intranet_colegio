@@ -114,7 +114,7 @@ public class MatriculaServlet extends HttpServlet {
     private void mostrarFormularioCreacion(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException, SQLException {
         String anioParam = request.getParameter("anio");
-        List<AnioLectivo> aniosLectivos = anioLectivoDAO.obtenerAniosParaMatricula(); // Todos los años en preparacion/activo
+        List<AnioLectivo> aniosLectivos = anioLectivoDAO.listarTodos(); // Todos los años en preparacion/activo
 
         int idAnioLectivoSeleccionado;
         if (anioParam != null && !anioParam.isEmpty()) {

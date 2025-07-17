@@ -164,12 +164,32 @@
         }
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-        const valor = document.getElementById("destinatario").value;
-        mostrarOpcionesDestinatario(valor);
-    });
+    // Función para limpiar HTML en tiempo real
+    function limpiarHtml(campo) {
+        campo.value = campo.value.replace(/<[^>]*>/g, "");
+        campo.value = campo.value.replace(/[<>]/g, ""); // Bloquea < y >
+    }
 
     document.addEventListener("DOMContentLoaded", () => {
+        // Opciones destinatario
+        const valor = document.getElementById("destinatario").value;
+        mostrarOpcionesDestinatario(valor);
+
+        // Limpieza en tiempo real
+        const inputTitulo = document.querySelector('input[name="titulo"]');
+        if (inputTitulo) {
+            inputTitulo.addEventListener("input", function() {
+                limpiarHtml(this);
+            });
+        }
+        const textareaContenido = document.querySelector('textarea[name="contenido"]');
+        if (textareaContenido) {
+            textareaContenido.addEventListener("input", function() {
+                limpiarHtml(this);
+            });
+        }
+
+        // Validaciones del formulario
         const form = document.getElementById("formCrearComunicado");
         const archivoInput = document.getElementById("archivo");
         const btnSubmit = form.querySelector("button[type='submit']");

@@ -51,7 +51,7 @@
                                 <i class="fas fa-user-graduate"></i>
                             </div>
                             <div class="flex-grow-1">
-                                <div class="stats-label">Total Estudiantes</div>
+                                <div class="stats-label">Total Alumnos</div>
                                 <div class="stats-number">${totalEstudiantes}</div>
                                 <div class="stats-change positive">
                                     <c:if test="${not empty cambioEstudiantes}">
