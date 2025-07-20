@@ -2,6 +2,7 @@ package com.intranet_escolar.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intranet_escolar.config.DatabaseConfig;
+import com.intranet_escolar.dao.AcademicoDAO;
 import com.intranet_escolar.model.entity.Alumno;
 import com.intranet_escolar.model.entity.Grado;
 import com.intranet_escolar.model.entity.Seccion;
@@ -21,26 +22,46 @@ public class AcademicoServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String tipo = request.getParameter("tipo");
-        String id = request.getParameter("id"); // id_nivel o id_grado
-        String anio = request.getParameter("anio"); // id_anio_lectivo
+        String id   = request.getParameter("id");
+        String anio = request.getParameter("anio");  // ya puede venir null
 
-        // Asegura que todos los parámetros requeridos estén presentes
-        if (tipo == null || id == null || anio == null) {
+        // Solo comprobamos que vengan tipo e id
+        if (tipo == null || id == null) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Faltan parámetros.");
             return;
         }
 
-        Object resultado = null;
+        int idNum       = Integer.parseInt(id);
+        Integer idAnioInt = null;
+        if (anio != null && !anio.isEmpty()) {
+            try {
+                idAnioInt = Integer.parseInt(anio);
+            } catch (NumberFormatException e) {
+                // anio inválido → lo ignoramos y caerá en fallback
+            }
+        }
 
+        Object resultado;
+        AcademicoDAO dao = new AcademicoDAO();
         try (Connection con = DatabaseConfig.getConnection()) {
             switch (tipo) {
                 case "cargar-grados":
-                    resultado = obtenerGradosPorNivelYAnio(con, Integer.parseInt(id), Integer.parseInt(anio));
+                    if (idAnioInt != null) {
+                        resultado = dao.listarGradosPorNivelYAnio(idNum, idAnioInt);
+                    } else {
+                        resultado = dao.listarGradosPorNivel(idNum);
+                    }
                     break;
+
                 case "cargar-secciones":
-                    resultado = obtenerSeccionesPorGradoYAnio(con, Integer.parseInt(id), Integer.parseInt(anio));
+                    if (idAnioInt != null) {
+                        resultado = dao.listarSeccionesPorGradoYAnio(idNum, idAnioInt);
+                    } else {
+                        // Método que sí existe en tu DAO: lista *todas* las secciones
+                        resultado = dao.listarSecciones();
+                    }
                     break;
-                // Si deseas: case "cargar-alumnos": resultado = ... break;
+
                 default:
                     response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Tipo inválido.");
                     return;

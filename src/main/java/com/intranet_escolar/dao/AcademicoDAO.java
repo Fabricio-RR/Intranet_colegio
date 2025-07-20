@@ -40,7 +40,7 @@ public class AcademicoDAO {
         } catch (Exception e) { e.printStackTrace(); }
         return lista;
     }
-
+    
     public List<Seccion> listarSecciones() {
         List<Seccion> lista = new ArrayList<>();
         String sql = "SELECT id_seccion, nombre FROM seccion";

@@ -57,17 +57,6 @@
         </select>
       </div>
       <div class="col-auto">
-        <label class="form-label">Mes</label>
-        <select name="mes" class="form-select" onchange="this.form.submit()">
-          <option value="">--</option>
-          <c:forEach items="${meses}" var="m">
-            <option value="${m.codigo}" <c:if test="${m.codigo == mesSeleccionado}">selected</c:if>>
-              ${m.nombre}
-            </option>
-          </c:forEach>
-        </select>
-      </div>
-      <div class="col-auto">
         <label class="form-label">Nivel</label>
         <select name="nivel" class="form-select" onchange="this.form.submit()">
           <option value="">--</option>
@@ -128,7 +117,7 @@
         <div class="accordion-item">
           <h2 class="accordion-header">
             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#colAsistencia">
-              <i class="fas fa-calendar-check report-icon"></i> Asistencia Mensual (por alumno)
+              <i class="fas fa-calendar-check report-icon"></i> Asistencia Mensual 
             </button>
           </h2>
           <div id="colAsistencia" class="accordion-collapse collapse show" data-bs-parent="#accordionReportes">
@@ -140,23 +129,13 @@
                 <input type="hidden" name="nivel"        value="${nivelSeleccionado}"/>
                 <input type="hidden" name="grado"        value="${gradoSeleccionado}"/>
                 <input type="hidden" name="seccion"      value="${seccionSeleccionada}"/>
-                <div class="col-md-4">
-                  <label class="form-label">Alumno</label>
-                  <select name="alumno" class="form-select" required>
-                    <option value="">Seleccione</option>
-                    <c:forEach items="${alumnos}" var="al">
-                      <option value="${al.idAlumno}" <c:if test="${al.idAlumno == alumnoSeleccionado}">selected</c:if>>
-                        ${al.nombres} ${al.apellidos}
-                      </option>
-                    </c:forEach>
-                  </select>
-                </div>
+                
                 <div class="col-md-2">
                   <label class="form-label">Formato</label>
                   <select name="formato" class="form-select" required>
                     <option value="pdf">PDF</option>
                     <option value="excel">Excel</option>
-                    <option value="word">Word</option>
+                    <!--<option value="word">Word</option>-->
                   </select>
                 </div>
                 <div class="col-12 d-flex gap-2">
@@ -190,7 +169,7 @@
                   <select name="formato" class="form-select" required>
                     <option value="pdf">PDF</option>
                     <option value="excel">Excel</option>
-                    <option value="word">Word</option>
+                    <!--<option value="word">Word</option>-->
                   </select>
                 </div>
                 <div class="col-md-2">
@@ -230,7 +209,7 @@
                   <select name="formato" class="form-select" required>
                     <option value="pdf">PDF</option>
                     <option value="excel">Excel</option>
-                    <option value="word">Word</option>
+                    <!--<option value="word">Word</option>-->
                   </select>
                 </div>
                 <div class="col-md-2">
@@ -283,7 +262,7 @@
                     <c:forEach items="${alumnos}" var="al">
                       <option value="${al.idAlumno}"
                         <c:if test="${al.idAlumno == alumnoSeleccionado}">selected</c:if>>
-                        ${al.nombres} ${al.apellidos}
+                        ${al.apellidos} ${al.nombres}
                       </option>
                     </c:forEach>
                   </select>
@@ -294,7 +273,7 @@
                   <select name="formato" class="form-select" required>
                     <option value="pdf">PDF</option>
                     <option value="excel">Excel</option>
-                    <option value="word">Word</option>
+                    <!--<option value="word">Word</option>-->
                   </select>
                 </div>
 
@@ -320,7 +299,7 @@
                               '_blank'
                             );
                           ">
-                    <i class="fas fa-archive"></i> Bloque ZIP
+                    <i class="fas fa-archive"></i> Descargar Bloque ZIP
                   </button>
                 </div>
               </form>
@@ -361,7 +340,7 @@
                     <c:forEach items="${alumnos}" var="al">
                       <option value="${al.idAlumno}"
                         <c:if test="${al.idAlumno == alumnoSeleccionado}">selected</c:if>>
-                        ${al.nombres} ${al.apellidos}
+                        ${al.apellidos} ${al.nombres}
                       </option>
                     </c:forEach>
                   </select>
@@ -372,7 +351,7 @@
                   <select name="formato" class="form-select" required>
                     <option value="pdf">PDF</option>
                     <option value="excel">Excel</option>
-                    <option value="word">Word</option>
+                    <!--<option value="word">Word</option>-->
                   </select>
                 </div>
 
@@ -398,7 +377,7 @@
                               '_blank'
                             );
                           ">
-                    <i class="fas fa-archive"></i> Bloque ZIP
+                    <i class="fas fa-archive"></i> Descargar Bloque ZIP
                   </button>
                 </div>
               </form>
@@ -408,6 +387,7 @@
         </div>
 
         <!-- 6. Progreso del Alumno Mensual -->
+        <!--
         <div class="accordion-item">
           <h2 class="accordion-header">
             <button class="accordion-button collapsed"
@@ -422,7 +402,6 @@
                data-bs-parent="#accordionReportes">
             <div class="accordion-body">
 
-              <!-- 6.1) Formulario unitario -->
               <form id="formProgreso"
                     method="get"
                     action="${pageContext.request.contextPath}/reportes/progreso"
@@ -439,7 +418,7 @@
                     <c:forEach items="${alumnos}" var="al">
                       <option value="${al.idAlumno}"
                         <c:if test="${al.idAlumno == alumnoSeleccionado}">selected</c:if>>
-                        ${al.nombres} ${al.apellidos}
+                        ${al.apellidos} ${al.nombres}
                       </option>
                     </c:forEach>
                   </select>
@@ -450,7 +429,6 @@
                   <select name="formato" class="form-select" required>
                     <option value="pdf">PDF</option>
                     <option value="excel">Excel</option>
-                    <option value="word">Word</option>
                   </select>
                 </div>
 
@@ -484,8 +462,8 @@
             </div>
           </div>
         </div>
-
-        <!-- 7. Rendimiento Académico (mensual/bimestral, por alumno) -->
+        -->                      
+        <!-- 7. Rendimiento Académico (mensual/bimestral, por alumno) 
         <div class="accordion-item">
           <h2 class="accordion-header">
             <button class="accordion-button collapsed"
@@ -500,7 +478,7 @@
                data-bs-parent="#accordionReportes">
             <div class="accordion-body">
 
-              <!-- 7.1) Formulario unitario -->
+              /*7.1) Formulario unitario */
               <form id="formRendimiento"
                     method="get"
                     action="${pageContext.request.contextPath}/reportes/rendimiento"
@@ -519,7 +497,7 @@
                     <c:forEach items="${alumnos}" var="al">
                       <option value="${al.idAlumno}"
                         <c:if test="${al.idAlumno == alumnoSeleccionado}">selected</c:if>>
-                        ${al.nombres} ${al.apellidos}
+                        ${al.apellidos} ${al.nombres}
                       </option>
                     </c:forEach>
                   </select>
@@ -530,7 +508,6 @@
                   <select name="formato" class="form-select" required>
                     <option value="pdf">PDF</option>
                     <option value="excel">Excel</option>
-                    <option value="word">Word</option>
                   </select>
                 </div>
 
@@ -560,10 +537,9 @@
             </div>
           </div>
         </div>
-
       </div>
     </div>
-
+    -->
     <!-- HISTORIAL DE REPORTES PUBLICADOS -->
     <div class="tab-pane fade" id="panel-historial">
       <div class="card mt-4">

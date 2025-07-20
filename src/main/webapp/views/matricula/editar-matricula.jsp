@@ -57,7 +57,7 @@
         <!-- Ocultos para JS (si los usas para cargar grados/secciones, déjalos) -->
         <input type="hidden" id="idGradoActual" value="${matricula.idGrado}" />
         <input type="hidden" id="idSeccionActual" value="${matricula.idSeccion}" />
-
+zz
         <div class="col-md-12 mt-3">
             <h5 class="fw-bold"><i class="fas fa-book-reader me-2"></i>Detalle Académico</h5>
             <div class="row">

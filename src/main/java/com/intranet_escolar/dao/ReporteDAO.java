@@ -34,12 +34,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTShd;
@@ -58,31 +60,33 @@ public class ReporteDAO {
     private final AnioLectivoDAO anioDAO       = new AnioLectivoDAO();
 
     // ========== 1. Asistencia (mensual) ==========
-    public byte[] generarAsistencia(int anioId, int periodoId, String mesCodigo,
+    public byte[] generarAsistencia(int anioId, int periodoId,
                                     int nivelId, int gradoId, int seccionId,
                                     String alumnoFiltro, String formato) {
         String[] headers = {
-            "Apellidos","Nombres",
-            "Asistencias","Tardanzas","Tardanzas Justificadas",
-            "Faltas","Faltas Justificadas"
+            "Nº", "Apellidos y Nombres",
+            "Asistencias", "Tardanzas", "Tardanzas Justificadas",
+            "Faltas", "Faltas Justificadas"
         };
         List<String[]> data = new ArrayList<>();
         try (Connection conn = DatabaseConfig.getConnection();
-             CallableStatement cs = conn.prepareCall("{CALL sp_reporte_asistencia(?,?,?,?,?,?)}")) {
+             CallableStatement cs = conn.prepareCall("{CALL sp_reporte_asistencia(?,?,?,?,?)}")) {
 
             cs.setInt(1, anioId);
             cs.setInt(2, periodoId);
-            cs.setString(3, mesCodigo);
-            cs.setInt(4, nivelId);
-            cs.setInt(5, gradoId);
-            cs.setInt(6, seccionId);
+            cs.setInt(3, nivelId);
+            cs.setInt(4, gradoId);
+            cs.setInt(5, seccionId);
+
             try (ResultSet rs = cs.executeQuery()) {
+                int idx;
                 while (rs.next()) {
                     String cod = rs.getString("codigo_matricula");
                     if (alumnoFiltro == null || alumnoFiltro.isEmpty() || alumnoFiltro.equals(cod)) {
+                        idx = 1;
                         data.add(new String[]{
-                            rs.getString("apellidos"),
-                            rs.getString("nombres"),
+                            String.valueOf(idx++),
+                            rs.getString("apellidos") + " " + rs.getString("nombres"),
                             rs.getString("asistencias"),
                             rs.getString("tardanzas"),
                             rs.getString("tardanzas_justificadas"),
@@ -95,33 +99,35 @@ public class ReporteDAO {
         } catch (SQLException e) {
             throw new RuntimeException("Error generando reporte de asistencia", e);
         }
-        return dispatchFormat(
+
+        return dispatchFormatVertical(
             formato,
             headers, data,
-            "Asistencia",
-            nombrePeriodo(anioId, periodoId, mesCodigo),
+            "Asistencia - Resumen por Alumno",
+            nombrePeriodo(anioId, periodoId),
             anioDAO.obtenerNombrePorId(anioId),
             obtenerNombreNivel(nivelId),
             obtenerNombreGrado(gradoId),
-            obtenerNombreSeccion(seccionId)
+            obtenerNombreSeccion(seccionId), 
+            ""
         );
     }
 
     // ========== 2. Rendimiento Académico (mensual) ==========
-    public byte[] generarRendimiento(int anioId, int periodoId, String mesCodigo,
+    public byte[] generarRendimiento(int anioId, int periodoId,
                                      int nivelId, int gradoId, int seccionId,
                                      String alumnoFiltro, String formato) {
-        String[] headers = {"Apellidos","Nombres","Promedio","Condición"};
+        String[] headers = {"Apellidos", "Nombres", "Promedio", "Condición"};
         List<String[]> data = new ArrayList<>();
         try (Connection conn = DatabaseConfig.getConnection();
-             CallableStatement cs = conn.prepareCall("{CALL sp_reporte_rendimiento(?,?,?,?,?,?)}")) {
+             CallableStatement cs = conn.prepareCall("{CALL sp_reporte_rendimiento(?,?,?,?,?)}")) {
 
             cs.setInt(1, anioId);
             cs.setInt(2, periodoId);
-            cs.setString(3, mesCodigo);
-            cs.setInt(4, nivelId);
-            cs.setInt(5, gradoId);
-            cs.setInt(6, seccionId);
+            cs.setInt(3, nivelId);
+            cs.setInt(4, gradoId);
+            cs.setInt(5, seccionId);
+
             try (ResultSet rs = cs.executeQuery()) {
                 while (rs.next()) {
                     data.add(new String[]{
@@ -135,11 +141,12 @@ public class ReporteDAO {
         } catch (SQLException e) {
             throw new RuntimeException("Error generando reporte de rendimiento", e);
         }
+
         return dispatchFormat(
             formato,
             headers, data,
             "Rendimiento",
-            nombrePeriodo(anioId, periodoId, mesCodigo),
+            nombrePeriodo(anioId, periodoId),
             anioDAO.obtenerNombrePorId(anioId),
             obtenerNombreNivel(nivelId),
             obtenerNombreGrado(gradoId),
@@ -147,8 +154,8 @@ public class ReporteDAO {
         );
     }
 
-    // ========== 3. Consolidado de Notas (mensual o bimestral, horizontal) ==========
-    public byte[] generarConsolidado(int anioId, int periodoId, String mesCodigo,
+    // ========== 3. Consolidado de Notas ==========
+    public byte[] generarConsolidado(int anioId, int periodoId,
                                      int nivelId, int gradoId, int seccionId,
                                      String tipoNota, String alumnoFiltro, String formato) {
         try {
@@ -160,7 +167,7 @@ public class ReporteDAO {
                 formato,
                 cd.headers, cd.filas,
                 "Consolidado",
-                nombrePeriodo(anioId, periodoId, mesCodigo),
+                nombrePeriodo(anioId, periodoId),
                 anioDAO.obtenerNombrePorId(anioId),
                 obtenerNombreNivel(nivelId),
                 obtenerNombreGrado(gradoId),
@@ -171,26 +178,84 @@ public class ReporteDAO {
         }
     }
 
-    // ========== 4. Libreta de Notas Bimestral (horizontal) ==========
-    public byte[] generarLibretaBimestral(int anioId, int bimestreId,
+    // ========== 4. Libreta de Notas Bimestral ==========
+    public byte[] generarLibretaBimestral(int anioId, int periodoId,
                                           int nivelId, int gradoId, int seccionId,
                                           String tipoNota, String alumnoFiltro, String formato) {
-        return generarConsolidado(
-            anioId, bimestreId, null,
-            nivelId, gradoId, seccionId,
-            tipoNota, alumnoFiltro, formato
+        String[] headers = {"Nº", "Curso", "Nota"};
+        List<String[]> data = new ArrayList<>();
+        String nombreAlumno = "";
+        try (Connection conn = DatabaseConfig.getConnection();
+             CallableStatement cs = conn.prepareCall("{CALL sp_reporte_libreta(?,?,?,?,?,?)}")) {
+
+            cs.setInt(1, anioId);
+            cs.setInt(2, periodoId);
+            cs.setInt(3, nivelId);
+            cs.setInt(4, gradoId);
+            cs.setInt(5, seccionId);
+            if (alumnoFiltro != null && !alumnoFiltro.isEmpty()) {
+                // Si vino un ID de alumno, lo pasamos como entero
+                cs.setInt(6, Integer.parseInt(alumnoFiltro));
+            } else {
+                // Si no hay filtro, enviamos NULL (no cadena vacía)
+                cs.setNull(6, java.sql.Types.INTEGER);
+            }
+
+
+            try (ResultSet rs = cs.executeQuery()) {
+                int idx = 1;
+                while (rs.next()) {
+                    if (nombreAlumno.isEmpty()) {
+                        nombreAlumno = rs.getString("apellidos") + " " + rs.getString("nombres");
+                    }
+
+                    // --- Aquí viene el cambio ---
+                    Double notaNum = rs.getObject("nota_bimestre", Double.class);
+                    String notaStr;
+                    if (notaNum == null) {
+                        notaStr = "";
+                    } else if (tipoNota.equalsIgnoreCase("numerico")) {
+                        // Formato numérico solo si hay valor
+                        notaStr = String.format(Locale.US, "%.2f", notaNum);
+                    } else {
+                        // Convertir a letra solo si hay valor
+                        notaStr = convertirANotaLetra(notaNum);
+                    }
+                    // --- fin del cambio ---
+
+                    data.add(new String[]{
+                        String.valueOf(idx++),
+                        rs.getString("curso"),
+                        notaStr
+                    });
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error generando libreta bimestral", e);
+        }
+
+        return dispatchFormatVertical(
+            formato, headers, data, "Libreta Bimestral",
+            nombrePeriodo(anioId, periodoId),
+            anioDAO.obtenerNombrePorId(anioId),
+            obtenerNombreNivel(nivelId),
+            obtenerNombreGrado(gradoId),
+            obtenerNombreSeccion(seccionId),
+            nombreAlumno
         );
     }
-
-    // ========== 5. Libreta de Notas General (vertical) ==========
+    
+    // ========== 5. Libreta de Notas General ==========
     public byte[] generarLibretaGeneral(int anioId,
-                                        int nivelId, int gradoId, int seccionId,
-                                        String tipoNota, String alumnoFiltro, String formato) {
+                                    int nivelId, int gradoId, int seccionId,
+                                    String tipoNota, String alumnoFiltro, String formato) {
         String[] headers = {
-            "No","Apellidos y Nombres","Curso",
-            "I","II","III","IV","Promedio Anual"
+            "Nº", "Curso",
+            "I", "II", "III", "IV", "Promedio Anual"
         };
         List<String[]> data = new ArrayList<>();
+        String nombreAlumno = "";
+
         try (Connection conn = DatabaseConfig.getConnection();
              CallableStatement cs = conn.prepareCall("{CALL sp_reporte_libreta_general(?,?,?,?,?)}")) {
 
@@ -198,26 +263,47 @@ public class ReporteDAO {
             cs.setInt(2, nivelId);
             cs.setInt(3, gradoId);
             cs.setInt(4, seccionId);
-            cs.setString(5, alumnoFiltro == null ? "" : alumnoFiltro);
+            if (alumnoFiltro != null && !alumnoFiltro.isEmpty()) {
+                // Si vino un ID de alumno, lo pasamos como entero
+                cs.setInt(5, Integer.parseInt(alumnoFiltro));
+            } else {
+                // Si no hay filtro, enviamos NULL (no cadena vacía)
+                cs.setNull(6, java.sql.Types.INTEGER);
+            }
+
+
             try (ResultSet rs = cs.executeQuery()) {
                 int idx = 1;
                 while (rs.next()) {
+                    if (nombreAlumno.isEmpty()) {
+                        nombreAlumno = rs.getString("apellidos") + " " + rs.getString("nombres");
+                    }
+
+                    Double n1 = rs.getObject("nota_I", Double.class);
+                    Double n2 = rs.getObject("nota_II", Double.class);
+                    Double n3 = rs.getObject("nota_III", Double.class);
+                    Double n4 = rs.getObject("nota_IV", Double.class);
+                    Double prom = rs.getObject("promedio_anual", Double.class);
+                    
+                    String notaI   = (n1 == null)   ? "" : (tipoNota.equalsIgnoreCase("letra") ? convertirANotaLetra(n1)   : String.format(Locale.US, "%.2f", n1));
+                    String notaII  = (n2 == null)   ? "" : (tipoNota.equalsIgnoreCase("letra") ? convertirANotaLetra(n2)   : String.format(Locale.US, "%.2f", n2));
+                    String notaIII = (n3 == null)   ? "" : (tipoNota.equalsIgnoreCase("letra") ? convertirANotaLetra(n3)   : String.format(Locale.US, "%.2f", n3));
+                    String notaIV  = (n4 == null)   ? "" : (tipoNota.equalsIgnoreCase("letra") ? convertirANotaLetra(n4)   : String.format(Locale.US, "%.2f", n4));
+                    String notaProm= (prom == null) ? "" : (tipoNota.equalsIgnoreCase("letra") ? convertirANotaLetra(prom) : String.format(Locale.US, "%.2f", prom));
+
+
                     data.add(new String[]{
                         String.valueOf(idx++),
-                        rs.getString("apellidos") + " " + rs.getString("nombres"),
                         rs.getString("curso"),
-                        rs.getString("nota_I"),
-                        rs.getString("nota_II"),
-                        rs.getString("nota_III"),
-                        rs.getString("nota_IV"),
-                        rs.getString("nota_anual")
+                        notaI, notaII, notaIII, notaIV, notaProm
                     });
                 }
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error generando libreta general", e);
         }
-        return dispatchFormat(
+
+        return dispatchFormatVertical(
             formato,
             headers, data,
             "Libreta General",
@@ -225,132 +311,184 @@ public class ReporteDAO {
             anioDAO.obtenerNombrePorId(anioId),
             obtenerNombreNivel(nivelId),
             obtenerNombreGrado(gradoId),
-            obtenerNombreSeccion(seccionId)
+            obtenerNombreSeccion(seccionId),
+            nombreAlumno
         );
     }
 
-    // ========== 6. Progreso del Alumno Mensual (vertical) ==========
-    public byte[] generarProgreso(int anioId, int nivelId, int gradoId, int seccionId,
-                                  String alumnoFiltro, String formato) {
-        String[] headers = {
-            "Apellidos","Nombres","Curso","Nota Parcial","Nota Final"
-        };
+
+    // ========== 6. Progreso del Alumno Mensual ==========
+    public byte[] generarProgreso(int anioId, int periodoId,
+                                  int nivelId, int gradoId, int seccionId,
+                                  String alumnoIdStr, String tipoNota, String formato) {
+
+        String[] headers = {"Nº", "Curso", "Nota"};
         List<String[]> data = new ArrayList<>();
+        String nombreAlumno = "";
+
         try (Connection conn = DatabaseConfig.getConnection();
-             CallableStatement cs = conn.prepareCall("{CALL sp_reporte_progreso(?,?,?,?,?)}")) {
+             CallableStatement cs = conn.prepareCall("{CALL sp_reporte_progreso(?,?,?,?,?,?)}")) {
+
+            // 1) convertir SOLO el ID de alumno
+            int alumnoId = Integer.parseInt(alumnoIdStr);
 
             cs.setInt(1, anioId);
-            cs.setInt(2, nivelId);
-            cs.setInt(3, gradoId);
-            cs.setInt(4, seccionId);
-            cs.setString(5, alumnoFiltro == null ? "" : alumnoFiltro);
+            cs.setInt(2, periodoId);
+            cs.setInt(3, nivelId);
+            cs.setInt(4, gradoId);
+            cs.setInt(5, seccionId);
+            cs.setInt(6, alumnoId);
+
+            // 2) ejecutar y leer
             try (ResultSet rs = cs.executeQuery()) {
+                int idx = 1;
                 while (rs.next()) {
+                    if (nombreAlumno.isEmpty()) {
+                        nombreAlumno = rs.getString("apellidos") + ", " + rs.getString("nombres");
+                    }
+                    String notaRaw = rs.getString("nota");
+                    String notaStr;
+                    if (notaRaw == null || notaRaw.trim().isEmpty()) {
+                        notaStr = "";
+                    } else if ("SN".equalsIgnoreCase(notaRaw)) {
+                        notaStr = "SN";
+                    } else if ("letra".equalsIgnoreCase(tipoNota)) {
+                        try {
+                            notaStr = convertirANotaLetra(Double.parseDouble(notaRaw));
+                        } catch (NumberFormatException ex) {
+                            notaStr = notaRaw;
+                        }
+                    } else {
+                        notaStr = notaRaw;
+                    }
                     data.add(new String[]{
-                        rs.getString("apellidos"),
-                        rs.getString("nombres"),
+                        String.valueOf(idx++),
                         rs.getString("curso"),
-                        rs.getString("nota_parcial"),
-                        rs.getString("nota_final")
+                        notaStr
                     });
                 }
             }
+
         } catch (SQLException e) {
-            throw new RuntimeException("Error generando progreso", e);
+            throw new RuntimeException("Error generando reporte de progreso", e);
         }
-        return dispatchFormat(
+
+        // 3) dispatch al formato deseado
+        return dispatchFormatVertical(
             formato,
             headers, data,
-            "Progreso",
-            "Progreso",
+            "Progreso del Alumno",
+            nombrePeriodo(anioId, periodoId),
             anioDAO.obtenerNombrePorId(anioId),
             obtenerNombreNivel(nivelId),
             obtenerNombreGrado(gradoId),
-            obtenerNombreSeccion(seccionId)
+            obtenerNombreSeccion(seccionId),
+            nombreAlumno
         );
     }
 
-    // ========== 7. Certificado Anual (vertical) ==========
-    public byte[] generarCertificadoAnual(int anioId, int nivelId, int gradoId, int seccionId,
-                                          String alumnoFiltro, String formato) {
-        return generarLibretaGeneral(
-            anioId, nivelId, gradoId, seccionId,
-            "numerico", alumnoFiltro, formato
-        );
-    }
-
-    // ========== 8. Bloque ZIP de todos los alumnos ==========
+    // ========== Bloque ZIP de todos los alumnos ==========
     public byte[] generarBloqueZip(int anioId, String periodoStr,
                                    String nivelName, String gradoName, String seccionName,
                                    String tipoReporte, String tipoNota,
                                    String alumnoFiltro, String formato)
-            throws IOException, SQLException {
+        throws IOException, SQLException {
 
-        int idNivel   = lookupId("nivel",   nivelName);
-        int idGrado   = lookupId("grado",   gradoName);
+        // 1) Resolver IDs de nivel, grado y sección
+        int idNivel   = lookupId("nivel", nivelName);
+        int idGrado   = lookupId("grado", gradoName);
         int idSeccion = lookupId("seccion", seccionName);
 
-        List<Alumno> alumnos = alumnoDAO.listarMatriculadosPorFiltros(
-            anioId, idNivel, idGrado, idSeccion
-        );
+        // 2) Parsear periodo cuando sea necesario
+        Integer periodoId = null;
+        String key = tipoReporte == null ? "" : tipoReporte.replaceAll("_", "").toLowerCase();
+        // Solo algunos reportes permiten sección única
+        boolean sectionLevel = Arrays.asList("asistencia", "rendimiento", "consolidado", "libretageneral").contains(key);
+        if (!"libretageneral".equals(key)) {
+            if (periodoStr == null || periodoStr.trim().isEmpty()) {
+                throw new IllegalArgumentException("Para el reporte '" + tipoReporte + "' es obligatorio indicar el periodo.");
+            }
+            try {
+                periodoId = Integer.parseInt(periodoStr);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Periodo inválido: '" + periodoStr + "'.", e);
+            }
+        }
+
+        // 3) Preparar colecciones para los bytes y nombres
         List<byte[]> archivos = new ArrayList<>();
         List<String> nombres  = new ArrayList<>();
         String ext = formato.equalsIgnoreCase("excel") ? "xlsx"
                    : formato.equalsIgnoreCase("word")  ? "docx"
                                                        : "pdf";
 
-        for (Alumno al : alumnos) {
+        // 4) Si no hay filtro de alumno y el reporte admite sección completa
+        if ((alumnoFiltro == null || alumnoFiltro.trim().isEmpty()) && sectionLevel) {
             byte[] rpt;
-            String fileName = al.getApellidos().replace(" ", "_")
-                            + "_" + al.getNombres().replace(" ", "_")
-                            + "." + ext;
-            switch (tipoReporte) {
+            String fileName = nivelName + "_" + gradoName + "_" + seccionName + "." + ext;
+            switch (key) {
                 case "asistencia":
-                    rpt = generarAsistencia(
-                        anioId, Integer.parseInt(periodoStr), "",
-                        idNivel, idGrado, idSeccion, alumnoFiltro, formato
-                    );
+                    rpt = generarAsistencia(anioId, periodoId, idNivel, idGrado, idSeccion, "", formato);
                     break;
                 case "rendimiento":
-                    rpt = generarRendimiento(
-                        anioId, Integer.parseInt(periodoStr), "",
-                        idNivel, idGrado, idSeccion, alumnoFiltro, formato
-                    );
+                    rpt = generarRendimiento(anioId, periodoId, idNivel, idGrado, idSeccion, "", formato);
                     break;
                 case "consolidado":
-                    rpt = generarConsolidado(
-                        anioId, Integer.parseInt(periodoStr), "",
-                        idNivel, idGrado, idSeccion, tipoNota, alumnoFiltro, formato
-                    );
+                    rpt = generarConsolidado(anioId, periodoId, idNivel, idGrado, idSeccion, tipoNota, "", formato);
                     break;
-                case "libretaBimestral":
-                    rpt = generarLibretaBimestral(
-                        anioId, Integer.parseInt(periodoStr),
-                        idNivel, idGrado, idSeccion, tipoNota, alumnoFiltro, formato
-                    );
-                    break;
-                case "libretaGeneral":
-                    rpt = generarLibretaGeneral(
-                        anioId, idNivel, idGrado, idSeccion, tipoNota, alumnoFiltro, formato
-                    );
-                    break;
-                case "progreso":
-                    rpt = generarProgreso(
-                        anioId, idNivel, idGrado, idSeccion, alumnoFiltro, formato
-                    );
-                    break;
-                case "certificado":
-                    rpt = generarCertificadoAnual(
-                        anioId, idNivel, idGrado, idSeccion, alumnoFiltro, formato
-                    );
+                case "libretageneral":
+                    rpt = generarLibretaGeneral(anioId, idNivel, idGrado, idSeccion, tipoNota, "", formato);
                     break;
                 default:
+                    // Nunca llega aquí porque sectionLevel evita otros keys
+                    throw new IllegalArgumentException("Tipo de reporte no soporta sección completa: '" + tipoReporte + "'.");
+            }
+            archivos.add(rpt);
+            nombres.add(fileName);
+        }
+
+        // 5) Generar por alumno individual para todos los casos restantes
+        // (o filtro explícito, o reportes que requieren alumno)
+        List<Alumno> alumnos = alumnoDAO.listarMatriculadosPorFiltros(anioId, idNivel, idGrado, idSeccion);
+        for (Alumno al : alumnos) {
+            String alumnoIdStr = String.valueOf(al.getIdAlumno());
+            byte[] rpt = null;
+            String saneApellido = al.getApellidos().replaceAll("\\s+", "_");
+            String saneNombre   = al.getNombres().replaceAll("\\s+", "_");
+            String fileName = saneApellido + "_" + saneNombre + "." + ext;
+            switch (key) {
+                case "asistencia":
+                    // Si ya generamos sección entera, skip individual
+                    if ((alumnoFiltro == null || alumnoFiltro.isEmpty()) && sectionLevel) break;
+                    rpt = generarAsistencia(anioId, periodoId, idNivel, idGrado, idSeccion, alumnoIdStr, formato);
+                    break;
+                case "rendimiento":
+                    if ((alumnoFiltro == null || alumnoFiltro.isEmpty()) && sectionLevel) break;
+                    rpt = generarRendimiento(anioId, periodoId, idNivel, idGrado, idSeccion, alumnoIdStr, formato);
+                    break;
+                case "consolidado":
+                    if ((alumnoFiltro == null || alumnoFiltro.isEmpty()) && sectionLevel) break;
+                    rpt = generarConsolidado(anioId, periodoId, idNivel, idGrado, idSeccion, tipoNota, alumnoIdStr, formato);
+                    break;
+                case "libretabimestral":
+                    rpt = generarLibretaBimestral(anioId, periodoId, idNivel, idGrado, idSeccion, tipoNota, alumnoIdStr, formato);
+                    break;
+                case "libretageneral":
+                    if ((alumnoFiltro == null || alumnoFiltro.isEmpty()) && sectionLevel) break;
+                    rpt = generarLibretaGeneral(anioId, idNivel, idGrado, idSeccion, tipoNota, alumnoIdStr, formato);
+                    break;
+                case "progreso":
+                    rpt = generarProgreso(anioId, periodoId, idNivel, idGrado, idSeccion, alumnoIdStr, tipoNota, formato);
+                    break;
+                default:
+                    // Ignorar tipos desconocidos
                     continue;
             }
             archivos.add(rpt);
             nombres.add(fileName);
         }
 
+        // 6) Empaquetar el ZIP y devolver
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
              ZipOutputStream zos     = new ZipOutputStream(baos)) {
             for (int i = 0; i < archivos.size(); i++) {
@@ -415,33 +553,40 @@ public class ReporteDAO {
             return generarExcel(headers, data,
                 titulo, periodoTexto, anioTexto,
                 nivelTexto, gradoTexto, seccionTexto);
-        } else if ("word".equalsIgnoreCase(formato)) {
-            return generarWord(headers, data,
-                titulo, periodoTexto, anioTexto,
-                nivelTexto, gradoTexto, seccionTexto);
         } else {
             return generarPDF(headers, data,
                 titulo, periodoTexto, anioTexto,
                 nivelTexto, gradoTexto, seccionTexto);
         }
     }
+    // ========== Dispatcher especial para vertical, agregando nombre de alumno ==========
+    private byte[] dispatchFormatVertical(String formato,String[] headers,List<String[]> data,String titulo,String periodoTexto,String anioTexto,String nivelTexto,String gradoTexto,String seccionTexto,String nombreAlumno) {
+        if ("excel".equalsIgnoreCase(formato)) {
+            return generarExcelVertical(headers, data,
+                titulo, periodoTexto, anioTexto,
+                nivelTexto, gradoTexto, seccionTexto, nombreAlumno);
+        } else {
+            return generarPDFVertical(headers, data,
+                titulo, periodoTexto, anioTexto,
+                nivelTexto, gradoTexto, seccionTexto, nombreAlumno);
+        }
+    }
 
     // ========== Generadores de archivo (PDF / Excel / Word) ==========
-
     private byte[] generarPDF(String[] headers,
-                              List<String[]> data,
-                              String titulo,
-                              String periodoTexto,
-                              String anioTexto,
-                              String nivelTexto,
-                              String gradoTexto,
-                              String seccionTexto) {
+                          List<String[]> data,
+                          String titulo,
+                          String periodoTexto,
+                          String anioTexto,
+                          String nivelTexto,
+                          String gradoTexto,
+                          String seccionTexto) {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             Document doc = new Document(PageSize.A4.rotate(), 36,36,72,36);
             PdfWriter.getInstance(doc, baos);
             doc.open();
 
-            // Logo
+            // Logo y cabecera
             try {
                 Image logo = Image.getInstance(getClass().getResource(RUTA_LOGO));
                 logo.scaleToFit(80, 80);
@@ -449,7 +594,6 @@ public class ReporteDAO {
                 doc.add(logo);
             } catch (Exception ignored) {}
 
-            // Colegio y títulos
             Paragraph esc = new Paragraph(
                 NOMBRE_COLEGIO,
                 FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, BaseColor.BLACK)
@@ -466,8 +610,7 @@ public class ReporteDAO {
             doc.add(Chunk.NEWLINE);
 
             Paragraph info = new Paragraph(
-                String.format("Nivel: %s   Grado: %s   Sección: %s",
-                              nivelTexto, gradoTexto, seccionTexto),
+                String.format("Nivel: %s   Grado: %s   Sección: %s", nivelTexto, gradoTexto, seccionTexto),
                 FontFactory.getFont(FontFactory.HELVETICA, 9, BaseColor.DARK_GRAY)
             );
             info.setAlignment(Element.ALIGN_CENTER);
@@ -475,8 +618,7 @@ public class ReporteDAO {
             doc.add(Chunk.NEWLINE);
 
             Paragraph fecha = new Paragraph(
-                "Fecha: " + LocalDateTime.now()
-                    .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                "Fecha: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
                 FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 8)
             );
             fecha.setAlignment(Element.ALIGN_RIGHT);
@@ -485,7 +627,20 @@ public class ReporteDAO {
 
             PdfPTable tbl = new PdfPTable(headers.length);
             tbl.setWidthPercentage(100);
-            tbl.setHeaderRows(1);
+            // Establecer anchos adaptados a headers
+            float[] columnWidths = new float[headers.length];
+            for (int i = 0; i < headers.length; i++) {
+                String h = headers[i].trim().toLowerCase();
+
+                if (h.equals("nº") || h.equals("n°") || h.equals("nro") || h.equals("no")) {
+                    columnWidths[i] = 1f;
+                } else if (h.contains("apellidos") || h.contains("nombres")) {
+                    columnWidths[i] = 5f;
+                } else {
+                    columnWidths[i] = 2f;
+                }
+            }
+            tbl.setWidths(columnWidths);
 
             BaseColor headerBg = new BaseColor(52, 73, 94);
             BaseColor rowAlt   = new BaseColor(236,240,241);
@@ -493,25 +648,33 @@ public class ReporteDAO {
 
             // Cabeceras
             for (String h : headers) {
-                PdfPCell c = new PdfPCell(new Phrase(h,
-                    FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, BaseColor.WHITE)));
+                PdfPCell c = new PdfPCell(new Phrase(h, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, BaseColor.WHITE)));
                 c.setBackgroundColor(headerBg);
                 c.setHorizontalAlignment(Element.ALIGN_CENTER);
                 c.setPadding(6);
                 tbl.addCell(c);
             }
-            // Filas
-            for (String[] row : data) {
-                BaseColor bg = alternate ? rowAlt : BaseColor.WHITE;
-                for (String v : row) {
-                    PdfPCell c = new PdfPCell(new Phrase(v,
-                        FontFactory.getFont(FontFactory.HELVETICA, 9, BaseColor.BLACK)));
-                    c.setBackgroundColor(bg);
-                    c.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    c.setPadding(4);
-                    tbl.addCell(c);
+
+            // Datos o fila vacía
+            if (data.isEmpty()) {
+                PdfPCell c = new PdfPCell(new Phrase("Sin registros",
+                    FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 10, BaseColor.GRAY)));
+                c.setColspan(headers.length);
+                c.setHorizontalAlignment(Element.ALIGN_CENTER);
+                c.setPadding(10);
+                tbl.addCell(c);
+            } else {
+                for (String[] row : data) {
+                    BaseColor bg = alternate ? rowAlt : BaseColor.WHITE;
+                    for (String v : row) {
+                        PdfPCell c = new PdfPCell(new Phrase(v, FontFactory.getFont(FontFactory.HELVETICA, 9, BaseColor.BLACK)));
+                        c.setBackgroundColor(bg);
+                        c.setHorizontalAlignment(Element.ALIGN_CENTER);
+                        c.setPadding(4);
+                        tbl.addCell(c);
+                    }
+                    alternate = !alternate;
                 }
-                alternate = !alternate;
             }
 
             doc.add(tbl);
@@ -522,14 +685,219 @@ public class ReporteDAO {
         }
     }
 
-    private byte[] generarExcel(String[] headers,
-                                List<String[]> data,
-                                String titulo,
-                                String periodoTexto,
-                                String anioTexto,
-                                String nivelTexto,
-                                String gradoTexto,
-                                String seccionTexto) {
+    
+    private byte[] generarPDFVertical(String[] headers, List<String[]> data, String titulo, String periodoTexto, String anioTexto, String nivelTexto, String gradoTexto, String seccionTexto, String nombreAlumno) {
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            Document doc = new Document(PageSize.A4, 36,36,72,36);
+            PdfWriter.getInstance(doc, baos);
+            doc.open();
+
+            try {
+                Image logo = Image.getInstance(getClass().getResource(RUTA_LOGO));
+                logo.scaleToFit(80, 80);
+                logo.setAbsolutePosition(36, doc.getPageSize().getHeight() - 100);
+                doc.add(logo);
+            } catch (Exception ignored) {}
+
+            Paragraph esc = new Paragraph(
+                NOMBRE_COLEGIO,
+                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, BaseColor.BLACK)
+            );
+            esc.setAlignment(Element.ALIGN_CENTER);
+            doc.add(esc);
+
+            Paragraph sub = new Paragraph(
+                String.format("%s – %s / Año %s", titulo, periodoTexto, anioTexto),
+                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14, BaseColor.DARK_GRAY)
+            );
+            sub.setAlignment(Element.ALIGN_CENTER);
+            doc.add(sub);
+            if (nombreAlumno != null && !nombreAlumno.trim().isEmpty()) {
+                Paragraph alumno = new Paragraph(
+                    "Alumno: " + nombreAlumno,
+                    FontFactory.getFont(FontFactory.HELVETICA_BOLD, 13, BaseColor.BLACK)
+                );
+                alumno.setAlignment(Element.ALIGN_CENTER);
+                doc.add(alumno);
+            }
+
+
+            doc.add(Chunk.NEWLINE);
+
+            Paragraph info = new Paragraph(
+                String.format("Nivel: %s   Grado: %s   Sección: %s", nivelTexto, gradoTexto, seccionTexto),
+                FontFactory.getFont(FontFactory.HELVETICA, 9, BaseColor.DARK_GRAY)
+            );
+            info.setAlignment(Element.ALIGN_CENTER);
+            doc.add(info);
+            doc.add(Chunk.NEWLINE);
+
+            Paragraph fecha = new Paragraph(
+                "Fecha: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 8)
+            );
+            fecha.setAlignment(Element.ALIGN_RIGHT);
+            doc.add(fecha);
+            doc.add(Chunk.NEWLINE);
+
+            PdfPTable tbl = new PdfPTable(headers.length);
+            tbl.setWidthPercentage(100);
+            // Establecer anchos adaptados a headers
+            float[] columnWidths = new float[headers.length];
+            for (int i = 0; i < headers.length; i++) {
+                String h = headers[i].trim().toLowerCase();
+
+                if (h.equals("nº") || h.equals("n°") || h.equals("nro") || h.equals("no")) {
+                    columnWidths[i] = 1f;
+                } else if (h.contains("apellidos") || h.contains("nombres")) {
+                    columnWidths[i] = 5f;
+                } else {
+                    columnWidths[i] = 2f;
+                }
+            }
+            tbl.setWidths(columnWidths);
+
+            BaseColor headerBg = new BaseColor(52, 73, 94);
+            BaseColor rowAlt   = new BaseColor(236,240,241);
+            boolean alternate  = false;
+
+            // Cabeceras
+            for (String h : headers) {
+                PdfPCell c = new PdfPCell(new Phrase(h, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, BaseColor.WHITE)));
+                c.setBackgroundColor(headerBg);
+                c.setHorizontalAlignment(Element.ALIGN_CENTER);
+                c.setPadding(6);
+                tbl.addCell(c);
+            }
+
+            // Datos o fila vacía
+            if (data.isEmpty()) {
+                PdfPCell c = new PdfPCell(new Phrase("Sin registros",
+                    FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 10, BaseColor.GRAY)));
+                c.setColspan(headers.length);
+                c.setHorizontalAlignment(Element.ALIGN_CENTER);
+                c.setPadding(10);
+                tbl.addCell(c);
+            } else {
+                for (String[] row : data) {
+                    BaseColor bg = alternate ? rowAlt : BaseColor.WHITE;
+                    for (String v : row) {
+                        PdfPCell c = new PdfPCell(new Phrase(v, FontFactory.getFont(FontFactory.HELVETICA, 9, BaseColor.BLACK)));
+                        c.setBackgroundColor(bg);
+                        c.setHorizontalAlignment(Element.ALIGN_CENTER);
+                        c.setPadding(4);
+                        tbl.addCell(c);
+                    }
+                    alternate = !alternate;
+                }
+            }
+
+            doc.add(tbl);
+            doc.close();
+            return baos.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException("Error generando PDF vertical", e);
+        }
+    }
+
+    // ======
+    private byte[] generarExcel(String[] headers, List<String[]> data,
+                            String titulo, String periodoTexto, String anioTexto,
+                            String nivelTexto, String gradoTexto, String seccionTexto) {
+    try (Workbook wb = new XSSFWorkbook();
+         ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+
+        Sheet sheet = wb.createSheet("Reporte");
+
+        // === Estilos ===
+        CellStyle titleSt = wb.createCellStyle();
+        Font titleF = wb.createFont(); titleF.setBold(true); titleF.setFontHeightInPoints((short)14);
+        titleSt.setFont(titleF);
+        titleSt.setAlignment(HorizontalAlignment.CENTER);
+
+        CellStyle rightAlignSt = wb.createCellStyle();
+        rightAlignSt.cloneStyleFrom(titleSt);
+        rightAlignSt.setAlignment(HorizontalAlignment.RIGHT);
+
+        CellStyle hdrSt = wb.createCellStyle();
+        Font hdrF = wb.createFont(); hdrF.setBold(true);
+        hdrSt.setFont(hdrF);
+        hdrSt.setAlignment(HorizontalAlignment.CENTER);
+        hdrSt.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+        hdrSt.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        hdrSt.setBorderBottom(BorderStyle.THIN);
+
+        int lastCol = headers.length - 1;
+
+        // === Fila 0: Título del colegio
+        Row r0 = sheet.createRow(0);
+        Cell c0 = r0.createCell(0);
+        c0.setCellValue(NOMBRE_COLEGIO);
+        c0.setCellStyle(titleSt);
+        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, lastCol));
+
+        // === Fila 1: Título del reporte (izquierda) + Fecha (derecha)
+        Row r1 = sheet.createRow(1);
+        Cell c1a = r1.createCell(0);
+        c1a.setCellValue(String.format("%s – %s / Año %s", titulo, periodoTexto, anioTexto));
+        c1a.setCellStyle(titleSt);
+        sheet.addMergedRegion(new CellRangeAddress(1, 1, 0, lastCol - 1));
+
+        Cell c1b = r1.createCell(lastCol);
+        c1b.setCellValue("Fecha: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+        c1b.setCellStyle(rightAlignSt);
+
+        // === Fila 2: Nivel, Grado, Sección
+        Row r2 = sheet.createRow(2);
+        Cell c2 = r2.createCell(0);
+        c2.setCellValue(String.format("Nivel: %s   Grado: %s   Sección: %s", nivelTexto, gradoTexto, seccionTexto));
+        c2.setCellStyle(titleSt);
+        sheet.addMergedRegion(new CellRangeAddress(2, 2, 0, lastCol));
+
+        // === Fila 4: Cabeceras
+        Row r4 = sheet.createRow(4);
+        for (int i = 0; i < headers.length; i++) {
+            Cell hc = r4.createCell(i);
+            hc.setCellValue(headers[i]);
+            hc.setCellStyle(hdrSt);
+        }
+
+        // === Datos
+        int rn = 5;
+        if (data.isEmpty()) {
+            Row row = sheet.createRow(rn++);
+            Cell c = row.createCell(0);
+            c.setCellValue("Sin registros");
+            for (int i = 1; i < headers.length; i++) {
+                row.createCell(i).setCellValue("");
+            }
+        } else {
+            for (String[] dr : data) {
+                Row row = sheet.createRow(rn++);
+                for (int j = 0; j < dr.length; j++) {
+                    row.createCell(j).setCellValue(dr[j]);
+                }
+            }
+        }
+
+        for (int i = 0; i < headers.length; i++) sheet.autoSizeColumn(i);
+        wb.write(baos);
+        return baos.toByteArray();
+
+    } catch (Exception e) {
+        throw new RuntimeException("Error generando Excel", e);
+    }
+}
+
+    private byte[] generarExcelVertical(String[] headers,
+                                    List<String[]> data,
+                                    String titulo,
+                                    String periodoTexto,
+                                    String anioTexto,
+                                    String nivelTexto,
+                                    String gradoTexto,
+                                    String seccionTexto,
+                                    String nombreAlumno) {
         try (Workbook wb = new XSSFWorkbook();
              ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
 
@@ -545,31 +913,49 @@ public class ReporteDAO {
             hdrSt.setFillForegroundColor(IndexedColors.GREY_50_PERCENT.getIndex());
             hdrSt.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-            // Fila 0: Colegio / periodo / nivel-grado-sección
+            // Colegio + título
             Row r0 = sheet.createRow(0);
             Cell c0 = r0.createCell(0);
-            c0.setCellValue(
-                String.format("%s – %s / Año %s   Nivel: %s   Grado: %s   Sección: %s",
-                    NOMBRE_COLEGIO, periodoTexto, anioTexto,
-                    nivelTexto, gradoTexto, seccionTexto)
-            );
+            c0.setCellValue(String.format("%s – %s / Año %s", NOMBRE_COLEGIO, periodoTexto, anioTexto));
             c0.setCellStyle(titleSt);
             sheet.addMergedRegion(new CellRangeAddress(0,0,0,headers.length-1));
 
-            // Fila 1: encabezados
+            // Nombre alumno
             Row r1 = sheet.createRow(1);
+            Cell c1 = r1.createCell(0);
+            c1.setCellValue("Alumno: " + nombreAlumno);
+            c1.setCellStyle(titleSt);
+            sheet.addMergedRegion(new CellRangeAddress(1,1,0,headers.length-1));
+
+            // Nivel/Grado/Sección
+            Row r2 = sheet.createRow(2);
+            Cell c2 = r2.createCell(0);
+            c2.setCellValue(String.format("Nivel: %s   Grado: %s   Sección: %s", nivelTexto, gradoTexto, seccionTexto));
+            sheet.addMergedRegion(new CellRangeAddress(2,2,0,headers.length-1));
+
+            // Encabezados
+            Row r3 = sheet.createRow(3);
             for (int i=0; i<headers.length; i++) {
-                Cell hc = r1.createCell(i);
+                Cell hc = r3.createCell(i);
                 hc.setCellValue(headers[i]);
                 hc.setCellStyle(hdrSt);
             }
 
-            // Datos
-            int rn=2;
-            for (String[] dr : data) {
+            // Datos o fila vacía
+            int rn=4;
+            if (data.isEmpty()) {
                 Row row = sheet.createRow(rn++);
-                for (int j=0; j<dr.length; j++) {
-                    row.createCell(j).setCellValue(dr[j]);
+                Cell c = row.createCell(0);
+                c.setCellValue("Sin registros");
+                for (int i=1; i<headers.length; i++) {
+                    row.createCell(i).setCellValue("");
+                }
+            } else {
+                for (String[] dr : data) {
+                    Row row = sheet.createRow(rn++);
+                    for (int j=0; j<dr.length; j++) {
+                        row.createCell(j).setCellValue(dr[j]);
+                    }
                 }
             }
 
@@ -577,65 +963,7 @@ public class ReporteDAO {
             wb.write(baos);
             return baos.toByteArray();
         } catch (Exception e) {
-            throw new RuntimeException("Error generando Excel", e);
-        }
-    }
-
-    private byte[] generarWord(String[] headers,
-                               List<String[]> data,
-                               String titulo,
-                               String periodoTexto,
-                               String anioTexto,
-                               String nivelTexto,
-                               String gradoTexto,
-                               String seccionTexto) {
-        try (XWPFDocument doc = new XWPFDocument();
-             ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-
-            // Colegio
-            XWPFParagraph p0 = doc.createParagraph();
-            p0.setAlignment(ParagraphAlignment.CENTER);
-            XWPFRun r0 = p0.createRun();
-            r0.setBold(true); r0.setFontSize(16);
-            r0.setText(NOMBRE_COLEGIO);
-
-            // Título
-            XWPFParagraph p1 = doc.createParagraph();
-            p1.setAlignment(ParagraphAlignment.CENTER);
-            XWPFRun r1 = p1.createRun();
-            r1.setBold(true); r1.setFontSize(12);
-            r1.setText(String.format("%s – %s / Año %s", titulo, periodoTexto, anioTexto));
-
-            // Nivel / Grado / Sección
-            XWPFParagraph p2 = doc.createParagraph();
-            p2.setAlignment(ParagraphAlignment.CENTER);
-            p2.createRun().setText(
-                String.format("Nivel: %s   Grado: %s   Sección: %s",
-                    nivelTexto, gradoTexto, seccionTexto)
-            );
-
-            doc.createParagraph().createRun().addBreak();
-
-            // Tabla
-            XWPFTable tbl = doc.createTable();
-            XWPFTableRow hr = tbl.getRow(0);
-            for (int i=0; i<headers.length; i++) {
-                XWPFTableCell cell = (i==0 ? hr.getCell(0) : hr.addNewTableCell());
-                cell.setText(headers[i]);
-                CTShd hd = cell.getCTTc().getTcPr().addNewShd();
-                hd.setFill("A9A9A9");
-            }
-            for (String[] dr : data) {
-                XWPFTableRow rw = tbl.createRow();
-                for (int i=0; i<dr.length; i++) {
-                    rw.getCell(i).setText(dr[i] != null ? dr[i] : "");
-                }
-            }
-
-            doc.write(baos);
-            return baos.toByteArray();
-        } catch (Exception e) {
-            throw new RuntimeException("Error generando Word", e);
+            throw new RuntimeException("Error generando Excel vertical", e);
         }
     }
 
@@ -646,22 +974,22 @@ public class ReporteDAO {
             throws SQLException {
 
         // 1) obtengo abreviaturas de asignaturas (método horizontal)
-        String sqlAsig =
-            "SELECT DISTINCT c.nombre AS nombre, m.orden " +
-            "FROM malla_curricular m " +
-            " JOIN apertura_seccion aps ON m.id_apertura_seccion=aps.id_apertura_seccion " +
-            " JOIN malla_criterio mc ON m.id_malla_curricular=mc.id_malla_curricular " +
-            " JOIN curso c ON m.id_curso=c.id_curso " +
-            "WHERE aps.id_anio_lectivo=? AND mc.id_periodo=? AND aps.id_seccion=? " +
-            "ORDER BY m.orden";
+        String sqlAsig ="SELECT DISTINCT c.nombre AS nombre, m.orden " +
+                        "FROM malla_curricular m " +
+                        " JOIN apertura_seccion aps ON m.id_apertura_seccion = aps.id_apertura_seccion " +
+                        " JOIN curso c ON m.id_curso = c.id_curso " +
+                        "WHERE aps.id_anio_lectivo = ? AND aps.id_seccion = ? " +
+                        "  AND aps.id_grado = ? AND aps.activo = 1 AND m.activo = 1 " +
+                        "ORDER BY m.orden";
+
 
         List<String> todas = new ArrayList<>();
         List<String> calc  = new ArrayList<>();
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement ps = conn.prepareStatement(sqlAsig)) {
             ps.setInt(1, anioId);
-            ps.setInt(2, periodoId);
-            ps.setInt(3, seccionId);
+            ps.setInt(2, seccionId);
+            ps.setInt(3, gradoId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     String nombre = rs.getString("nombre");
@@ -740,7 +1068,7 @@ public class ReporteDAO {
 
         // 6) construyo encabezados
         List<String> hdr = new ArrayList<>();
-        hdr.add("No"); hdr.add("Apellidos y Nombres");
+        hdr.add("Nº"); hdr.add("Apellidos y Nombres");
         hdr.addAll(todas);
         hdr.addAll(Arrays.asList("PTJ","PRO","OM","DES"));
 
@@ -786,7 +1114,7 @@ public class ReporteDAO {
     }
 
     private String convertirANotaLetra(Double n) {
-        if (n==null) return "SN";
+        if (n == null || n == 0) return "";
         if (n>=18) return "AD";
         if (n>=15) return "A";
         if (n>=13) return "B";
@@ -811,15 +1139,26 @@ public class ReporteDAO {
             .map(Seccion::getNombre).findFirst().orElse("");
     }
 
-    private String nombrePeriodo(int anioId, int periodoId, String mesCodigo) {
-        String base = periodoDAO.listarPorAnioLectivo(anioId).stream()
-            .filter(p -> p.getIdPeriodo()==periodoId)
-            .map(Periodo::getNombre)
-            .findFirst().orElse("Periodo " + periodoId);
-        return (mesCodigo!=null && !mesCodigo.isEmpty())
-            ? base + " – Mes " + mesCodigo
-            : base;
+    private String nombrePeriodo(int anioId, int periodoId) {
+        Optional<Periodo> opt = periodoDAO
+            .listarPorAnioLectivo(anioId).stream()
+            .filter(p -> p.getIdPeriodo() == periodoId)
+            .findFirst();
+
+        if (!opt.isPresent()) {
+            return "Periodo " + periodoId;
+        }
+
+        Periodo p = opt.get();
+        String nombre = "Bimestre " + p.getBimestre();
+
+        if ("mensual".equalsIgnoreCase(p.getTipo())) {
+            nombre += " – Mes " + p.getMes();
+        }
+
+        return nombre;
     }
+
 
     private int lookupId(String tipo, String nombre) throws SQLException {
         String table = tipo.equals("nivel") ? "nivel"
@@ -835,13 +1174,6 @@ public class ReporteDAO {
         }
         throw new SQLException("No se encontró " + tipo + " con nombre " + nombre);
     }
-    /*
-    private String abreviarCurso(String nombreCurso) {
-        return Arrays.stream(nombreCurso.split("\\s+"))
-                     .map(w -> w.substring(0,1).toUpperCase())
-                     .collect(Collectors.joining());
-    }
-    */
     public String abreviarCurso(String nombreCurso) {
         String[] palabras = nombreCurso.split("\\s+");
 

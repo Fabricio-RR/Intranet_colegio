@@ -17,12 +17,14 @@ public class ReporteService {
         this.bitacoraDAO = new BitacoraDAO();
     }
 
-    // 1. Asistencia (mensual)
-    public byte[] generarAsistencia(int idUsuario, int anio, int periodo, String mes,
+    // 1. Asistencia (mensual) — sin parámetro mes
+    public byte[] generarAsistencia(int idUsuario, int anio, int periodo,
                                     int nivel, int grado, int seccion,
-                                    String alumnoFiltro, String formato) throws IOException {
+                                    String alumnoFiltro, String formato) {
         try {
-            byte[] archivo = reporteDAO.generarAsistencia(anio, periodo, mes, nivel, grado, seccion, alumnoFiltro, formato);
+            byte[] archivo = reporteDAO.generarAsistencia(
+                anio, periodo, nivel, grado, seccion, alumnoFiltro, formato
+            );
             bitacoraDAO.registrarBitacora(idUsuario, "reporte", "descargar_asistencia");
             return archivo;
         } catch (Exception e) {
@@ -31,12 +33,14 @@ public class ReporteService {
         }
     }
 
-    // 2. Rendimiento Académico (mensual)
-    public byte[] generarRendimiento(int idUsuario, int anio, int periodo, String mes,
+    // 2. Rendimiento Académico (mensual) — sin parámetro mes
+    public byte[] generarRendimiento(int idUsuario, int anio, int periodo,
                                      int nivel, int grado, int seccion,
                                      String alumnoFiltro, String formato) {
         try {
-            byte[] archivo = reporteDAO.generarRendimiento(anio, periodo, mes, nivel, grado, seccion, alumnoFiltro, formato);
+            byte[] archivo = reporteDAO.generarRendimiento(
+                anio, periodo, nivel, grado, seccion, alumnoFiltro, formato
+            );
             bitacoraDAO.registrarBitacora(idUsuario, "reporte", "descargar_rendimiento");
             return archivo;
         } catch (Exception e) {
@@ -45,12 +49,14 @@ public class ReporteService {
         }
     }
 
-    // 3. Consolidado de Notas
-    public byte[] generarConsolidado(int idUsuario, int anio, int periodo, String mes,
+    // 3. Consolidado de Notas (mensual) — sin parámetro mes
+    public byte[] generarConsolidado(int idUsuario, int anio, int periodo,
                                      int nivel, int grado, int seccion,
                                      String tipoNota, String alumnoFiltro, String formato) {
         try {
-            byte[] archivo = reporteDAO.generarConsolidado(anio, periodo, mes, nivel, grado, seccion, tipoNota, alumnoFiltro, formato);
+            byte[] archivo = reporteDAO.generarConsolidado(
+                anio, periodo, nivel, grado, seccion, tipoNota, alumnoFiltro, formato
+            );
             bitacoraDAO.registrarBitacora(idUsuario, "reporte", "descargar_consolidado");
             return archivo;
         } catch (Exception e) {
@@ -59,12 +65,14 @@ public class ReporteService {
         }
     }
 
-    // 4. Libreta de Notas bimestral
-    public byte[] generarLibretaBimestral(int idUsuario, int anio, int bimestre,
+    // 4. Libreta de Notas Bimestral
+    public byte[] generarLibretaBimestral(int idUsuario, int anio, int periodo,
                                           int nivel, int grado, int seccion,
                                           String tipoNota, String alumnoFiltro, String formato) {
         try {
-            byte[] archivo = reporteDAO.generarLibretaBimestral(anio, bimestre, nivel, grado, seccion, tipoNota, alumnoFiltro, formato);
+            byte[] archivo = reporteDAO.generarLibretaBimestral(
+                anio, periodo, nivel, grado, seccion, tipoNota, alumnoFiltro, formato
+            );
             bitacoraDAO.registrarBitacora(idUsuario, "reporte", "descargar_libreta_bimestral");
             return archivo;
         } catch (Exception e) {
@@ -78,7 +86,9 @@ public class ReporteService {
                                         int nivel, int grado, int seccion,
                                         String tipoNota, String alumnoFiltro, String formato) {
         try {
-            byte[] archivo = reporteDAO.generarLibretaGeneral(anio, nivel, grado, seccion, tipoNota, alumnoFiltro, formato);
+            byte[] archivo = reporteDAO.generarLibretaGeneral(
+                anio, nivel, grado, seccion, tipoNota, alumnoFiltro, formato
+            );
             bitacoraDAO.registrarBitacora(idUsuario, "reporte", "descargar_libreta_general");
             return archivo;
         } catch (Exception e) {
@@ -87,11 +97,21 @@ public class ReporteService {
         }
     }
 
-    // 6. Progreso del Alumno (mensual)
-    public byte[] generarProgreso(int idUsuario, int anio, int nivel, int grado, int seccion,
-                                  String alumnoFiltro, String formato) {
+    //  Progreso del Alumno (mensual)
+    public byte[] generarProgreso(int idUsuario,
+                                  int anio,
+                                  int periodo,
+                                  int nivel,
+                                  int grado,
+                                  int seccion,
+                                  String alumnoFiltro,
+                                  String tipoNota,
+                                  String formato) {
         try {
-            byte[] archivo = reporteDAO.generarProgreso(anio, nivel, grado, seccion, alumnoFiltro, formato);
+            byte[] archivo = reporteDAO.generarProgreso(
+                anio, periodo, nivel, grado, seccion,
+                alumnoFiltro, tipoNota, formato
+            );
             bitacoraDAO.registrarBitacora(idUsuario, "reporte", "descargar_progreso");
             return archivo;
         } catch (Exception e) {
@@ -100,28 +120,17 @@ public class ReporteService {
         }
     }
 
-    // 7. Certificado de Desempeño (anual)
-    public byte[] generarCertificadoAnual(int idUsuario, int anio, int nivel, int grado, int seccion,
-                                          String alumnoFiltro, String formato) {
-        try {
-            byte[] archivo = reporteDAO.generarCertificadoAnual(anio, nivel, grado, seccion, alumnoFiltro, formato);
-            bitacoraDAO.registrarBitacora(idUsuario, "reporte", "descargar_certificado");
-            return archivo;
-        } catch (Exception e) {
-            bitacoraDAO.registrarBitacora(idUsuario, "reporte", "error_certificado");
-            throw new RuntimeException("Error generando certificado anual", e);
-        }
-    }
-
-    // 8. Empaquetar varios informes en ZIP
-    public byte[] generarBloqueZip(int idUsuario, int anio, String periodo,
+    //  Empaquetar varios informes en ZIP
+    public byte[] generarBloqueZip(int idUsuario, int anio, String periodoStr,
                                    String nivelName, String gradoName, String seccionName,
                                    String tipoReporte, String tipoNota,
                                    String alumnoFiltro, String formato)
             throws IOException, SQLException {
         try {
-            byte[] zip = reporteDAO.generarBloqueZip(anio, periodo, nivelName, gradoName, seccionName,
-                                                     tipoReporte, tipoNota, alumnoFiltro, formato);
+            byte[] zip = reporteDAO.generarBloqueZip(
+                anio, periodoStr, nivelName, gradoName, seccionName,
+                tipoReporte, tipoNota, alumnoFiltro, formato
+            );
             bitacoraDAO.registrarBitacora(idUsuario, "reporte", "descargar_bloque_zip");
             return zip;
         } catch (Exception e) {

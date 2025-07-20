@@ -22,37 +22,38 @@
       </thead>
       <tbody>
         <c:forEach var="item" items="${detalleMalla}" varStatus="st">
-          <tr>
-            <td class="text-center">${st.index + 1}</td>
-            <td>${item.grado}</td>
-            <td>${item.seccion}</td>
-            <td>${item.nombreCurso}</td>
-            <td>
-              <select name="idDocente_${item.idMalla}" class="form-select form-select-sm">
-                <option value="">-- Sin docente --</option>
-                <c:forEach var="doc" items="${docentes}">
-                  <option value="${doc.idUsuario}" <c:if test="${doc.idUsuario eq item.idDocente}">selected</c:if>>
-                    ${doc.nombres} ${doc.apellidos}
-                  </option>
-                </c:forEach>
-              </select>
-            </td>
-            <td class="text-center">
-              <input type="number" name="orden_${item.idMalla}" value="${item.orden}" class="form-control form-control-sm text-center" min="1" />
-            </td>
-            <td class="text-center">
-              <input type="checkbox" name="activo_${item.idMalla}" ${item.activo ? 'checked' : ''} />
-            </td>
-            <input type="hidden" name="idMalla[]" value="${item.idMalla}" />
-          </tr>
+            <tr>
+              <td class="text-center">${st.index + 1}</td>
+              <td>${item.grado}</td>
+              <td>${item.seccion}</td>
+              <td>${item.nombreCurso}</td>
+              <td>
+                <select name="idDocente_${item.idMalla}" class="form-select form-select-sm">
+                  <option value="">-- Sin docente --</option>
+                  <c:forEach var="doc" items="${docentes}">
+                    <option value="${doc.idUsuario}" <c:if test="${doc.idUsuario eq item.idDocente}">selected</c:if>>
+                      ${doc.nombres} ${doc.apellidos}
+                    </option>
+                  </c:forEach>
+                </select>
+              </td>
+              <td class="text-center">
+                <input type="number" name="orden_${item.idMalla}" value="${item.orden}" class="form-control form-control-sm text-center" min="1" />
+              </td>
+              <td class="text-center">
+                <input type="hidden" name="activo_${item.idMalla}" value="0"/>
+                <input type="checkbox" name="activo_${item.idMalla}" value="1" ${item.activo ? 'checked' : ''} />
+              </td>
+              <input type="hidden" name="idMalla[]" value="${item.idMalla}" />
+            </tr>
         </c:forEach>
       </tbody>
     </table>
   </div>
   <div class="text-end mt-3">
-    <button type="submit" class="btn btn-admin-primary">
-      <i class="fas fa-save me-1"></i>Guardar Cambios
-    </button>
+    <button type="submit" name="action" value="actualizarPorNivel" class="btn btn-admin-primary">
+        <i class="fas fa-save me-1"></i> Guardar Cambios
+      </button>
     <button type="button" class="btn btn-outline-secondary ms-2" data-bs-dismiss="modal">
       Cancelar
     </button>

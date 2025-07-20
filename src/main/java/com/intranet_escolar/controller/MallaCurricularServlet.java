@@ -58,6 +58,7 @@ public class MallaCurricularServlet extends HttpServlet {
             throws ServletException, IOException {
 
         String action = req.getParameter("action");
+        System.out.println("[MallaCurricularServlet] action recibido = " + action);
 
         switch (action == null ? "" : action) {
             case "masiva"             -> crearMallaMasiva(req, resp);
@@ -231,7 +232,7 @@ public class MallaCurricularServlet extends HttpServlet {
     /** Actualizar por nivel (desde formulario edición) */
     private void actualizarPorNivel(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
-
+        
         String[] ids = req.getParameterValues("idMalla[]");
         boolean  ok  = true;
         Usuario  usr = SesionUtil.getUsuarioLogueado(req);
@@ -244,7 +245,8 @@ public class MallaCurricularServlet extends HttpServlet {
                         req.getParameter("idDocente_" + idMalla));
                 int orden     = Integer.parseInt(
                         req.getParameter("orden_"    + idMalla));
-                boolean activo= "1".equals(req.getParameter("activo_" + idMalla));
+                String[] activos = req.getParameterValues("activo_" + idMalla);
+                boolean activo = activos != null && "1".equals(activos[activos.length - 1]);
 
                 MallaCurricular m = new MallaCurricular();
                 m.setIdMalla  (idMalla);
